@@ -1,5 +1,5 @@
 function RMPC3(delta,eps)
-    clc
+    %clc
     %clear all
     close all
     format long
@@ -8,7 +8,8 @@ function RMPC3(delta,eps)
     addpath(genpath('/home/roccosalvia/Documents/MATLAB/MPT/tbxmanager'))
     %%
     %Inverted Pendulum example
-    %delta=.1;
+    delta=.1;
+    eps=.001;
     g = 9.81;
     m = .344;
     b = 0.48;
@@ -399,17 +400,17 @@ function RMPC3(delta,eps)
 
         end
         %Finding bounds for all regions
-%         eee=1;
-%         for ee=1:1:2*size(A,1)
-%             if mod(ee,2)==1
-%                 X(i,ee)=min(minn1(eee));
-%             else
-%                 X(i,ee)=max(maxx1(eee));
-%             end
-%             if mod(ee,2)==0
-%                 eee=eee+1;
-%             end
-%         end
+        eee=1;
+        for ee=1:1:2*size(A,1)
+            if mod(ee,2)==1
+                X(i,ee)=min(minn1(eee));
+            else
+                X(i,ee)=max(maxx1(eee));
+            end
+            if mod(ee,2)==0
+                eee=eee+1;
+            end
+        end
         X(i,1:4)=[minn_reg(1),maxx_reg(1),minn_reg(2),maxx_reg(2)];%just for 2D
         nn=nn+Nc(i);            
     end 
@@ -440,6 +441,8 @@ function RMPC3(delta,eps)
         ineq_set_right=K(nn+1:nn+Nc(reg),:);%K partition for region 'reg'
         V_reg=[];
         V_reg=lcon2vert(ineq_set_left,ineq_set_right,[],[]);%set of all vertices of region 'reg'
+        min_line=[];
+        max_line=[];
         for line_ind=1:1:size(ineq_set_left,1)
             for ver_ind=1:1:size(V_reg,1)
                 if abs(ineq_set_left(line_ind,:)*V_reg(ver_ind,:)'-ineq_set_right(line_ind))<1e-6
@@ -450,10 +453,10 @@ function RMPC3(delta,eps)
                         end
                     else
                         for line_dim=1:1:size(A,1)
-                            if V_reg(ver_ind,line_dim)<min_line(line_ind)
+                            if V_reg(ver_ind,line_dim)<min_line(line_ind,line_dim)
                                 min_line(line_ind,line_dim)=V_reg(ver_ind,line_dim);
                             end
-                            if V_reg(ver_ind,line_dim)>max_line(line_ind)
+                            if V_reg(ver_ind,line_dim)>max_line(line_ind,line_dim)
                                 max_line(line_ind,line_dim)=V_reg(ver_ind,line_dim);
                             end
                         end
@@ -462,15 +465,13 @@ function RMPC3(delta,eps)
                     
                 end
             end
-            if line_ind_glob==15
-                eee=1;
-            end
+
                 
             for dim=1:1:size(A,1)
                 if dim==1
                     
                     LINE_RANGE(line_ind_glob,1:2+size(A,1)+1)=[ineq_set_left(line_ind,:),ineq_set_right(line_ind),min_line(line_ind,dim),max_line(line_ind,dim)];
-                    pointer=6;
+                    pointer=4+size(A,1);
                 else
                     LINE_RANGE(line_ind_glob,pointer:pointer+1)=[min_line(line_ind,dim),max_line(line_ind,dim)];
                     pointer=pointer+2;
