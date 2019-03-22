@@ -214,9 +214,15 @@ def scanOutputMatlabForMaxUiUj(outputFile):
 #### INPUT PARAMETERS ##################################################
 ########################################################################
 
-matlabDelta="0.1" #max disturbance input to Matlab
-epsilon="0.001" #size of the tubes
-filename="cruise"
+if len(sys.argv)<4:
+	print "Arg-1 MATLAB delta\n"
+	print "Arg-2 epsilon\n"
+	print "Arg-3 filename for temporary files\n"
+	exit("Please provide input parameters. Ex. python executor.py 0.1 0.001 pendulum")
+	
+matlabDelta=str(sys.argv[1]) #"0.1" max disturbance input to Matlab
+epsilon=str(sys.argv[2]) #"0.001" size of the tubes
+filename=str(sys.argv[3]) #"pendulum"
 
 outputFile="outputMatlab.txt"
 spaceForFPError="N/A"

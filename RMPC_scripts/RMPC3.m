@@ -8,8 +8,6 @@ function RMPC3(delta,eps)
     addpath(genpath('/home/roccosalvia/Documents/MATLAB/MPT/tbxmanager'))
     %%
     %Inverted Pendulum example
-    delta=.1;
-    eps=.001;
     g = 9.81;
     m = .344;
     b = 0.48;

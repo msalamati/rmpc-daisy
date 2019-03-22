@@ -87,15 +87,12 @@ def PrecisionTuningForFXG(filename,dimensions,NumControllers,X,F,G,precision="0"
 		traceUNI=open("./output/UNI_Trace_"+filename+"_controllers_"+str(i)+".txt","w")
 		pUNI=subprocess.Popen(exeUNI,shell=False,stdout=traceUNI)
 		
-		pUNI.wait()
-
-
 		exeMIX=shlex.split(lineMIX)
 		traceMIX=open("./output/MIX_Trace_"+filename+"_controllers_"+str(i)+".txt","w")
 		pMIX=subprocess.Popen(exeMIX,shell=False,stdout=traceMIX)
 		
 		pMIX.wait()
-		
+		pUNI.wait()
 		
 		#processes.append(pUNI)
 		#processes.append(pMIX)
