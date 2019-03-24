@@ -167,7 +167,33 @@ def scanOutputMatlabForNeighbours(namefile,dimensions,epsilon):
 		deltaX[(r1,r2)]=[lb_res,ub_res]
 		deltaX[(r1,r2)]=deltaX[(r1,r2)]+processVertices(V_raw[index],epsilon,dimensions)
 	return deltaX
-
+	
+#X = 
+#  0.339531763313931  0.409132095915895  0.002013454439208  1.035036634585799  
+#  -0.082807971696691  0.390663851893068  0.002013454439208  1.439521447065755 
+def scanOutputMatlabForMax_X(namefile,dimensions):
+	f= open(namefile)
+	lines=f.readlines()
+	f.close()
+	X_raw=getMatrixFromPattern("X =",lines)
+	MAX_X={}
+	for i in range(0,dimensions):
+		MAX_X["X"+str(i)+"_0"]=Decimal("+Infinity")
+		MAX_X["X"+str(i)+"_1"]=Decimal("-Infinity")
+	for index,line in enumerate(X_raw):
+		values=line.split()
+		i=0
+		index_x=0
+		while i < len(values):
+			if MAX_X["X"+str(index_x)+"_0"]>Decimal(values[i]):
+				MAX_X["X"+str(index_x)+"_0"]=Decimal(values[i])
+				
+			if MAX_X["X"+str(index_x)+"_1"]<Decimal(values[i+1]):
+				MAX_X["X"+str(index_x)+"_1"]=Decimal(values[i+1])
+			i=i+2
+			index_x=index_x+1
+	return MAX_X
+	
 def scanOutputMatlabFor_X_(namefile,epsilon):
 	f= open(namefile)
 	lines=f.readlines()
@@ -236,7 +262,10 @@ start = time.time()
 
 while True:
 	
-	print "Robustness coefficient (delta) given to MATLAB: "+matlabDelta+"\n\n"	
+	print "Robustness coefficient (delta) given to MATLAB: "+matlabDelta+"\n\n"
+	
+	print "Size of the tubes (epsilon): "+epsilon+"\n\n"	
+
 	
 	if os.path.exists("./output/"):
 		shutil.rmtree("./output/", ignore_errors=True)
@@ -300,16 +329,24 @@ end = time.time()
 print "\n\nRESULTS: \n"
 print "Execution time of the analysis: "+str((end - start)/60.0)+" min"
 print "Delta = "+str(matlabDelta)
+print "Epsilon = "+str(epsilon)
 print "Max |Ui - Uj| = "+str(maxUiUj)
+print "Number of regions = "+str(len(F))
+print "Number of hyperplanes = "+str(getNumberofHyperplanes(HXK))
+print "State Space X bounds: "+str(scanOutputMatlabForMax_X(outputFile,dimensions))
 print "Space for FP error = " + str(spaceForFPError)
 print "\n\n"
-print "Precision for Controllers(F and G) UNIFORM: Float"+str(maxValueCtr)+", Total number of bits: "+str(maxPrecCtr)
+print "Precision for Controllers(F and G) UNIFORM: Fixed32, Total number of bits: "+str(32*numControllers*6)+"\n"
+print "Precision for Controllers(F and G) UNIFORM: Fixed"+str(maxValueCtr)+", Total number of bits: "+str(maxPrecCtr)
 print "Precision for Controllers(F and G) MIX: total number of bits: "+str(totPrecCtr)
 print "Mixed uses "+str(100.0-(float(totPrecCtr)/maxPrecCtr)*100.0)+"% less than uniform\n\n"
 
-print "Precision for Controllers(H and K) UNIFORM: Float"+str(maxValueBrd)+" Total number of bits: "+str(maxPrecBrd)
+print "Precision for Controllers(H and K) UNIFORM: Fixed32, Total number of bits: "+str(32*getNumberofHyperplanes(HXK)*6)
+print "Precision for Controllers(H and K) UNIFORM: Fixed"+str(maxValueBrd)+", Total number of bits: "+str(maxPrecBrd)
 print "Precision for Controllers(H and K) MIX: total number of bits: "+str(totPrecBrd)
 print "Mixed uses "+str(100.0-(float(totPrecBrd)/maxPrecBrd)*100.0)+"% less than uniform"
+
+
 
 print "\n\n###COMPLETE###"
 exit(0)

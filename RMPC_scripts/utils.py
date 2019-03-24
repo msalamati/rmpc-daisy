@@ -188,3 +188,10 @@ def getMaxErrorFromChoise(filename,deltaX):
 	
 	#print maxError
 	return maxError
+
+def getNumberofHyperplanes(HXK):
+	tot=0
+	for key in HXK:
+		for equation in HXK[key]:
+			tot=tot+1
+	return tot
