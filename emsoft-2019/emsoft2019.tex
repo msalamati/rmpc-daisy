@@ -238,30 +238,29 @@ Where $V_{cc}$ is the reference voltage of the converter (e.g. typical 5V) and $
 
 The second error affecting the size of the \texttt{tube} is caused by (ii) the quantization of region bounds in the memory of the micro-controller. We call this error $\varepsilon_{Q}$ for error quantization.
 
-While $\varepsilon_{A/D}$ is intrinsic in the capabilities of the device, $\varepsilon_{Q}$ depends on the precision used to store the boundaries. This second error can be regulated based on a trade-off among accuracy of the storage and memory save.
+While $\varepsilon_{A/D}$ is intrinsic in the capabilities of the device, $\varepsilon_{Q}$ depends on the precision used to store the boundaries. This second error can be regulated based on a trade-off among accuracy of the storage and memory save~\cite{memoryMPC}.
 
 The total size of the \texttt{tube} is then:
 \begin{equation}\label{eq:epsilontot}
 \varepsilon=\varepsilon_{A/D}+\varepsilon_{Q}
 \end{equation}
 \section{Finite Precision Implementation}
-The output of the controller can be affected by two main errors: (i) the first one happens when the controller chooses the wrong activation function because of $\varepsilon$ in (\ref{eq:epsilontot}), while the second one (ii) is the approximation error deriving from the finite precision arithmetic used to compute the activation function itself.
+The output of the controller can be affected by two main errors: (i) the controller chooses the wrong activation function because of $\varepsilon$ in (\ref{eq:epsilontot}), while (ii) is the approximation error deriving from the finite precision arithmetic used to compute the activation function itself~\cite{imperialrmpc}.
  
-The effect of selecting the wrong activation function are the same as instability in the conditional switch reported in Listing \ref{lst:caseof}: suppose an hypothetic scenario where all the measurements were done in infinite precision and without any uncertainty, the controller $i$ would be activated, but because of these limitations actually $j$ is selected. The resulting error is then the difference between the two branches $i$ and $j$ in Listing \ref{lst:caseof}.
+The effect of selecting the wrong activation function are similar to instability in the switch reported in Listing \ref{lst:caseof}. Suppose an hypothetic scenario where all the measurements were done in infinite precision and without any uncertainty: the controller $i$ would be activated. 
 
-The system has to be robust against a mistake in choosing controller $i$ instead of $j$ only when \qstatevarmath falls into the \texttt{tube} between $i$ and $j$, and not for all the points in the two regions.
+Instead, because of these limitations controller $j$ is selected. The resulting error is then the difference between the output of the two branches $i$ and $j$.
+
+The system has to be robust against a mistake in choosing controller $i$ instead of $j$ (or vice-versa) only when \qstatevarmath falls into the \texttt{tube} between $i$ and $j$, and not for all the points in the two regions.
 
 In the following, we assume $i$ and $j$ are the index of two generic regions in \statespace:
-
-%\begin{equation}
 \begin{flalign}
 \label{eq:maximization}
 &\max_{\forall i,j\;|\;neighbour(i,j)}|u_{i}-u_{j}| = \\
-&\max_{\forall i,j\;|\;neighbour(i,j)}|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|
+&\max_{\forall i,j\;|\;neighbour(i,j)}|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|\nonumber
 \end{flalign}
-%\end{equation}
 
-Because of the linearity of the function $U_{i}-U_{j}$, and because of the convexity of regions $i$, $j$ it is enough to evaluate function (\ref{eq:maximization}) at the corners of the \texttt{tube}.
+Because of the linearity of the function $u_{i}-u_{j}$, and because of the convexity of the regions $i$, $j$ it is enough to evaluate function (\ref{eq:maximization}) at the corners of the \texttt{tube}.
 
 %The geometrical space where $\hat{X}$ activates $U_{i}$, while X would activate $U_{j}$ can be bounded thanks to a preliminary knowledge of the error $\varepsilon$: the distance between region $i$ and $j$ such that:
 %\begin{equation}
@@ -275,7 +274,7 @@ In formula $\exists\; m,n \;$such that:
 \begin{equation}
 (H_{i}\statevar-K_{j})_{m} = (H_{j}\statevar-K_{j})_{n}
 \end{equation}
-where $m$ and $n$ are the index of the two matching borders. We label $border_{i,j}$ the matching border shared among the two regions.
+where $m$ and $n$ are the index of the two matching borders. We label with $border_{i,j}$ the matching border shared among the two regions.
 
 Starting from the equation of $border_{i,j}$, we delimit the geometrical space where it makes sense to compute (\ref{eq:maximization}) with: 
 \begin{equation}
@@ -284,6 +283,8 @@ border_{i,j} >= -\varepsilon\\
 border_{i,j} <= \varepsilon
 \end{aligned} 
 \end{equation}
+where $\varepsilon$ is defined in (\ref{eq:epsilontot}).
+
 We call such geometrical space the \texttt{tube} between $i$ and $j$.
 
 When \qstatevarmath belongs to the \texttt{tube}, it might be that $u_{i}$ is activated instead of $u_{j}$ (or vice-versa). Otherwise, when \qstatevarmath does not belong to the tube, no matter the error \texttt{err}, the right activation function is activated, and we consider only the error deriving from the computation itself.
@@ -315,20 +316,21 @@ In formula:
 \end{flalign}
 
 \section{Precision Tuning}
-In formula (\ref{eq:epsilontot}), the equation for $\varepsilon$ contains: $\varepsilon_{A/D}$ that is the error introduced by the analog-digital conversion, and $\varepsilon_{Q}$ generated by the quantization of hyperplanes H and K in a finite number of bits.
+In formula (\ref{eq:epsilontot}), the equation for $\varepsilon$ contains: $\varepsilon_{A/D}$ that is the error introduced by the analog-digital conversion, and $\varepsilon_{Q}$ that is generated by the quantization of hyperplanes $H\statevar<=K$ in a finite number of bits.
 This $\varepsilon_{Q}$ can be tuned based on memory availability in the micro-controller.
 The rule for $\varepsilon_{Q}$ is the following:
 \begin{equation}\label{eq:quantizationlines}
 \varepsilon_{Q} > (H-(\hat{H})_{p})\qstatevar+(K-(\hat{K})_{p})
 \end{equation}
-This inequality assures that the distance between any hyperplane represented in infinite precision, and the counter-part quantized in p bits, is bounded by $\varepsilon_{Q}$. 
+This inequality assures that the distance between any hyperplane represented in infinite precision, and its counter-part quantized in p bits, is bounded by $\varepsilon_{Q}$. 
 
-Our goal is to solve (\ref{eq:quantizationlines}) with respect to p: find the minimal-precision for all the coefficients such that the inequality holds.
+Our goal is to solve (\ref{eq:quantizationlines}) with respect to p: find the minimal-precision p such that the inequality holds.
 
 The main advantage in doing this (compared to fixing the precision a priori), is that the value of p can be tuned based on the memory available in the micro-controller.
 
-To solve (\ref{eq:quantizationlines}) we used Daisy: a static analyzer for both floating-point and fixed-point expressions, able to provide a sound upper-bound to the maximal approximation error of an expression with respect to its real (infinite precision) counterpart. Because the magnitude of the round-off error depends on the range of input variable, all variables encoded in Daisy have to be bounded. 
-Since the state variable \statevarmath is bounded, and F,G,H,K are vectors of constants, we can rely on Daisy for this verification step.
+To solve (\ref{eq:quantizationlines}) we used Daisy: a static analyzer for finite precision expressions, able to provide a sound upper-bound to the maximal approximation error of an expression with respect to its real (infinite precision) counterpart. Since the magnitude of the round-off error depends on the range of input variables, any variable encoded in Daisy has to be bounded. 
+
+Since the state variable \statevarmath is bounded, and F,G,H, and K are vectors of constants, we can rely on Daisy for this verification step.
 
 In a similar way, we use Daisy to solve the inequality in (\ref{eq:delta}) with respect to p.
 
@@ -337,7 +339,7 @@ In a similar way, we use Daisy to solve the inequality in (\ref{eq:delta}) with 
 &delta - \Big(\max_{\forall i,j\;|\;neighbour(i,j)}|u_{i}-u_{j}|\Big)>=\\
 & \max_{\forall\;\regionimath{i}\;in\;\statespace} err(u_{i})_{p}\nonumber
 \end{flalign}
-We want to point out that the left side of the inequality is not parametrized in p. Only the right size of (\ref{eq:deltaminusmax}) actually depends on the precision p. Again, we encode (\ref{eq:deltaminusmax}) in Daisy to detect what is the minimal precision that still satisfy the inequality.
+We want to point out that the left side of the inequality is not parametrized in p. Only the right size of (\ref{eq:deltaminusmax}) actually depends on the precision p. We encode the inequality (\ref{eq:deltaminusmax}) in Daisy, to detect what is the minimal precision that satisfy the inequality.
 
 \section{Algorithm}
 
@@ -363,7 +365,7 @@ In Listing \ref{lst:alg} we describe the procedure used to design an MPC control
 
 First, the designer fixes the initial values for delta and $\varepsilon_{Q}$.
 
-Even if it possible to assign value zero to delta\cite{imperial}, we do not encourage such initialization: it is going to fail the analysis at least once, because the error in (\ref{eq:maxfperror}) is going to be greater than zero (even in case (\ref{eq:maximization}) is zero). A better initialization would be to set delta to an arbitrary small value, slightly greater than zero.
+Even if it possible to assign value zero to delta~\cite{imperialrmpc}, we do not encourage such initialization: it is going to fail the analysis at least once because the error in (\ref{eq:maxfperror}) is going to be greater than zero (even in case (\ref{eq:maximization}) is zero). A better initialization would be to set delta to an arbitrary small value, slightly greater than zero.
 
 On the other hand, the value for $\varepsilon_{Q}$ has to be strictly greater than zero, otherwise we could rely on infinite precision for p in (\ref{eq:quantizationlines}).
 
@@ -373,16 +375,15 @@ Then, we compute (\ref{eq:maximization}) and we compare the result with delta: w
 
 Again, in the conditional inside the loop, delta has to be strictly greater than \texttt{maxUij} otherwise we do not have space for computing the precision for (\ref{eq:deltaminusmax}).
 
-In case the conditional is verified,
+In case the conditional statement is verified,
 the precision tuning phase starts.
 For the precision tuning of activation functions, we allow an error that is bounded by \texttt{max\_err}. This is because we still need to satisfy (\ref{eq:delta}).
 On the other hand, the quantization of polytopes borders (the region bounds in \statespace) can produce an error that is at most $\varepsilon_{Q}$, in this way we satisfy 
 (\ref{eq:quantizationlines}).
 
-In case the conditional fails and \texttt{maxUij} is greater than delta, the controller needs to be re-designed with a robustness value that is at least equal to the current value of \texttt{maxUij}. The same consideration done for the initialization values holds also here: the constant $\varepsilon_{SAFE}$ is used to relax the value delta for the controller, to a slight greater value than \texttt{maxUij}. In this way, we aim to give some space to the precision tuning phase in the next iteration of the loop. Otherwise, in case of $\varepsilon_{SAFE}$ equal to zero, the next iteration of the precision tuning phase is going to require unnecessarily wide precision values p, usually greater than 32 bits. 
-We remark that the point of the analysis is to find a low precision configuration for bounds and activation functions.
-In case the analysis outputs a precision greater than 32bits, we fail in our goal.
-Then, with a minimal alteration to the upper bound of delta, we sensibly reduced the precision needed for $F$ and $G$, with respect to the standard 32 bits.
+In case the conditional fails and \texttt{maxUij} is greater than delta, the controller needs to be re-designed with a robustness value that is at least equal to the current value of \texttt{maxUij}. The same consideration done for the initialization of input parameters holds also here: the constant $\varepsilon_{SAFE}$ is used to relax the value delta for the controller, to a value slightly greater than \texttt{maxUij}. In this way, we aim to give some space to the precision tuning phase in the next iteration of the loop. Otherwise, in case of $\varepsilon_{SAFE}$ equal to zero, the next iteration of the precision tuning phase is going to require unnecessarily wide precision values p, usually greater than 32 bits. 
+We remark that the point of the analysis is to find a low precision configuration for bounds and activation functions: in case the analysis outputs a precision greater than 32bits, we fail in our goal.
+Then, with a minimal alteration to the upper bound of delta, we sensibly reduce the precision needed for $F$ and $G$, with respect to the standard 32 bits precision.
 
 \section{Experimental Results}
 
