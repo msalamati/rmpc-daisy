@@ -9,5 +9,6 @@
 # Install
 *  Clone this repository;
 *  Copy the all content of folder */RMPC_scripts* in the home directory of daisy project;
-*  modify script ...
+*  In both *RMPC_Aircraft.m* and *RMPC_Pendulum.m* substitute the following lines:
+**  
 *  Run `python executor.py`;
