@@ -9,4 +9,5 @@
 # Install
 *  Clone this repository;
 *  Copy the all content of folder */RMPC_scripts* in the home directory of daisy project;
+*  modify script ...
 *  Run `python executor.py`;
