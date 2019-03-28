@@ -7,6 +7,6 @@
 *  ...Matlab...
 
 # Install
-*  Clone the repository
+*  Clone this repository;
 *  Copy the all content of folder RMPC_scripts in the home directory of daisy project;
-*  Run `python executor.py`
+*  Run `python executor.py`;
