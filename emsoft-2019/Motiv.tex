@@ -42,7 +42,7 @@
 	\begin{figure*}[t]
 		\begin{tikzpicture}[auto, node distance=2cm,>=latex',scale=1]
 			\centering
-			\node [block, pin={[pinstyle]above:$\delta=\delta_0$},
+			\node [block, pin={[pinstyle]above:$\Delta=\Delta_0$},
 			node distance=5cm] (RMPC) {Robust MPC design};
 			\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
 			\node [block, right of=RMPC,
@@ -53,7 +53,7 @@
 			\node [block, right of=decide,
 			node distance=3cm] (done) {Done};
 			\node [block, below of= decide,
-			node distance=3cm] (delta) {increase $\delta$};
+			node distance=3cm] (delta) {increase $\Delta$};
 			
 			\draw [draw,->] (RMPC) -- node [pos=-.1] {}(mixed);
 			\draw [->] (mixed) -- node [name=aaa] {}(decide);
