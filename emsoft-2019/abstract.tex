@@ -1,0 +1,18 @@
+We propose an optimization for space-efficient implementations of explicit model-predictive controllers (MPC)
+for robust control of linear time invariant (LTI) systems on embedded platforms. 
+We obtain an explicit-form robust model-predictive controller as a solution to a multi-parametric 
+linear programming problem.
+The structure of the controller is a polyhedral decomposition of the control domain,
+with an affine map for each domain.
+While explicit MPC is suited for embedded devices with low computational power, the memory requirements
+for such controllers can be high.
+We provide an optimization algorithm for a mixed-precision implementation of the controller,
+where the deviation of the implemented controller from the original one is within the robustness
+margin of the robust control problem.
+The core of the mixed-precision optimization is an iterative static analysis that co-designs
+a robust controller and a low-bitwidth approximation 
+that is statically guaranteed to always be within the robustness margin to the original controller.
+We have implemented our algorithm and show, on a set of Simulink benchmarks, that our optimization
+can reduce space requirements by up to 20\% (and about 10\% on average), compared to a fixed precision
+implementation of the original controller.
+
