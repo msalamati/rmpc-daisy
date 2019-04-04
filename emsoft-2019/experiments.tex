@@ -1,1 +1,156 @@
 \section{Experimental Results}
+\subsection{Case of study: inverted pendulum}
+
+\begin{landscape}
+	\pagestyle{empty}
+\begin{table}[p]
+	\centering
+	\caption{Inverted Pendolum}
+	\label{tab:ipd}
+	\begin{tabular}{rrrrrrrrrrrrrrrr}
+		\cline{7-11}
+		\cline{12-16}
+		\multicolumn{4}{c}{} &
+		\multicolumn{2}{c}{} &
+		\multicolumn{5}{c|}{F and G} &
+		\multicolumn{5}{c}{H and K} \\
+		\hline
+		%\cline{5-6}
+		%\cline{9-12}
+		%\cline{13-16}
+		\multicolumn{1}{c}{Delta}&
+		\multicolumn{1}{c}{Eps} &
+		\multicolumn{1}{c}{Regs} &
+		\multicolumn{1}{c}{Hyps} &
+		\multicolumn{1}{c}{$max|U_{i}-U_{j}|$} &
+		\multicolumn{1}{c}{Err-Bound} &
+		\multicolumn{1}{c}{Uni32}&
+		\multicolumn{1}{c}{Uni}&
+		\multicolumn{1}{c}{Mix}&
+		\multicolumn{1}{c}{\%32vsU}&
+		\multicolumn{1}{c}{\%UvsM}&
+		\multicolumn{1}{c}{Uni32}&
+		\multicolumn{1}{c}{Uni}&
+		\multicolumn{1}{c}{Mix}&
+		\multicolumn{1}{c}{\%32vsU}&
+		\multicolumn{1}{c}{\%UvsM} \\
+		\hline
+		
+		\color{red}{0.30} & 0.001 & 14 & 58 & 0.019898948 & 0.280101052 & 2688 & 924 (uni11) & 759 & 65.63\% & 17.85\% & 11136 & 5568 (uni16) & 4991 & 50.00\% & 10.36\% \\
+		
+		\color{red}{0.20} & 0.001 & 14 & 58 & 0.019898948 & 0.180101052 & 2688 & 924 (uni11) & 806 & 65.63\% & 12.77\% & 11136 & 5568 (uni16)& 4992 & 50.00\% & 10.34\% \\
+		
+		\color{red}{0.10} & 0.001 & 14 & 58 & 0.019898948 & 0.080101052 & 2688 & 1008 (uni12) & 908 & 65.50\% & 9.92\% & 11136 & 5568 (uni16)& 4992 & 50.00\% & 10.34\% \\
+		
+		\color{red}{0.08} & 0.001 & 14 & 58 & 0.019898948 & 0.080101052 &2688 & 1092 (uni13) & 946 & 59.38\% & 13.36\% & 11136 & 5568 (uni16) & 4992 & 50.00\% & 10.34\% \\
+		
+		\color{red}{0.05} & 0.001 & 14 & 58 & 0.019898948 & 0.030101052 & 2688 & 1176 (uni14) & 1030 & 56.25\% & 12.41\% & 11136 & 5568 (uni16) & 4992 & 50.00\% & 10.34\% \\ \\
+		
+		% Starts Epsilon 
+		
+		0.1 & \color{red}{0.0006} & 14 & 58 & 0.011939369 & 0.088060631 & 2688 & 1008 (uni12) & 891 & 62.50\% & 11.60\% & 11136 & 5916 (uni17) & 5261 & 46.88\% & 11.07\% \\
+		
+		0.1 & \color{red}{0.0008} & 14 & 58 & 0.015919159 & 0.084080841 & 2688 & 1008 (uni12) & 901 & 62.50\% & 10.61\% & 11136 & 5568 (uni16) & 5135 & 50.00\% & 7.77\% \\
+		
+		0.1 & \color{red}{0.0010} & 14 & 58 & 0.019898948 & 0.080101052 & 2688 & 1008 (uni12) & 908 & 62.50\% & 9.92\% & 11136 & 5568 (uni16) & 4992 & 50.00\% & 10.34\% \\
+		
+		0.1 & \color{red}{0.0030} & 14 & 58 & 0.059696845 & 0.040303155 & 2688 &  1092 (uni13) & 993 & 59.38\% & 9.06\% & 11136 & 4872 (uni14) & 4462 & 56.25\% & 8.41\% \\
+		
+		0.1 & \color{red}{0.0050} & 14 & 58 & 0.099494741 & 0.000505259 & 2688 & 1680 (uni20) & 1527 & 37.50\% & 9.10\% & 11136 & 4872 (uni14) & 4204 & 56.25\% & 13.71\% \\
+		
+	\end{tabular}
+	\vspace*{1 cm}
+	\centering
+	\caption{Aircraft}
+	\label{tab:aircraft}
+	\begin{tabular}{rrrrrrrrrrrrrrrr}
+		\cline{7-11}
+		\cline{12-16}
+		\multicolumn{4}{c}{} &
+		\multicolumn{2}{c}{} &
+		\multicolumn{5}{c|}{F and G} &
+		\multicolumn{5}{c}{H and K} \\
+		\hline
+		%\cline{5-6}
+		%\cline{9-12}
+		%\cline{13-16}
+		\multicolumn{1}{c}{Delta}&
+		\multicolumn{1}{c}{Eps} &
+		\multicolumn{1}{c}{Regs} &
+		\multicolumn{1}{c}{Hyps} &
+		\multicolumn{1}{c}{$max|U_{i}-U_{j}|$} &
+		\multicolumn{1}{c}{Err-Bound} &
+		\multicolumn{1}{c}{Uni32}&
+		\multicolumn{1}{c}{Uni}&
+		\multicolumn{1}{c}{Mix}&
+		\multicolumn{1}{c}{\%32vsU}&
+		\multicolumn{1}{c}{\%UvsM}&
+		\multicolumn{1}{c}{Uni32}&
+		\multicolumn{1}{c}{Uni}&
+		\multicolumn{1}{c}{Mix}&
+		\multicolumn{1}{c}{\%32vsU}&
+		\multicolumn{1}{c}{\%UvsM} \\
+		\hline
+		
+		\color{red}{0.30} & 0.001 & 26 & 208 & 0.036944218 & 0.263055781 & 9984 & 6864 (uni22) & 6210 & 31.25\% & 9.52\% & 79872 & 64896 (uni16) & 53059 & 18.75\% & 18.23\% \\
+		
+		\color{red}{0.20} & 0.001 & 27 & 216 & 0.036944218 & 0.163055781 & 10368 & 7452 (uni23) & 6725 & 28.13\% & 9.75\% & 82944 & 67392 (uni16) & 55098 & 18.75\% & 18.24\% \\
+		
+		\color{red}{0.10} & 0.001 & 27 & 216 & 0.036944218 & 0.063055781 & 10368 & 7776 (uni24) & 7134 & 25.00\% & 8.25\% & 82944 & 67392 (uni16) & 55098 & 18.75\% & 18.24\% \\
+		
+		\color{red}{0.08} & 0.001 & 27 & 216 & 0.036944218 & 0.043055781 & 10368 & 7776 (uni24) & 7275 & 25.00\% & 6.44\% & 82944 & 67392 (uni16) & 55098 & 18.75\% & 18.24\% \\
+		
+		\color{red}{0.05} & 0.001 & 27 & 216 & 0.036944218 & 0.013055781 & 10368 & 8424 (uni26) & 7840 & 18.75\% & 6.93\% & 82944 & 67392 (uni16) & 55098 & 18.75\% & 18.24\% \\\\
+		
+		% Starts Epsilon 
+		
+		0.1 & \color{red}{0.0006} & 27 & 216 & 0.022166935 & 0.077833064 & 10368 & 7776 (uni24) & 7047 & 25.00\% & 9.38\% & 82944 & 69984 (uni27) & 55705 & 15.63\% & 20.40\% \\
+		
+		0.1 & \color{red}{0.0008} & 27 & 216 & 0.029555577 & 0.070444422 & 10368 & 7776 (uni24) & 7125 & 25.00\% & 8.37\% & 82944 & 69984 (uni27) & 57859 & 15.63\% & 17.32\% \\
+		
+		0.1 & \color{red}{0.0010} & 27 & 216 & 0.036944218 & 0.063055781 & 10368 & 7776 (uni24) & 7134 & 25.00\% & 8.25\% & 82944 & 67392 (uni26) & 55098 & 18.75\% & 18.24\% \\
+		
+		0.112 & \color{red}{0.0030} & 27 & 216 & 0.110830633 & 0.001000000068 & 10368 &  9720 (uni30) & 9051 & 6.25\% & 6.88\% & 82944 & 64800 (uni25) & 52754 & 21.86\% & 18.58\% \\
+		
+		0.185 &\color{red}{0.0050} & 27 & 216 & 0.184717048 & 0.001000000090 & 10368 & 9720 (uni30) & 9051 & 6.25\% & 6.88\% & 82944 & 62208 (uni24) & 47877 & 25.00\%& 23.03\% \\
+		
+	\end{tabular}
+	\vspace*{1 cm}
+	\centering
+	\caption{Double Integrator}
+	\label{tab:di}
+	\begin{tabular}{rrrrrrrrrrrrrrrr}
+		\cline{7-11}
+		\cline{12-16}
+		\multicolumn{4}{c}{} &
+		\multicolumn{2}{c}{} &
+		\multicolumn{5}{c|}{F and G} &
+		\multicolumn{5}{c}{H and K} \\
+		\hline
+		%\cline{5-6}
+		%\cline{9-12}
+		%\cline{13-16}
+		\multicolumn{1}{c}{Delta}&
+		\multicolumn{1}{c}{Eps} &
+		\multicolumn{1}{c}{Regs} &
+		\multicolumn{1}{c}{Hyps} &
+		\multicolumn{1}{c}{$max|U_{i}-U_{j}|$} &
+		\multicolumn{1}{c}{Err-Bound} &
+		\multicolumn{1}{c}{Uni32}&
+		\multicolumn{1}{c}{Uni}&
+		\multicolumn{1}{c}{Mix}&
+		\multicolumn{1}{c}{\%32vsU}&
+		\multicolumn{1}{c}{\%UvsM}&
+		\multicolumn{1}{c}{Uni32}&
+		\multicolumn{1}{c}{Uni}&
+		\multicolumn{1}{c}{Mix}&
+		\multicolumn{1}{c}{\%32vsU}&
+		\multicolumn{1}{c}{\%UvsM} \\
+		\hline
+		\color{red}{0.1} & \color{red}{0.001} & 1299 & 23382 & 0.05 & 0.05 & 249408 & 109116 (uni14) & 80524 & 56.25\% & 26.20\% & 2992896 & 1589976 (uni17) & 1355675 & 46.88\% & 14.73\% \\
+	\end{tabular}
+\end{table}
+\end{landscape}
+
+\subsection{Case of study: aircraft}
+\subsection{Case of study: double integrator}
