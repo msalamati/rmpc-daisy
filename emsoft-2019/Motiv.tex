@@ -2,24 +2,24 @@
 	In this section, we use a classical control example to explain the motivation behind this work. Consider the problem of designing stablizing control for an inverted pendulum which takes (polytopic) constraints over state variables and control inputs into account. The linearized continuous-time description for the open-loop system's dynamics is as follows:
 	\begin{equation}
 		\begin{bmatrix}
-			\dot \theta\\
-			\dot \omega
+			 \theta_{k+1}\\
+			\omega_{k+1}
 		\end{bmatrix}=
 		\begin{bmatrix}
-			0 & 1\\
-			\frac{g}{l}& \frac{-b}{ml^2}		
+			1 & T_s\\
+			\frac{T_sg}{l}& (1-\frac{T_sb}{ml^2})		
 		\end{bmatrix}
 		\begin{bmatrix}
-			\theta\\
-			\omega
+			\theta_k\\
+			\omega_k
 		\end{bmatrix}+
 		\begin{bmatrix}
 			0\\
-			\frac{1}{ml^2}
-		\end{bmatrix}u
+			\frac{T_s}{ml^2}
+		\end{bmatrix}u_k
 		\label{eq:pendul_ss}
 	\end{equation}
-	where, $\theta$, $\omega$ and $u$ denote angular position, angular speed and input torque respectively; $g=9.81 m/s^2$ is the gravitational acceleration, $m$ the ball mass, $b$ the rotational fraction coefficient and $L$ the length of the bar. To design the controller, one has to first descretize the dynamics in $\eqref{eq:pendul_ss}$ with respect to an appropriate sample time $T_s$. Starting from an initial state, we would like the system's trajectory to converge into its equilibrium point while always $\theta\in[-\pi,\pi]$ and $\omega\in[-\pi/8,\pi/8]$. \\
+	where, $\theta$, $\omega$ and $u$ denote angular position, angular speed and input torque respectively; $g=9.81 m/s^2$ is the gravitational acceleration, $m$ the ball mass, $b$ the rotational fraction coefficient, $L$ the length of the bar and $T_s$ an appropriate sample time. Starting from an initial state, we would like the system's trajectory to converge into its equilibrium point while always $\theta\in[-\pi,\pi]$ and $\omega\in[-\pi/8,\pi/8]$. \\
 	While there are many control schemes which can be used to stablize the system (e.g. LQR, state feedback), adding polytopic constraints, MPC schemes will be the best choice. 
 	%In literature, many control schemes are proposed for stablizing the system around the equilibrium point. 
 	%In order to design a controller which takes additional safety constraints are taken into account, model predictive control (MPC) schemes seem to be best candidate. 
