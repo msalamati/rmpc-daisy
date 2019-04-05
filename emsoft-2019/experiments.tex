@@ -1,11 +1,24 @@
 \section{Experimental Results}
+This section reports experiments with the prototype described in Listing\ref{lst:alg} applied to three different benchmarks: in the former two, we evaluate the full pipeline to produce in output a complete controller. In the last one, we empirically show the scalability of our approach on one artificial controller sample.
+The design of controllers is done on a machine with Intel i7-6700HQ CPU at 2.60GHz, with 16GB of RAM. 
+Only the last evaluation runs on a cluster with 48 cores Intel Xeon v2 @ 3.00GHz with 1TB of RAM.
+
 \subsection{Case of study: inverted pendulum}
+In Table \ref{tab:ipd} we report the evaluation of our approach on the inverted pendulum problem described in the motivation section. We report the design procedure for 10 different controllers, for various combinations of Delta and Eps. We divide the table int two evaluation blocks: in the first, we fix the value for Eps and we tune the robustness value Delta, while in the second we do the opposite.
+
+The first evaluation block shows that the input Delta does not impact the maximal error among regions. In this example, we verify that a variation for delta (in the order of $\pm$ 0.1) results in a minimal alteration to the size of the region (in the order of $10^{-10}$), not enough to affect the maximization value. Since maxUiUj is constant, the space for approximation error Err-Bound decreases together with the value of delta. The memory requirement for storage of F and G depends only on Err-Bound, and it is clear from the table that the smaller the value for delta, the more demanding is the precision required for computations. In average, more than 50\% of memory is saved between fixed-32 (all arithmetic is done in 32 bits), and Uni, the minimal precision word-length found with our analysis. While, using mixed-precision (Mix) reduces (in average) more than 10\% memory consumption compare to Uni. The storage of hyperplanes H and K depends only on the value of Eps (the size of the tubes). For a constant value of Eps, we save 50\% from fixed-32 to Uni and 10\% from Uni to Mixed.
+
+The second evaluation block shows how for the same robustness design delta, the value of Eps determines the precision needed for F, G and H, K. Increasing the size of the tubes epsilon produces a greater value for max Ui-Uj.
+  
+\subsection{Case of study: aircraft}
+\subsection{Case of study: double integrator}
 
 \begin{landscape}
 	\pagestyle{empty}
 \begin{table}[p]
 	\centering
-	\caption{Inverted Pendolum}
+	\caption{Inverted Pendolum. Delta is the disturbance used to design the controller, and Eps the size of the uncertainty between two generic regions (\texttt{tube}). For each pair Delta, Eps we obtain a controller with Regs number of regions divided by Hyps hyperplanes. The maximal error due to the wrong activation function is maxUiUj and Err-Bound is Delta - maxUiUj. Uni32 is the total number of bits for the controller completely designed in fixed-32 bit precision. Uni is the total number of bits returned by our analysis, together with the format (p=format). Mix is the total number of bits for the same controller in mixed-precision. \%32vsU is the difference between the baseline Uni32 and the number of bits used in U (in percentage), then \%UvsM is the difference between Uni and Mix. F, G and H, K represent the memory requirements for activation functions, and polytopes borders.  
+	}
 	\label{tab:ipd}
 	\begin{tabular}{rrrrrrrrrrrrrrrr}
 		\cline{7-11}
@@ -36,32 +49,33 @@
 		\multicolumn{1}{c}{\%UvsM} \\
 		\hline
 		
-		\color{red}{0.30} & 0.001 & 14 & 58 & 0.019898948 & 0.280101052 & 2688 & 924 (uni11) & 759 & 65.63\% & 17.85\% & 11136 & 5568 (uni16) & 4991 & 50.00\% & 10.36\% \\
+		\color{red}{0.30} & 0.001 & 14 & 58 & 0.02 & 0.28 & 2688 & 924 (p=11) & 759 & 65.6\% & 17.9\% & 11136 & 5568 (p=16) & 4991 & 50\% & 10.7\% \\
 		
-		\color{red}{0.20} & 0.001 & 14 & 58 & 0.019898948 & 0.180101052 & 2688 & 924 (uni11) & 806 & 65.63\% & 12.77\% & 11136 & 5568 (uni16)& 4992 & 50.00\% & 10.34\% \\
+		\color{red}{0.20} & 0.001 & 14 & 58 & 0.02 & 0.18 & 2688 & 924 (p=11) & 806 & 65.6\% & 12.8\% & 11136 & 5568 (p=16)& 4992 & 50\% & 10.3\% \\
 		
-		\color{red}{0.10} & 0.001 & 14 & 58 & 0.019898948 & 0.080101052 & 2688 & 1008 (uni12) & 908 & 65.50\% & 9.92\% & 11136 & 5568 (uni16)& 4992 & 50.00\% & 10.34\% \\
+		\color{red}{0.10} & 0.001 & 14 & 58 & 0.02 & 0.08 & 2688 & 1008 (p=12) & 908 & 65.5\% & 10\% & 11136 & 5568 (p=16)& 4992 & 50\% & 10.3\% \\
 		
-		\color{red}{0.08} & 0.001 & 14 & 58 & 0.019898948 & 0.080101052 &2688 & 1092 (uni13) & 946 & 59.38\% & 13.36\% & 11136 & 5568 (uni16) & 4992 & 50.00\% & 10.34\% \\
+		\color{red}{0.08} & 0.001 & 14 & 58 & 0.02 & 0.06 & 2688 & 1092 (p=13) & 946 & 59.4\% & 13.4\% & 11136 & 5568 (p=16) & 4992 & 50\% & 10.3\% \\
 		
-		\color{red}{0.05} & 0.001 & 14 & 58 & 0.019898948 & 0.030101052 & 2688 & 1176 (uni14) & 1030 & 56.25\% & 12.41\% & 11136 & 5568 (uni16) & 4992 & 50.00\% & 10.34\% \\ \\
+		\color{red}{0.05} & 0.001 & 14 & 58 & 0.02 & 0.03 & 2688 & 1176 (p=14) & 1030 & 56.3\% & 12.4\% & 11136 & 5568 (p=16) & 4992 & 50\% & 10.3\% \\ \\
 		
 		% Starts Epsilon 
 		
-		0.1 & \color{red}{0.0006} & 14 & 58 & 0.011939369 & 0.088060631 & 2688 & 1008 (uni12) & 891 & 62.50\% & 11.60\% & 11136 & 5916 (uni17) & 5261 & 46.88\% & 11.07\% \\
+		0.1 & \color{red}{0.0006} & 14 & 58 & 0.012 & 0.088 & 2688 & 1008 (p=12) & 891 & 62.5\% & 11.6\% & 11136 & 5916 (p=17) & 5261 & 46.9\% & 11\% \\
 		
-		0.1 & \color{red}{0.0008} & 14 & 58 & 0.015919159 & 0.084080841 & 2688 & 1008 (uni12) & 901 & 62.50\% & 10.61\% & 11136 & 5568 (uni16) & 5135 & 50.00\% & 7.77\% \\
+		0.1 & \color{red}{0.0008} & 14 & 58 & 0.016 & 0.084 & 2688 & 1008 (p=12) & 901 & 62.5\% & 10.6\% & 11136 & 5568 (p=16) & 5135 & 50\% & 7.77\% \\
 		
-		0.1 & \color{red}{0.0010} & 14 & 58 & 0.019898948 & 0.080101052 & 2688 & 1008 (uni12) & 908 & 62.50\% & 9.92\% & 11136 & 5568 (uni16) & 4992 & 50.00\% & 10.34\% \\
+		0.1 & \color{red}{0.0010} & 14 & 58 & 0.019 & 0.081 & 2688 & 1008 (p=12) & 908 & 62.5\% & 10\% & 11136 & 5568 (p=16) & 4992 & 50\% & 10.3\% \\
 		
-		0.1 & \color{red}{0.0030} & 14 & 58 & 0.059696845 & 0.040303155 & 2688 &  1092 (uni13) & 993 & 59.38\% & 9.06\% & 11136 & 4872 (uni14) & 4462 & 56.25\% & 8.41\% \\
+		0.1 & \color{red}{0.0030} & 14 & 58 & 0.059 & 0.041 & 2688 &  1092 (p=13) & 993 & 59.4\% & 9.1\% & 11136 & 4872 (p=14) & 4462 & 56.3\% & 8.4\% \\
 		
-		0.1 & \color{red}{0.0050} & 14 & 58 & 0.099494741 & 0.000505259 & 2688 & 1680 (uni20) & 1527 & 37.50\% & 9.10\% & 11136 & 4872 (uni14) & 4204 & 56.25\% & 13.71\% \\
+		0.1 & \color{red}{0.0050} & 14 & 58 & 0.099 & 0.001 & 2688 & 1680 (p=20) & 1527 & 37.5\% & 9.1\% & 11136 & 4872 (p=14) & 4204 & 56.3\% & 13.7\% \\
 		
 	\end{tabular}
 	\vspace*{1 cm}
 	\centering
-	\caption{Aircraft}
+	\caption{Aircraft. For the description of each column see Table \ref{tab:ipd}.\\
+	* In the last two samples the original value for delta was equal to 0.1, but our analysis returns a controller robust to a greater disturbance.}
 	\label{tab:aircraft}
 	\begin{tabular}{rrrrrrrrrrrrrrrr}
 		\cline{7-11}
@@ -92,32 +106,32 @@
 		\multicolumn{1}{c}{\%UvsM} \\
 		\hline
 		
-		\color{red}{0.30} & 0.001 & 26 & 208 & 0.036944218 & 0.263055781 & 9984 & 6864 (uni22) & 6210 & 31.25\% & 9.52\% & 79872 & 64896 (uni16) & 53059 & 18.75\% & 18.23\% \\
+		\color{red}{0.30} & 0.001 & 26 & 208 & 0.037 & 0.263 & 9984 & 6864 (p=22) & 6210 & 31.3\% & 9.5\% & 79872 & 64896 (p=16) & 53059 & 18.8\% & 18.2\% \\
 		
-		\color{red}{0.20} & 0.001 & 27 & 216 & 0.036944218 & 0.163055781 & 10368 & 7452 (uni23) & 6725 & 28.13\% & 9.75\% & 82944 & 67392 (uni16) & 55098 & 18.75\% & 18.24\% \\
+		\color{red}{0.20} & 0.001 & 27 & 216 & 0.037 & 0.163 & 10368 & 7452 (p=23) & 6725 & 28.1\% & 9.8\% & 82944 & 67392 (p=16) & 55098 & 18.8\% & 18.2\% \\
 		
-		\color{red}{0.10} & 0.001 & 27 & 216 & 0.036944218 & 0.063055781 & 10368 & 7776 (uni24) & 7134 & 25.00\% & 8.25\% & 82944 & 67392 (uni16) & 55098 & 18.75\% & 18.24\% \\
+		\color{red}{0.10} & 0.001 & 27 & 216 & 0.037 & 0.063 & 10368 & 7776 (p=24) & 7134 & 25\% & 8.3\% & 82944 & 67392 (p=16) & 55098 & 18.8\% & 18.2\% \\
 		
-		\color{red}{0.08} & 0.001 & 27 & 216 & 0.036944218 & 0.043055781 & 10368 & 7776 (uni24) & 7275 & 25.00\% & 6.44\% & 82944 & 67392 (uni16) & 55098 & 18.75\% & 18.24\% \\
+		\color{red}{0.08} & 0.001 & 27 & 216 & 0.037 & 0.043 & 10368 & 7776 (p=24) & 7275 & 25\% & 6.4\% & 82944 & 67392 (p=16) & 55098 & 18.8\% & 18.2\% \\
 		
-		\color{red}{0.05} & 0.001 & 27 & 216 & 0.036944218 & 0.013055781 & 10368 & 8424 (uni26) & 7840 & 18.75\% & 6.93\% & 82944 & 67392 (uni16) & 55098 & 18.75\% & 18.24\% \\\\
+		\color{red}{0.05} & 0.001 & 27 & 216 & 0.037 & 0.013 & 10368 & 8424 (p=26) & 7840 & 18.8\% & 6.9\% & 82944 & 67392 (p=16) & 55098 & 18.8\% & 18.3\% \\\\
 		
 		% Starts Epsilon 
 		
-		0.1 & \color{red}{0.0006} & 27 & 216 & 0.022166935 & 0.077833064 & 10368 & 7776 (uni24) & 7047 & 25.00\% & 9.38\% & 82944 & 69984 (uni27) & 55705 & 15.63\% & 20.40\% \\
+		0.1 & \color{red}{0.0006} & 27 & 216 & 0.022 & 0.078 & 10368 & 7776 (p=24) & 7047 & 25\% & 9.4\% & 82944 & 69984 (p=27) & 55705 & 15.6\% & 20.4\% \\
 		
-		0.1 & \color{red}{0.0008} & 27 & 216 & 0.029555577 & 0.070444422 & 10368 & 7776 (uni24) & 7125 & 25.00\% & 8.37\% & 82944 & 69984 (uni27) & 57859 & 15.63\% & 17.32\% \\
+		0.1 & \color{red}{0.0008} & 27 & 216 & 0.030 & 0.071 & 10368 & 7776 (p=24) & 7125 & 25\% & 8.4\% & 82944 & 69984 (p=27) & 57859 & 15.6\% & 17.3\% \\
 		
-		0.1 & \color{red}{0.0010} & 27 & 216 & 0.036944218 & 0.063055781 & 10368 & 7776 (uni24) & 7134 & 25.00\% & 8.25\% & 82944 & 67392 (uni26) & 55098 & 18.75\% & 18.24\% \\
+		0.1 & \color{red}{0.0010} & 27 & 216 & 0.037 & 0.063 & 10368 & 7776 (p=24) & 7134 & 25\% & 8.3\% & 82944 & 67392 (p=26) & 55098 & 18.8\% & 18.2\% \\
 		
-		0.112 & \color{red}{0.0030} & 27 & 216 & 0.110830633 & 0.001000000068 & 10368 &  9720 (uni30) & 9051 & 6.25\% & 6.88\% & 82944 & 64800 (uni25) & 52754 & 21.86\% & 18.58\% \\
+		0.112* & \color{red}{0.0030} & 27 & 216 & 0.111 & 0.001000000068 & 10368 &  9720 (p=30) & 9051 & 6.3\% & 6.9\% & 82944 & 64800 (p=25) & 52754 & 21.9\% & 18.6\% \\
 		
-		0.185 &\color{red}{0.0050} & 27 & 216 & 0.184717048 & 0.001000000090 & 10368 & 9720 (uni30) & 9051 & 6.25\% & 6.88\% & 82944 & 62208 (uni24) & 47877 & 25.00\%& 23.03\% \\
+		0.185* &\color{red}{0.0050} & 27 & 216 & 0.185 & 0.001000000090 & 10368 & 9720 (p=30) & 9051 & 6.3\% & 6.9\% & 82944 & 62208 (p=24) & 47877 & 25\%& 23.1\% \\
 		
 	\end{tabular}
 	\vspace*{1 cm}
 	\centering
-	\caption{Double Integrator}
+	\caption{For the description of each column see Table \ref{tab:ipd}.}
 	\label{tab:di}
 	\begin{tabular}{rrrrrrrrrrrrrrrr}
 		\cline{7-11}
@@ -147,10 +161,7 @@
 		\multicolumn{1}{c}{\%32vsU}&
 		\multicolumn{1}{c}{\%UvsM} \\
 		\hline
-		\color{red}{0.1} & \color{red}{0.001} & 1299 & 23382 & 0.05 & 0.05 & 249408 & 109116 (uni14) & 80524 & 56.25\% & 26.20\% & 2992896 & 1589976 (uni17) & 1355675 & 46.88\% & 14.73\% \\
+		\color{red}{0.1} & \color{red}{0.001} & 1299 & 23382 & 0.05 & 0.05 & 249408 & 109116 (p=14) & 80524 & 56.3\% & 26.2\% & 2992896 & 1589976 (p=17) & 1355675 & 46.9\% & 14.7\% \\
 	\end{tabular}
 \end{table}
 \end{landscape}
-
-\subsection{Case of study: aircraft}
-\subsection{Case of study: double integrator}
