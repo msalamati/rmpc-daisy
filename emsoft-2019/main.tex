@@ -1,6 +1,6 @@
 %
 % The first command in your LaTeX source must be the \documentclass command.
-\documentclass[sigconf,review,anonymous]{acmart}
+\documentclass[sigconf,review,anonymous,dvipsnames]{acmart}
 \usepackage{listings}
 \usepackage{multirow}
 \usepackage{lscape}
@@ -8,9 +8,13 @@
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows}
 \usepackage{graphicx}
-
 \usepackage[T1]{fontenc} 
 \usepackage[scaled=0.80]{beramono}
+
+%\usepackage[dvipsnames]{xcolor}
+\usepackage[backgroundcolor=Apricot, textsize=footnotesize]{todonotes}
+\newcommand*{\eva}[1]{\todo[author=Eva,inline,caption={}]{#1}}
+
 
 \newcommand{\statevar}{x_{k}}
 \newcommand{\statevarmath}{$x_{k}\,$}
@@ -163,8 +167,13 @@
 \input{intro}
 \input{Motiv}
 \input{RMPC_Daisy}
+\section{Error Analysis}
+\eva{Assuming a given precision, how to compute the error for a given controller}
+\section{Controller Synthesis}
+\eva{How we actually get the controller, including feedback loop and mixed-precision tuning}
 \input{Methodology}
 \input{experiments}
+\input{related}
 \input{conclusion}
 
 
