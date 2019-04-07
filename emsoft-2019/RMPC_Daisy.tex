@@ -38,6 +38,6 @@ case (*$ H_{3}\statevar<=K_{3}$*) then (*$u_{3}$*)
 ...
 case (*$ H_{n}\statevar<=K_{n}$*) then (*$u_{n}$*)
 \end{lstlisting}
-Once the polytope was determined, computing for $F_ix+G_i$ requires even less effort as it only involves symmation and multiplication.  
+Once the polytope was determined, computing for $F_ix+G_i$ requires even less effort as it only involves summation and multiplication.  
 
 A main issue with implimentation of explicit MPC is that all the products of off-line optimization, including regions' boundaries ($H_i$s and $K_i$s) and activation functions ($F_i$s and $G_i$s), have to be stored on the micro-controller. However, these embudded systems have limited memory, in the order of KBs and hence, it is of our interest to minimize the occupied memory.

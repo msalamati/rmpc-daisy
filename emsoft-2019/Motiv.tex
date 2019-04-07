@@ -38,32 +38,45 @@ In this section, we use a classical control example to explain the motivation be
 	In practice, EMPC will be implemented over relatively low-price embedded systems which have limited memory capacity and computational power. Computing the optimal control input can be efficiently done using for example binary tree search. However, the memory limit is more cruicial as it increases proportional to the number of partitions.	Therefore, we would like to explore ways to reduce required memory for saving different coefficients corresponding to the controllers.
 	On the other hand, most of the industrial embedded systems over which EMPC is implemented, only support fixed point arithmetic. Using fixed point arithmetic, will cause approximation error that is inversely proportional to the number of bits used for representing each variable. It is necessary to count for approximation error as it might lead into violation of the constraints. Therefore, one needs to formulate the problem as robust EMPC to count for disturbance input $|\delta|\leq \Delta$ which is summed up with the control input torque $u$ in each time step. %Setting the number of bits for storing different variables, one can compute the upper bound for approximation error, $\bar\omega$.
 	%However, we would like to achieve the minimum number of bits to reduce memory requirements.
-	Overlay, we would like to design a robust explicit model predictive controller, taking into account errors resulted by fixed-point arithmetic and more importantly, to come up with a set of varying precision assignment that covers all the coefficients that must be saved over the embedded system. To that end, one approach is to start with an initial $\Delta$; design a robust explicit MPC controller with respect to $\Delta$ and to use state of the art fixed-point error analyzers to decide for the number of bits for saving every parameter characterizing the controller. Figure \ref{fig:overview} gives an overview of our proposed setup.\\
-	Again, back to inverted pendulum example, choosing $\Delta=0$, we design an explicit MPC which contains $12$ regions and the same number of controllers. However, this value for $\Delta$ is not realizable as error resulted from fixed-point implementation cannot become zero. Therefore, we go ahead and choose $\Delta=0.1$. Solving Robust EMPC problem for the new disturbance bound gives $14$ controllers. Next, we ask Daisy to provide us with fixed-point precisions for every variable that respects $\Delta$. Using the output of Daisy, we are able to reduce memory requirements for the embedded systems up-to $20\%$ comparing to the case that uniform fixed-point precision is used.
+	Overlay, we would like to design a robust explicit model predictive controller, taking into account errors resulted by fixed-point arithmetic and more importantly, to come up with a set of varying precision assignment that covers all the coefficients that must be saved over the embedded system. To that end, one approach is to start with an initial $\Delta$; design a robust explicit MPC controller with respect to $\Delta$ and to use state of the art fixed-point error analyzers to decide for the number of bits for saving every parameter of the controller. Figure \ref{fig:overview} gives an overview of our proposed setup.\\
+	Again, back to inverted pendulum example, choosing $\Delta=0$, we design an explicit MPC which contains $12$ regions and the same number of controllers. However, this value for $\Delta$ is not realizable as error resulted from fixed-point implementation cannot become zero. Therefore, we go ahead and choose $\Delta=0.1$. Solving robust EMPC problem for the new disturbance bound gives $14$ controllers. Next, we ask Daisy to provide us with fixed-point precisions for every variable that respects $\Delta$. Using the output of Daisy, we are able to reduce memory requirements for the embedded systems up-to $20\%$ comparing to the case that uniform fixed-point precision is used.
 	
 	
 	
-	\tikzstyle{block} = [draw, fill=blue!20, rectangle, 
+	\tikzstyle{block} = [draw, rectangle, 
 	minimum height=3em, minimum width=6em]
-	\tikzstyle{sum} = [draw, fill=blue!20, circle, node distance=1cm]
+	\tikzstyle{sum} = [draw,  circle, node distance=1cm]
 	\tikzstyle{input} = [coordinate]
 	\tikzstyle{output} = [coordinate]
 	\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
 	\begin{figure*}[t]
 		\begin{tikzpicture}[auto, node distance=2cm,>=latex',scale=1]
 			\centering
-			\node [block, pin={[pinstyle]above:$\Delta=\Delta_0$},
-			node distance=5cm] (RMPC) {Robust MPC design};
+			\node [block,scale=.8, pin={[pinstyle]above:$\Delta=\Delta_0$},
+			node distance=5cm] (RMPC) {RMPC design (MATLAB)};
 			\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
-			\node [block, right of=RMPC,
-			node distance=5cm,text width=3cm] (mixed) {Mixed precision analysis};
-			\node [draw, fill=blue!20, diamond, 
+			\node [block, scale=1,right of=RMPC,
+			node distance=5cm,text width=3cm] (mixed) {Mixed precision computation (Daisy)};
+			\node [draw, diamond, 
 			minimum height=3em, minimum width=3em, right of=mixed,
-			node distance=5cm] (decide) {Is memory violated?};
+			node distance=5cm] (decide) {$N_b\leq \bar N_b$};
 			\node [block, right of=decide,
 			node distance=3cm] (done) {Done};
 			\node [block, below of= decide,
 			node distance=3cm] (delta) {increase $\Delta$};
+			\node [scale=.3] at (2.25,-.5)  {
+				$
+				K(x_k)=
+				\begin{cases}
+				F_1x_k+G_1 & \text{if $x_k\in \mathcal{R}_1$}\\
+				F_2x_k+G_2 & \text{if $x_k\in \mathcal{R}_2$}\\
+				\vdots\\
+				F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
+				\end{cases} 
+				$
+			};
+		\node at (7.5,-.35) {$N_b$};
+			
 			
 			\draw [draw,->] (RMPC) -- node [pos=-.1] {}(mixed);
 			\draw [->] (mixed) -- node [name=aaa] {}(decide);
@@ -73,6 +86,6 @@ In this section, we use a classical control example to explain the motivation be
 			\draw [->] (delta) -| node [above] {} (RMPC);
 	
 	\end{tikzpicture}
-	\caption{high level description of RMPC with Daisy}
+	\caption{high level description of the proposed memory-efficient robust MPC design}
 	\label{fig:overview}
 \end{figure*}
