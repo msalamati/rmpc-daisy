@@ -28,7 +28,7 @@ where $\mathcal{R}_i$ is a ploytob determined by  a set of linear inequalities $
 \begin{equation}
 \statespace = \bigcup_{i}(H_{i}\statevar<=K_{i})
 \end{equation}
-Therefore, given the state vector $x$, to compute control input, one has to first determine to which polytope does the state vector belong. Several algorithms are proposed to solve for this problem [references?]. This work does not rely on any specific technique to verify which region \statevarmath belongs to, so we consider a linear search over all the regions in \statespace\space, using a case-of conditional statement similar to the one in Listing \ref{lst:caseof}.
+Therefore, given the state vector $x$, to compute control input, one has to first determine to which polytope does the state vector belong. Several algorithms are proposed to solve for this problem [references?]. The simplest technique to verify which region \statevarmath belongs to is to make a linear search over all the regions in \statespace\space, using a case-of conditional statement similar to the one in Listing \ref{lst:caseof}.
 
 \begin{lstlisting}[escapeinside={(*}{*)},label={lst:caseof}, caption=switch for region selection]
 switch((*\statevarmath*)):
