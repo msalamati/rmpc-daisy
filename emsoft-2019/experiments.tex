@@ -1,37 +1,34 @@
 \section{Experimental Results}
 
-This section reports experiments with the prototype described in Listing\ref{lst:alg} applied to three different benchmarks: in the former two, we evaluate the complete pipeline (design and precision tuning) to produce in output a complete controller. In the last one, we empirically show the scalability of our approach on one artificial sample.
-For the design of controllers we rely on MATLAB toolbox (YALMIP and 
+This section reports experiments with the prototype described in Listing\ref{lst:alg} applied to three different benchmarks: in the former two, we evaluate the complete pipeline (design and memory optimization) to produce in output a complete controller. In the last one, we empirically show the scalability of our approach on one artificial sample.
+For the design of controllers we rely on MATLAB MPC toolbox. The outputs of the suite are vectors F, G and H, K for activation functions, and hyperplanes equations. We encode both of them in Daisy for finite-precision optimization.
 The design of controllers is done on a laptop with Intel i7-6700HQ CPU at 2.60GHz, with 16GB of RAM. 
-Only the last evaluation runs on a cluster with 48 cores Intel Xeon v2 @ 3.00GHz with 1TB of RAM, even if the memory consumption of the analysis never exceed 11GB.
+The analysis for the last benchmark runs on a cluster with 48 cores Intel Xeon v2 @ 3.00GHz with 1TB of RAM. Note that the memory consumption of our analysis never exceed 15GB of memory.
 
 \subsection{Results}
 
-In Table \ref{tab:ipd} we report the evaluation of our approach on both: the inverted pendulum problem described in the motivation section, and a well-known 4D example for aircraft controller design.
+In Table \ref{tab:ipd} we report the evaluation of our approach on both the inverted pendulum problem described in the motivation section, and a well-known 4D example for aircraft controller design. For each benchmark, we report the results for ten different combinations of Delta and Eps. We divided them in two halves: in the  first we fix the value for Delta and we try different Eps combinations, while in the second halve we do the opposite.
 
-Describe 4D setup.
-
-For each one of the benchmarks, we report the results for ten different combinations of Delta and Eps. We dived them in two halves: in the  first we fix the value for Delta and we try different Eps combinations, while in the second halve we do the opposite. 
-
-In the pendulum, for all the combinations of Delta and Eps, MATLAB Toolbox returns a controller with 14 regions and 58 hyperplanes, Delta spans the interval 0.05 - 0.3, while Eps is in the interval 0.0006 - 0.0050. In the pendulum section of Table \ref{tab:ipd}, the first halve shows that Delta does not affect the maximal error among regions \maxUij. We verify that a variation for delta (typically in the order of $\pm$ 0.1) results in a minimal alteration to the domain of regions X (in the order of $\pm 10^{-10}$), not enough to produce a sensitive variation to \maxUij. When \maxUij is constant, the error for imprecisions Err-Bound behaves the same as Delta. The domain of X for the pendulum is always in the bounded range $X_{0} \in (-3.23, 3.23)$ and $X_{1}\in (-1.46, 1.46)$.
-The memory required for the storage of F and G depends on Err-Bound: the smaller the value for Err-Bound, the more demanding is the precision required for computations. In average, more than 50\% of memory is saved between fixed-32, where the all arithmetic is done in fixed precision 32 bits, and Uni, the minimal uniform precision word-length found with our analysis. Using mixed-precision (Mix) reduces in average 10\% of memory consumption with respect to Uni baseline. The storage of hyperplanes H and K depends only on the size of the tubes Eps. When we fix the value for Eps, and we try different delta, we save always 50\% from fixed-32 and about 10\% from Uni to Mixed. While in the second halve of the table, we fix the value for Delta and we try different Eps. When we increase the safe space between two regions by Eps, the value for \maxUij is computed for new corner points. It happens because of the continuity of PWA activation functions: when \statevarmath is on the border between two generic regions $i$, $j$ the value for \maxUij is close to zero. The more Eps moves \statevarmath far from the border, the more \maxUij increases. When \maxUij is almost equal to delta, the space for Err-Bound is minimized, and the controller requires high precision for computations (see last line of pendulum section in Table\ref{tab:ipd}). On the other hand, when the value of Eps increases the analysis can reduce the memory requirements for the storage of borders (see column Uni and Mix for the second halve of pendulum).
+In the pendulum section of Table \ref{tab:ipd}, MATLAB returns a controller with 14 regions and 58 hyperplanes for each of the combinations of Delta and Eps. Delta spans the interval from 0.05 to 0.3, while Eps from 0.0006 to 0.0050. The domain of X for the pendulum is in the bounded range $X_{0} \in (-3.23, 3.23)$ and $X_{1}\in (-1.46, 1.46)$. The first halve of the section, shows that Delta does not affect the maximal error among regions \maxUij. We verify that a variation for Delta (typically in the order of $\pm$ 0.1) results in a minimal alteration to the domain of regions X (in the order of $\pm 10^{-10}$), not enough to produce a sensitive variation to \maxUij. When \maxUij is constant, the error for imprecisions Err-Bound behaves the same as Delta (they both decrease). The memory required for the storage of F and G depends on Err-Bound: the smaller the value for Err-Bound, the more demanding is the precision required for computations. In average, more than 50\% of memory is saved between fixed-32, where the all arithmetic is done in fixed precision 32 bits, and Uni, the minimal uniform precision word-length found with our analysis. Using mixed-precision (Mix) reduces in average 10\% of memory consumption with respect to Uni baseline. The storage of hyperplanes H and K depends only on the size of the tubes Eps. When we fix the value for Eps, and we try different delta, we save always 50\% from fixed-32 and about 10\% from Uni to Mixed. In the second halve of the table, we fix the value for Delta and we try different Eps. When we increase the safe space between two regions by Eps, the value for \maxUij is computed for new corner points. It happens because of the continuity of PWA activation functions: when \statevarmath is on the border between two generic regions $i$, $j$ the value for \maxUij is close to zero. The more Eps moves \statevarmath far from the border, the more \maxUij increases. When \maxUij is almost equal to delta, the space for Err-Bound is minimized, and the controller requires high precision for computations (see last line of pendulum section in Table\ref{tab:ipd}). On the other hand, when the value of Eps increases the analysis can reduce the memory requirements for the storage of borders (see column Uni and Mix for the second halve of pendulum).
 
 In the aircraft section of Table\ref{tab:ipd}, we report the results for the aircraft benchmark.
-MATLAB designs each time a controller with 27 regions and 217 hyperplanes, except for one case. In general, when the disturbance value raises, two things can happen: the state domain X shrinks, to be robust against a greater disturbance, or the number of regions reduces.
-Other than that, the behaviors discussed for the pendulum are confirmed: when delta is small, the activation functions (F, G) are memory demanding. While when the value of Eps increases, the precision tuning phase can reduce the memory requirements for H, K. Anyway, there are two main differences with respect to the pendulum: the precision for F and G is almost double, this is because the magnitude of F and G is in the order of $10^{3}$ while for the pendulum is in the order of several units (note that the precision gain from Uni to Mix is only slightly less than the one for the pendulum). The second difference is in the last two lines in Table\ref{tab:ipd}.
-When Eps=0.0030, the \maxUij exceeds Delta=0.1 and we iterate again the design phase in Listing\ref{}. The final controller converges after 5 iterations with a Delta=0.112. Note the Err-Bound contains the safe coefficient epsilon to reduce the memory consumption. Otherwise the resulting controller would be expensive in memory (more than Fixed-64).
+MATLAB returns a controller with 27 regions and 217 hyperplanes, except for one combination of Delta and Eps. In general, when the disturbance value raises, two things can happen: the state domain X shrinks, to be robust against a greater disturbance, or the number of regions reduces.
+The behaviors discussed for the pendulum are confirmed: when delta is small, the activation functions (F, G) are memory demanding. While when the value of Eps increases, the memory requirements for H, K can be relaxed. There are two main differences with respect to the pendulum: here the precision for F and G is almost double, this is because the magnitude of F and G is in the order of $10^{3}$ while for the pendulum is in the order of several units (note that the precision gain from Uni to Mix is only slightly less than the one for the pendulum). The second difference consists in the last two lines in Table\ref{tab:ipd}.
+When Eps=0.0030, the \maxUij exceeds Delta=0.1 and we need to design again the controller (it corresponds to the else branch in Listing\ref{fig:overview}). The analysis converges after 5 iterations with Delta=0.112.
+After each iteration, the new delta is the last \maxUij\space plus a constant value in the order of $10^{-3}$. In this way we sensibly reduce memory demand at the expense of slightly more disturbance. When Eps=0.0050 the analysis converges after 4 iterations and the same discussion holds.
 
-The last evaluation is done on an artificial controller designed for an aircraft control system.
-This controller consists of 1300 regions an about 25000 hyperplanes. In \ref{tab:di} we collect the results.
-The design of the controller in MATLAB takes few minutes, then the precision tuning phase starts. In average the analysis of a controller takes less than a minute and consumes less than 500MB of memory. In average the execution time of Daisy is less than 2 minutes for a single controller. In total we run 24681 analysis. The cluster where we run the evaluation comes with 48 cores. In average the memory consumption on the cluster is less than 15GB. We run the analysis in parallel on the cluster, because each activation function or hyperplane can be analyzed separately.
+The last benchmark is the double integrator, a canonical example of a second order control system. In Table\ref{tab:di} we collect the results.
 
+We introduce another parameter m, the prediction horizon of the controller. In this example, the number of regions is highly correlated with the prediction horizon m.
+Moreover, we fix the values for Delta to 0.1 and Eps to 0.001. In this experiment we focus on execution time of the analysis and memory optimization.
 
+The design of the controller in MATLAB takes few minutes, then it is is encoded in Daisy for memory optimization. In average the analysis of a controller in Daisy requires less than a minute, and less than 500MB of memory. The execution time of Daisy on a single activation function is less than 2 minutes. The cluster used for the evaluation comes with 48 cores, and the memory consumption on the cluster is always bounded in 15GB. The task is highly parallelizable, because any controller or hyperplane can be analyzed independently.
 
 \begin{landscape}
 	\pagestyle{empty}
 \begin{table}[p]
 	\centering
-	\caption{Inverted Pendulum and Aircraft.\textmd{ Delta is the disturbance used to design the controller, and Eps the size of the safe space between two generic regions (\texttt{tube}). The values in red For each pair Delta, Eps we obtain a controller with Regs number of regions divided by Hyps hyperplanes. The maximal error due to a wrong activation function is \maxUij and Err-Bound = Delta - maxUiUj. F, G and H, K represent the memory requirements for activation functions, and polytopes borders. Uni32 is the total number of bits for the controller, completely designed in fixed-32 bit precision. Uni is the uniform precision detected by our analysis, together with the format (p=format). Mix is the total number of bits for the controller in mixed-precision. \%32vsU is the difference between the baseline Uni32 and the number of bits used in U (in percentage), then \%UvsM is the difference between Uni and Mix.}}
+	\caption{Inverted Pendulum and Aircraft.\textmd{ Delta is the disturbance used to design the controller, and Eps the size of the safe space between two generic regions (\texttt{tube}). We fix Eps and try different Delta (in red) and vice-versa. For each pair Delta and Eps we obtain a controller with Regs number of regions divided by Hyps hyperplanes. The maximal error due to a wrong activation function is \maxUij and Err-Bound = Delta - maxUiUj. F, G and H, K represent the memory requirements for activation functions, and hyperplanes. Uni32 is the total number of bits for the controller using 32 bits precision. Uni is the uniform precision found by our analysis, together with the format. Mix is the total number of bits for the controller in mixed-precision. \%32vsU is the difference between the baseline Uni32 and Uni (in percentage), then \%UvsM is the difference between Uni and Mix.}}
 	\label{tab:ipd}
 	\begin{tabular}{|l|rrrrrrrrrrrrrrrr|}
 		\cline{8-12}
@@ -50,18 +47,18 @@ The design of the controller in MATLAB takes few minutes, then the precision tun
 		\multicolumn{1}{c}{Eps} &
 		\multicolumn{1}{c}{Regs} &
 		\multicolumn{1}{c}{Hyps} &
-		\multicolumn{1}{c}{$max|U_{i}-U_{j}|$} &
+		\multicolumn{1}{c}{\maxUij} &
 		\multicolumn{1}{c}{Err-Bound} &
 		\multicolumn{1}{c}{Uni32}&
 		\multicolumn{1}{c}{Uni}&
 		\multicolumn{1}{c}{Mix}&
-		\multicolumn{1}{c}{\%32vsU}&
-		\multicolumn{1}{c}{\%UvsM}&
+		\multicolumn{1}{c}{\%32vU}&
+		\multicolumn{1}{c}{\%UvM}&
 		\multicolumn{1}{c}{Uni32}&
 		\multicolumn{1}{c}{Uni}&
 		\multicolumn{1}{c}{Mix}&
-		\multicolumn{1}{c}{\%32vsU}&
-		\multicolumn{1}{c|}{\%UvsM} \\
+		\multicolumn{1}{c}{\%32vU}&
+		\multicolumn{1}{c|}{\%UvM} \\
 		\cline{1-17}
 		& \color{red}{0.30} & 0.001 & 14 & 58 & 0.02 & 0.28 & 2688 & 924 (p=11) & 759 & 65.6\% & 17.9\% & 11136 & 5568 (p=16) & 4991 & 50\% & 10.7\% \\
 		
@@ -149,14 +146,17 @@ The design of the controller in MATLAB takes few minutes, then the precision tun
 		& 0.185* &\color{red}{0.0050} & 27 & 216 & 0.185 & 0.001000000090 & 10368 & 9720 (p=30) & 9051 & 6.3\% & 6.9\% & 82944 & 62208 (p=24) & 47877 & 25\%& 23.1\% \\
 		\cline{1-17}
 	\end{tabular}
-	\vspace*{1 cm}
+\end{table}
+\end{landscape}
+
+\begin{table*}[ht]
 	\centering
-	\caption{For the description of each column see Table \ref{tab:ipd}.}
+	\caption{Double Integrator.\textmd{ Hrz is the prediction horizon in RMPC, Time is the execution time in minutes, Regs is the number of regions of the controller with Hyps hyperplanes. Uni32 is the total number of bits when all operations are in 32 bits, Uni the minimal uniform precision required, Mix is mixed-precision, \%32vU and UvM are the benefit of uniform and mixed precisions.}}
 	\label{tab:di}
-	\begin{tabular}{rrrrrrrrrrrrrr}
-		\cline{4-8}
+	\begin{tabular}{rrrrrrrrrrrrrrr}
+		\cline{5-8}
 		\cline{8-13}
-		\multicolumn{3}{c}{} &
+		\multicolumn{4}{c}{} &
 		%\multicolumn{2}{c}{} &
 		\multicolumn{5}{c|}{F and G} &
 		\multicolumn{5}{c}{H and K} \\
@@ -164,7 +164,8 @@ The design of the controller in MATLAB takes few minutes, then the precision tun
 		%\cline{5-6}
 		%\cline{9-12}
 		%\cline{13-16}
-		\multicolumn{1}{c}{Exe-Time}&
+		\multicolumn{1}{c}{Hrz}&
+		\multicolumn{1}{c}{Time}&
 		%\multicolumn{1}{c}{Eps} &
 		\multicolumn{1}{c}{Regs} &
 		\multicolumn{1}{c}{Hyps} &
@@ -173,16 +174,26 @@ The design of the controller in MATLAB takes few minutes, then the precision tun
 		\multicolumn{1}{c}{Uni32}&
 		\multicolumn{1}{c}{Uni}&
 		\multicolumn{1}{c}{Mix}&
-		\multicolumn{1}{c}{\%32vsU}&
-		\multicolumn{1}{c}{\%UvsM}&
+		\multicolumn{1}{c}{\%32vU}&
+		\multicolumn{1}{c}{\%UvM}&
 		\multicolumn{1}{c}{Uni32}&
 		\multicolumn{1}{c}{Uni}&
 		\multicolumn{1}{c}{Mix}&
-		\multicolumn{1}{c}{\%32vsU}&
-		\multicolumn{1}{c}{\%UvsM} \\
+		\multicolumn{1}{c}{\%32vU}&
+		\multicolumn{1}{c}{\%UvM} \\
 		\hline
-		445 min
-		&1299 & 23382 & 249408 & 109116 (p=14) & 80524 & 56.3\% & 26.2\% & 2992896 & 1589976 (p=17) & 1355675 & 46.9\% & 14.7\% \\
+		2 & 2 & 9 & 72 & 1728 & 810 (p=15) & 628 &  & 22.5\% & 13824 & 7776 (p=18) & 7280 & & 6.3\% \\
+		5 & 9 & 53 & 424 & 10176 & 5088 (p=16) & 3623 &  & 28.8\% & 81408 & 45792 (p=18) & 42656 & & 6.8\% \\
+		8 & 23 & 143 & 1144 & 27456 & 13728 (p=16) & 9864 &  & 28.1\% & 219648 & 123552 (p=18) & 114948 & & 7.0\% \\
+		11 & 47 & 277 & 2216 & 53184 & 26592 (p=16) & 18980 &  & 28.6\% & 425472 & 239328 (p=18) & 222616 & & 7.0\% \\
+		
+		14 & 73 & 431& 3446& 82752& 41376(p=16)& 28685&  & 30\% & 661632& 372168 (p=18)& 346020& &7.0\% \\
+		
+		17 & & & & & & & & & & & & & \\
+		
+		21 & & & & & & & & & & & & & \\
+		
+		25 & 445 &1299 & 23382 & 249408 & 109116 (p=14) & 80524 & 56.3\% & 26.2\% & 2992896 & 1589976 (p=17) & 1355675 & 46.9\% & 14.7\% \\
+		
 	\end{tabular}
-\end{table}
-\end{landscape}
+\end{table*}
