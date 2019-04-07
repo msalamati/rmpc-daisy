@@ -1,1 +1,43 @@
 \section{Robust MPC and Finite Precision}
+\subsection{Robust Explicit MPC}
+\def\reals{\mathbb{R}}
+We consider class of discrete time linreat time invariant systems
+\begin{equation}
+\label{eq:DSS}
+x_{k+1}=Ax_k+Bu_k+Ew_k
+\end{equation}
+where, $x\in \reals^{n\times 1}$ is state vector, $u\in \reals^{m\times 1}$ the control input vector, $w\in \reals^{d\times 1}$ the disturbance vector, $A\in \reals^{n\times n}$ the state matrix, $B\in \reals^{n\times m}$ the input matrix, $E\in \reals^{n\times d}$, $k$ the time instant and the pair $(A,B)$ is stablizable. Knowing that $w\in\mathcal{W}$, where $\mathcal{W}$ is a polyhedral set, we try to solve for the following optimization problem:
+\begin{align}
+\label{eq:RMPC_prob}
+\min_{u_0,\cdots,u_{N-1}}\max_{w_0,\cdots,w_{N-1}}& x_N^TQ_Fx_N+\sum_{i=0}^{N-1}(x_i^TQx_i+u_i^TRu_i)\nonumber\\
+\text{s.t.}\quad\forall i\in\{0,1,\cdots,&N-1\}:\nonumber\\
+&x_{i+1}=Ax_i+Bu_i\nonumber\\
+&x_i\in\mathcal{X},\quad u_i\in \mathcal{U}	
+\end{align}
+where, $\mathcal U$ and $\mathcal X$ are polyhedral sets, $Q\in\reals^{n\times n}$, $R\in\reals^{m\times m}$ and $Q_F\in\reals^{n\times n}$ are positive semidefinite matrices and $N$ denotes the length of prediction horizon. By making use of the fact that $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$, one can translate \eqref{eq:RMPC_prob} into a multi-parametric quadratic problem which admits a closed-form solution $U_N=K(x_0)$. Furthermore, for the case that $Q\geq0$, $Q_F\geq0$ and $R>0$, the controller $K$ is a continuous piecewise affine (PWA) function over polydedral regions:
+\begin{equation}
+K(x_k)=
+\begin{cases}
+F_1x_k+G_1 & \text{if $x_k\in \mathcal{R}_1$}\\
+F_2x_k+G_2 & \text{if $x_k\in \mathcal{R}_2$}\\
+\vdots\\
+F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
+\end{cases} 
+\end{equation}
+where $\mathcal{R}_i$ is a ploytob determined by  a set of linear inequalities $H_ix\leq K_i$. To find the controller $K$ we rely on MATLAB multi-parametric toolbox to solve such optimization problem~\cite{matlabMPT, matlabYALMIP}. We call \statespace\space the union of all regions $X_{i}$ in the domain of the state variable $x_{k}$:
+\begin{equation}
+\statespace = \bigcup_{i}(H_{i}\statevar<=K_{i})
+\end{equation}
+Therefore, given the state vector $x$, to compute control input, one has to first determine to which polytope does the state vector belong. Several algorithms are proposed to solve for this problem [references?]. This work does not rely on any specific technique to verify which region \statevarmath belongs to, so we consider a linear search over all the regions in \statespace\space, using a case-of conditional statement similar to the one in Listing \ref{lst:caseof}.
+
+\begin{lstlisting}[escapeinside={(*}{*)},label={lst:caseof}, caption=switch for region selection]
+switch((*\statevarmath*)):
+case (*$ H_{1}\statevar<=K_{1}$*) then (*$u_{1}$*)
+case (*$ H_{2}\statevar<=K_{2}$*) then (*$u_{2}$*)
+case (*$ H_{3}\statevar<=K_{3}$*) then (*$u_{3}$*)
+...
+case (*$ H_{n}\statevar<=K_{n}$*) then (*$u_{n}$*)
+\end{lstlisting}
+Once the polytope was determined, computing for $F_ix+G_i$ requires even less effort as it only involves symmation and multiplication.  
+
+A main issue with implimentation of explicit MPC is that all the products of off-line optimization, including regions' boundaries ($H_i$s and $K_i$s) and activation functions ($F_i$s and $G_i$s), have to be stored on the micro-controller. However, these embudded systems have limited memory, in the order of KBs and hence, it is of our interest to minimize the occupied memory.
