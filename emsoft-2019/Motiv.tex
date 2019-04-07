@@ -1,5 +1,15 @@
+% !TEX root = main.tex
 \section{Motivation}
-	In this section, we use a classical control example to explain the motivation behind this work. Consider the problem of designing stablizing control for an inverted pendulum which takes (polytopic) constraints over state variables and control inputs into account. The linearized continuous-time description for the open-loop system's dynamics is as follows:
+
+Model Predictive Control (MPC) refers to the class of control strategies that design control actions by solving a finite horizon optimal control problem at each sampling instant. While each optimization gives a sequence of optimal control actions, only the first action is applied to the process. The same procedure is applied in the next time instance after receiving the updated value of the process state. MPC has shown to be successful in industrial applications since it is able to handle large number of states and control actions and automatically considers constraints in the optimization.
+
+The optimization of each time instance uses a dynamic model of the process to predict the future states and find the optimal sequence of actions that satisfies all the constraints. The objective function of the optimization is usually linear or quadratic. The resulting optimization problem can be cast as a linear program (LP) or quadratic program (LP), respectively, if the dynamic model is linear. For hybrid models with linear dynamics in each mode, the optimization problem can be cast as a mixed integer linear or quadratic program (MILP/MIQP). 
+
+ The main difference between MPC and conventional control is in the nature of the function that maps the measured outputs to control actions. The former computes such a function online but the latter pre-computes it off-line. The required online computations in MPC limits its applicability to slow processes: the sampling time should be large enough to allow enough time for solving the optimization and obtaining the optimal action for the next time instance. Moreover, the optimization solver needs to be certified for using MPC in safety critical applications.
+ % while the  therefore that in the latter the control function is pre-computed off-line.
+These issues can be tackled using \emph{Explicit MPC} under proper assumptions on the model, constraints and the objective function. Explicit MPC solves the optimization problem off-line over a bounded domain of the state variables by using multiparametric programming techniques. The output of Explicit MPC is the optimal control actions as an ?explicit? function of the states which is piecewise affine. This expands the class of systems being controlled by MPC strategies since the implementation requires only storing a lookup table of linear gains and performing an affine computation using the appropriate gains at each time instance. A survey on Explicit MPC can be found in \cite{Alessio2009}. \Sadegh{fix the reference.}
+
+In this section, we use a classical control example to explain the motivation behind this work. Consider the problem of designing stablizing control for an inverted pendulum which takes (polytopic) constraints over state variables and control inputs into account. The linearized continuous-time description for the open-loop system's dynamics is as follows:
 	\begin{equation}
 		\begin{bmatrix}
 			 \theta_{k+1}\\
