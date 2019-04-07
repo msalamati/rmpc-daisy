@@ -10,7 +10,11 @@
 \usepackage{graphicx}
 \usepackage[T1]{fontenc} 
 \usepackage[scaled=0.80]{beramono}
-
+\usepackage{graphicx} % http://ctan.org/pkg/graphicx
+\usepackage{booktabs} % http://ctan.org/pkg/booktabs
+\usepackage{xparse}
+\setlength{\tabcolsep}{0.5em} % for the horizontal padding
+{\renewcommand{\arraystretch}{1.1}% for the vertical padding
 %\usepackage[dvipsnames]{xcolor}
 \usepackage[backgroundcolor=Apricot, textsize=footnotesize]{todonotes}
 \newcommand*{\eva}[1]{\todo[author=Eva,inline,caption={}]{#1}}
@@ -23,6 +27,7 @@
 \newcommand{\statespace}{X}
 \newcommand{\regioni}[1]{$X_{{#1}}$}
 \newcommand{\regionimath}[1]{X_{{#1}}}
+\newcommand{\maxUij}{$max|U_{i}-U_{j}|$}
 % Rights management information. 
 % This information is sent to you when you complete the rights form.
 % These commands have SAMPLE values in them; it is your responsibility as an author to replace
