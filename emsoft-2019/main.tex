@@ -20,6 +20,8 @@
 \newcommand*{\eva}[1]{\todo[author=Eva,inline,caption={}]{#1}}
 
 
+\newcommand{\Sadegh}{\textcolor{blue}}
+
 \newcommand{\statevar}{x_{k}}
 \newcommand{\statevarmath}{$x_{k}\,$}
 \newcommand{\qstatevar}{\hat{x}_{k}}
@@ -172,11 +174,9 @@
 \input{intro}
 \input{Motiv}
 \input{RMPC_Daisy}
-\section{Error Analysis}
-\eva{Assuming a given precision, how to compute the error for a given controller}
-\section{Controller Synthesis}
-\eva{How we actually get the controller, including feedback loop and mixed-precision tuning}
-\input{Methodology}
+\input{Error_Analysis}
+\input{Cont_Syn}
+%\input{Methodology}
 \input{experiments}
 \input{related}
 \input{conclusion}
