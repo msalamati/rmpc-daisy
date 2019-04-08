@@ -33,10 +33,15 @@ F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
 \end{equation}
 where $\mathcal{R}_i$ is a ploytope determined by a set of linear inequalities $\mathcal R_i = \{x\in\mathcal X\,|\,H_ix\leq K_i\}$. 
 \end{theorem}
-The essential idea of this theorem is to utilize the closed form $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$ and .... 
-\Sadegh{What is a multi-parametric quadratic problem? Not defined.}
+The essential idea of this theorem is to utilize the closed form $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$ of the following form:
+\begin{align}
+	&\min_{U_N}U_N^TZU_N+x_0^TVU_N+x_0^TYx_0\nonumber\\
+	&s.t.\quad JU_N\leq s+Dx_0
+\end{align} 
+where, $Z\in \reals^{mN\times mN}$, $V\in\reals^{n\times mN}$, $Y\in\reals^{n\times n}$, $J\in\reals^{q\times mN}$, $s\in\reals^{q}$, $D\in\reals^{q\times n}$ and $q$ is the number of inequalities.
+%\Sadegh{What is a multi-parametric quadratic problem? Not defined.}
 
-\Sadegh{Adding a remark and saying that the approach works as long as the solution of formulated optimization has a piecewise affine form?} 
+%\Sadegh{Adding a remark and saying that the approach works as long as the solution of formulated optimization has a piecewise affine form?} 
 
 The controller $K$ can be computed using multi-parametric toolbox of MATLAB~\cite{matlabMPT, matlabYALMIP}. We call \statespace\space the union of all regions $X_{i}$ in the domain of the state variable $x_{k}$:
 \begin{equation}
@@ -61,6 +66,5 @@ case (*$ H_{n}\statevar<=K_{n}$*) then (*$u_{n}$*)
 %Once the polytope was determined, computing for $F_ix+G_i$ requires even less effort as it only involves summation and multiplication.  
 
 To keep the costs of implementation down, low-end microcontrollers usually have limited memory and computational power. Therefore, implementation of the above explicit MPC on microcontrollers will bring some issues since all regions' matrices ($H_i$s and $K_i$s) and activation functions ($F_i$s and $G_i$s) have to be stored on the microcontroller. The goal of our paper is present an approach for minimizing the memeory usage of the implementation while satisfying the hard constraints on the states. 
-
-\section{Finite Precision Implementation}
-\Sadegh{To be included by Rocco}
+%\section{Finite Precision Implementation}
+%\Sadegh{To be included by Rocco}
