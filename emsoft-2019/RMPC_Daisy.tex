@@ -1,7 +1,7 @@
 \section{Robust MPC and Finite Precision}
 \subsection{Robust Explicit MPC}
 \def\reals{\mathbb{R}}
-We consider class of discrete time linreat time invariant systems
+We consider class of discrete time linear time invariant systems
 \begin{equation}
 \label{eq:DSS}
 x_{k+1}=Ax_k+Bu_k+Ew_k
@@ -14,7 +14,7 @@ where, $x\in \reals^{n\times 1}$ is state vector, $u\in \reals^{m\times 1}$ the 
 &x_{i+1}=Ax_i+Bu_i\nonumber\\
 &x_i\in\mathcal{X},\quad u_i\in \mathcal{U}	
 \end{align}
-where, $\mathcal U$ and $\mathcal X$ are polyhedral sets, $Q\in\reals^{n\times n}$, $R\in\reals^{m\times m}$ and $Q_F\in\reals^{n\times n}$ are positive semidefinite matrices and $N$ denotes the length of prediction horizon. By making use of the fact that $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$, one can translate \eqref{eq:RMPC_prob} into a multi-parametric quadratic problem which admits a closed-form solution $U_N=K(x_0)$. Furthermore, for the case that $Q\geq0$, $Q_F\geq0$ and $R>0$, the controller $K$ is a continuous piecewise affine (PWA) function over polydedral regions:
+where, $\mathcal U$ and $\mathcal X$ are polyhedral sets, $Q\in\reals^{n\times n}$, $R\in\reals^{m\times m}$ and $Q_F\in\reals^{n\times n}$ are positive semidefinite matrices and $N$ denotes the length of prediction horizon. By making use of the fact that $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$, one can translate \eqref{eq:RMPC_prob} into a multi-parametric quadratic problem which admits a closed-form solution $U_N=K(x_0)$. Furthermore, for the case that $Q\geq0$, $Q_F\geq0$ and $R>0$, the controller $K$ is a continuous piecewise affine (PWA) function over polyhedral regions:
 \begin{equation}
 K(x_k)=
 \begin{cases}
@@ -24,7 +24,7 @@ F_2x_k+G_2 & \text{if $x_k\in \mathcal{R}_2$}\\
 F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
 \end{cases} 
 \end{equation}
-where $\mathcal{R}_i$ is a ploytob determined by  a set of linear inequalities $H_ix\leq K_i$. To find the controller $K$ we rely on MATLAB multi-parametric toolbox to solve such optimization problem~\cite{matlabMPT, matlabYALMIP}. We call \statespace\space the union of all regions $X_{i}$ in the domain of the state variable $x_{k}$:
+where $\mathcal{R}_i$ is a ploytop determined by  a set of linear inequalities $H_ix\leq K_i$. To find the controller $K$ we rely on MATLAB multi-parametric toolbox to solve such optimization problem~\cite{matlabMPT, matlabYALMIP}. We call \statespace\space the union of all regions $X_{i}$ in the domain of the state variable $x_{k}$:
 \begin{equation}
 \statespace = \bigcup_{i}(H_{i}\statevar<=K_{i})
 \end{equation}
@@ -40,4 +40,4 @@ case (*$ H_{n}\statevar<=K_{n}$*) then (*$u_{n}$*)
 \end{lstlisting}
 Once the polytope was determined, computing for $F_ix+G_i$ requires even less effort as it only involves summation and multiplication.  
 
-A main issue with implimentation of explicit MPC is that all the products of off-line optimization, including regions' boundaries ($H_i$s and $K_i$s) and activation functions ($F_i$s and $G_i$s), have to be stored on the micro-controller. However, these embudded systems have limited memory, in the order of KBs and hence, it is of our interest to minimize the occupied memory.
+A main issue with implementation of explicit MPC is that all the products of off-line optimization, including regions' boundaries ($H_i$s and $K_i$s) and activation functions ($F_i$s and $G_i$s), have to be stored on the micro-controller. However, these embedded systems have limited memory, in the order of KBs and hence, it is of our interest to minimize the occupied memory.
