@@ -1,3 +1,4 @@
+%!TEX root = main.tex
 \section{Experimental Results}
 
 This section reports experiments with the prototype described in Listing\ref{lst:alg} applied to three different benchmarks: in the former two, we evaluate the complete pipeline (design and memory optimization) to produce in output a complete controller. In the last one, we empirically show the scalability of our approach on one artificial sample.
@@ -6,9 +7,28 @@ The design of controllers is done on a laptop with Intel i7-6700HQ CPU at 2.60GH
 The analysis for the last benchmark runs on a cluster with 48 cores Intel Xeon v2 @ 3.00GHz with 1TB of RAM. Note that the memory consumption of our analysis never exceed 15GB of memory.
 
 \subsection{Results}
+\eva{I'd split this into two subsections, one for the end-to-end experiments, and
+one for demonstrating scalability (and use the subsection names as well to make this clear)}
+\eva{Is the 4D aircraft example introduced/explained before? If not, this should be done first,
+including a citation.}
 
 In Table \ref{tab:ipd} we report the evaluation of our approach on both the inverted pendulum problem described in the motivation section, and a well-known 4D example for aircraft controller design. For each benchmark, we report the results for ten different combinations of Delta and Eps. We divided them in two halves: in the  first we fix the value for Delta and we try different Eps combinations, while in the second halve we do the opposite.
+\eva{To make Table 1 fit without a rotation, remove at least all constant info (like the number
+of regions). The two columns with the errors are probably also not needed.}
+\eva{Use the same symbol for Delta and Eps as used in the technical section.}
 
+\eva{In the following, I'd discuss the two examples together and structure the 
+discussion as follows:
+\begin{itemize}
+	\item give the constant info (number of regions etc.) for both benchmarks
+	\item explain the variation of delta and eps (ideally with a motivation for why this is interesting)
+	\item discuss the improvements we get (i.e. first discuss the metric we care about most)
+	\item discuss other interesting details
+\end{itemize}
+Discussing the two examples together let's us compare their results easier, i.e.
+point out differences or commonalities.
+}
+\eva{Add running times of the analysis in Table 1 (possibly as a separate small table)}
 In the pendulum section of Table \ref{tab:ipd}, MATLAB returns a controller with 14 regions and 58 hyperplanes for each of the combinations of Delta and Eps. Delta spans the interval from 0.05 to 0.3, while Eps from 0.0006 to 0.0050. The domain of X for the pendulum is in the bounded range $X_{0} \in (-3.23, 3.23)$ and $X_{1}\in (-1.46, 1.46)$. The first halve of the section, shows that Delta does not affect the maximal error among regions \maxUij. We verify that a variation for Delta (typically in the order of $\pm$ 0.1) results in a minimal alteration to the domain of regions X (in the order of $\pm 10^{-10}$), not enough to produce a sensitive variation to \maxUij. When \maxUij is constant, the error for imprecisions Err-Bound behaves the same as Delta (they both decrease). The memory required for the storage of F and G depends on Err-Bound: the smaller the value for Err-Bound, the more demanding is the precision required for computations. In average, more than 50\% of memory is saved between fixed-32, where the all arithmetic is done in fixed precision 32 bits, and Uni, the minimal uniform precision word-length found with our analysis. Using mixed-precision (Mix) reduces in average 10\% of memory consumption with respect to Uni baseline. The storage of hyperplanes H and K depends only on the size of the tubes Eps. When we fix the value for Eps, and we try different delta, we save always 50\% from fixed-32 and about 10\% from Uni to Mixed. In the second halve of the table, we fix the value for Delta and we try different Eps. When we increase the safe space between two regions by Eps, the value for \maxUij is computed for new corner points. It happens because of the continuity of PWA activation functions: when \statevarmath is on the border between two generic regions $i$, $j$ the value for \maxUij is close to zero. The more Eps moves \statevarmath far from the border, the more \maxUij increases. When \maxUij is almost equal to delta, the space for Err-Bound is minimized, and the controller requires high precision for computations (see last line of pendulum section in Table\ref{tab:ipd}). On the other hand, when the value of Eps increases the analysis can reduce the memory requirements for the storage of borders (see column Uni and Mix for the second halve of pendulum).
 
 In the aircraft section of Table\ref{tab:ipd}, we report the results for the aircraft benchmark.
