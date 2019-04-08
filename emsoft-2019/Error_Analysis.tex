@@ -1,4 +1,5 @@
 \section{Error Analysis}
+\label{sec:Error_Analysis}
 \eva{Assuming a given precision, how to compute the error for a given controller}
 The output of the controller can be affected by two main errors: (i) the controller chooses the wrong activation function because of imperfect implementation of point location algorithm, and (ii) the approximation error deriving from finite precision arithmetic used to compute the activation function itself~\cite{imperialrmpc}.\\
 In an hypothetic scenario where all the measurements were done in infinite precision arithmetic and without any uncertainty, we assume the controller $i$ would be activated. Instead, because we cannot rely on infinite precision, controller $j$ is selected. The error committed is the difference between the output of the two branches $i$ and $j$.
