@@ -1,20 +1,27 @@
-\section{Robust MPC and Finite Precision}
+% !TEX root = main.tex
+\section{Explicit MPC and Finite Precision}
 \subsection{Robust Explicit MPC}
 \def\reals{\mathbb{R}}
-We consider class of discrete time linreat time invariant systems
+We consider the class of linear time-invariant (LTI) systems characterized by the difference equation
 \begin{equation}
 \label{eq:DSS}
-x_{k+1}=Ax_k+Bu_k+Ew_k
+x_{k+1}=Ax_k+Bu_k+Ew_k,\quad  k=0,1,2,\ldots
 \end{equation}
-where, $x\in \reals^{n\times 1}$ is state vector, $u\in \reals^{m\times 1}$ the control input vector, $w\in \reals^{d\times 1}$ the disturbance vector, $A\in \reals^{n\times n}$ the state matrix, $B\in \reals^{n\times m}$ the input matrix, $E\in \reals^{n\times d}$, $k$ the time instant and the pair $(A,B)$ is stablizable. Knowing that $w\in\mathcal{W}$, where $\mathcal{W}$ is a polyhedral set, we try to solve for the following optimization problem:
+where $x\in \reals^{n\times 1}$ is the state, $u\in \reals^{m\times 1}$ is the control input and $w\in \reals^{d\times 1}$ is the disturbance. Matrices $A\in \reals^{n\times n}$, $B\in \reals^{n\times m}$ and $E\in \reals^{n\times d}$ are capturing respectively the effects of current state, input and disturbance on the next state. We assume the pair $(A,B)$ is stablizable.
+\Sadegh{Where do you need this assumption?}
+We assume that the disturbance $w$ belongs to the set $\mathcal{W}$ where $\mathcal{W}$ is a polyhedral set.
+In this paper, we focus on robust formulation of MPC which at each time step, minimizes the worst-case value of the objective function with respect to the disturbances. We also consider the objective function to be quadratic with respect to the states and inputs. The constrained optimization of each step can be written as
 \begin{align}
 \label{eq:RMPC_prob}
-\min_{u_0,\cdots,u_{N-1}}\max_{w_0,\cdots,w_{N-1}}& x_N^TQ_Fx_N+\sum_{i=0}^{N-1}(x_i^TQx_i+u_i^TRu_i)\nonumber\\
-\text{s.t.}\quad\forall i\in\{0,1,\cdots,&N-1\}:\nonumber\\
-&x_{i+1}=Ax_i+Bu_i\nonumber\\
-&x_i\in\mathcal{X},\quad u_i\in \mathcal{U}	
+\min_{u_0,\cdots,u_{N-1}}& \max_{w_0,\cdots,w_{N-1}} \sum_{i=0}^{N-1}(x_i^TQx_i+u_i^TRu_i) + x_N^TQ_Fx_N\nonumber\\
+\text{s.t.} \quad &x_{i+1}=Ax_i+Bu_i + E w_i, \quad\forall i\in\{0,1,\cdots,N-1\}\\
+&x_i\in\mathcal{X},\quad u_i\in \mathcal{U},\nonumber
 \end{align}
-where, $\mathcal U$ and $\mathcal X$ are polyhedral sets, $Q\in\reals^{n\times n}$, $R\in\reals^{m\times m}$ and $Q_F\in\reals^{n\times n}$ are positive semidefinite matrices and $N$ denotes the length of prediction horizon. By making use of the fact that $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$, one can translate \eqref{eq:RMPC_prob} into a multi-parametric quadratic problem which admits a closed-form solution $U_N=K(x_0)$. Furthermore, for the case that $Q\geq0$, $Q_F\geq0$ and $R>0$, the controller $K$ is a continuous piecewise affine (PWA) function over polydedral regions:
+\Sadegh{The role of disturbance is missing in the inequalities. We should say, we want to satisfy the inequalities for all possible values of the disturbance.}
+
+where $\mathcal U$ and $\mathcal X$ are polyhedral sets as feasible sets of inputs and states. $Q\in\reals^{n\times n}$, $R\in\reals^{m\times m}$ and $Q_F\in\reals^{n\times n}$ are positive semidefinite matrices and $N$ denotes the length of prediction horizon.
+\begin{theorem}[\Sadegh{add reference}]
+The optimization  \eqref{eq:RMPC_prob} can be translated into a multi-parametric quadratic problem which admits a closed-form solution $U_N=K(x_0)$. Furthermore, for the case that $Q\geq0$, $Q_F\geq0$ and $R>0$, the controller $K$ is a continuous piecewise affine (PWA) function over polyhedral regions:
 \begin{equation}
 K(x_k)=
 \begin{cases}
@@ -24,11 +31,24 @@ F_2x_k+G_2 & \text{if $x_k\in \mathcal{R}_2$}\\
 F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
 \end{cases} 
 \end{equation}
-where $\mathcal{R}_i$ is a ploytob determined by  a set of linear inequalities $H_ix\leq K_i$. To find the controller $K$ we rely on MATLAB multi-parametric toolbox to solve such optimization problem~\cite{matlabMPT, matlabYALMIP}. We call \statespace\space the union of all regions $X_{i}$ in the domain of the state variable $x_{k}$:
+where $\mathcal{R}_i$ is a ploytope determined by a set of linear inequalities $\mathcal R_i = \{x\in\mathcal X\,|\,H_ix\leq K_i\}$. 
+\end{theorem}
+The essential idea of this theorem is to utilize the closed form $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$ and .... 
+\Sadegh{What is a multi-parametric quadratic problem? Not defined.}
+
+\Sadegh{Adding a remark and saying that the approach works as long as the solution of formulated optimization has a piecewise affine form?} 
+
+The controller $K$ can be computed using multi-parametric toolbox of MATLAB~\cite{matlabMPT, matlabYALMIP}. We call \statespace\space the union of all regions $X_{i}$ in the domain of the state variable $x_{k}$:
 \begin{equation}
 \statespace = \bigcup_{i}(H_{i}\statevar<=K_{i})
 \end{equation}
-Therefore, given the state vector $x$, to compute control input, one has to first determine to which polytope does the state vector belong. Several algorithms are proposed to solve for this problem [references?]. The simplest technique to verify which region \statevarmath belongs to is to make a linear search over all the regions in \statespace\space, using a case-of conditional statement similar to the one in Listing \ref{lst:caseof}.
+\Sadegh{Is this set different from $\mathcal X$? We should explain why it is different.}
+
+The actual implementation of the controller requires storing the matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. At each time step $k$, the current state $x_k$ is used to detect the right polytope $i$ such that $H_i x_k\le K_i$. Then the control action $u_k = F_i x_k + G_i$ is computed and applied to the system.
+
+%Therefore, given the state vector $x$, to compute control input, one has to first determine to which polytope does the state vector belong.
+Several algorithms are proposed in the literature \Sadegh{[references?]} to find the right polytope $i$ to which the state $x_k$ belong. The most straightforward technique is a linear search over all polytopes in \Sadegh{\statespace\space} using a switch/case conditional statement of Listing \ref{lst:caseof}.
+\Sadegh{Perhaps we can mention another approach here? add references.}
 
 \begin{lstlisting}[escapeinside={(*}{*)},label={lst:caseof}, caption=switch for region selection]
 switch((*\statevarmath*)):
@@ -38,6 +58,9 @@ case (*$ H_{3}\statevar<=K_{3}$*) then (*$u_{3}$*)
 ...
 case (*$ H_{n}\statevar<=K_{n}$*) then (*$u_{n}$*)
 \end{lstlisting}
-Once the polytope was determined, computing for $F_ix+G_i$ requires even less effort as it only involves summation and multiplication.  
+%Once the polytope was determined, computing for $F_ix+G_i$ requires even less effort as it only involves summation and multiplication.  
 
-A main issue with implimentation of explicit MPC is that all the products of off-line optimization, including regions' boundaries ($H_i$s and $K_i$s) and activation functions ($F_i$s and $G_i$s), have to be stored on the micro-controller. However, these embudded systems have limited memory, in the order of KBs and hence, it is of our interest to minimize the occupied memory.
+To keep the costs of implementation down, low-end microcontrollers usually have limited memory and computational power. Therefore, implementation of the above explicit MPC on microcontrollers will bring some issues since all regions' matrices ($H_i$s and $K_i$s) and activation functions ($F_i$s and $G_i$s) have to be stored on the microcontroller. The goal of our paper is present an approach for minimizing the memeory usage of the implementation while satisfying the hard constraints on the states. 
+
+\section{Finite Precision Implementation}
+\Sadegh{To be included by Rocco}
