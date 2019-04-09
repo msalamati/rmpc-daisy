@@ -1,1 +1,56 @@
-\section{Finite Precision Implementation}
+%!TEX root = main.tex
+\subsection{Finite Precision Implementation}
+
+The controller has to be stored and implemented on the microcontroller in
+finite-precision, since infinite-precision real values cannot be stored on
+today's digital computers.
+The standard choice for low-power platforms is fixed-point arithmetic. Unlike
+floating-point arithmetic, fixed-point arithmetic can be implemented efficiently
+without complex hardware support using only integer operations. It requires,
+however, more compilation effort as, certain operations (that the floating-point
+hardware unit performs dynamically) now have to be determined statically at
+compile time.
+ 
+% general blob about fixed-point arithmetic
+\eva{Need to mention somewhere that we need input ranges}
+The main task at compile time is to select the fixed-point format for each value
+in the program. The format specifies the total word length and how many bits are
+available for the integer part of the number. To choose a sufficient number of
+integer bits to avoid overflow, but to not overprovision unnecessarily, we can
+use a range analysis which estimates the possibles ranges of all values
+in the program. The remaining bits of the total word length are represent the
+fractional part of a number, i.e. more fractional bits result in precise
+computations.
+Fixed-point arithmetic implementations can choose different rounding modes; here
+we consider standard and efficient truncation.
+
+% introduces roundoff errors, these can be tracked with a dataflow analysis
+Finite precision unavoidably introduces roundoff errors when storing and
+performing arithmetic, which can accumulate during the course of a computation.
+A sound static roundoff error analysis computes a guaranteed upper bound on the
+error of the result by tracking worst-case errors at every operation. Given a
+word length for each value, several tools~\cite{} compute roundoff errors using
+a dataflow analysis.
+They track real-valued ranges at every intermediate operation. These ranges
+determine the fixed-point formats and thus also the individual roundoff errors,
+which are captured and tracked separately from the ranges. To ensure guaranteed
+error bounds, both the ranges and errors are tracked using interval~\cite{} or
+affine arithmetic~\cite{} which compute sound enclosures. Since intervals do not
+track correlations between variables and affine arithmetic tracks only linear
+ones, the resulting ranges and errors are over-approximated.
+A standard technique to increase accuracy of the computed errors is interval
+subdivision, which divides the input domain into equally-sized subdomains and
+runs roundoff error analysis separately for each subdomain. The
+over-approximations on each subdomain tend to be smaller, which increases the
+overall tightness of range and error bounds.
+
+% mixed-precision tuning
+To reduce memory usage and increase efficiency, we want to choose as short word
+lengths as possible, ideally different word lengths for different values (i.e.
+mixed-precision instead of a uniform word length). Due to the complexity of
+fixed-point arithmetic and the error analysis, this is challenging to do
+manually.
+Automated mixed-precision tuning tools usually perform a search: they repeatedly
+select a candidate mixed-precision assignment (i.e. different word lengths for
+different values) and check whether the assignment satisfies a given error
+bound.
