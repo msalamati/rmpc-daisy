@@ -33,17 +33,21 @@ described in~\autoref{sec:example} and a well-known 4D example for aircraft
 controller design.
 \eva{Describe aircraft example, add citation}
 
-For the pendulum problem, the domain of X is bounded in the range $X_{0} \in
-(-3.23, 3.23)$ and $X_{1}\in (-1.46, 1.46)$. MATLAB designs a controller with 14
-regions and 58 hyperplanes for each combination of delta and $\varepsilon$.
-% delta spans the interval from 0.05 to 0.3, while $\varepsilon$ from 0.0006 to 0.0050.  % it's in the table
-For the aircraft problem, the domain of X is bounded in the range $X_{0} \in
-(-10000, 10000)$, $X_{1}\in (-734, 734)$, $X_{2}\in (-10000, 10000)$ and
-$X_{3}\in (-790, 790)$. MATLAB returns a controller with 27 regions and 217
-hyperplanes, except when delta=0.30 and $\varepsilon$=0.001 where the controller
-has 26 regions and 208 hyperplanes. In general, when the disturbance value
-increases, the state domain X shrinks to be robust against a greater
-disturbance, or the number of regions reduces.
+\Mahmoud{For the inverted pendulum problem depicted in Section \ref{sec:example}, we set  $m=.344$ kg, $b=0.48$ N s/m, $L=1.703$ m and $T_s=0.1$ s. The gain $K$ is selected such the $\bar A$ has poles at $-0.1$ and $-0.5$. Moreover, we select $N=2$, $R=1$ and $Q=Q_F=100\mathbf{\it I}$, where $\mathbf{ \it I}$ denotes the identity matrix of proper size. The aircraft 4-D model is borrowed from \cite{Kapasouris:1998}. Using the gain $K$, the poles of $\bar A$ are placed at $-5$, $-3$, $-1$ and $-2$. The robust MPC problem is solved for $N=2$, $R=\mathbf{\it I}$ and $Q=Q_F=5\mathbf{\it I}$. Note that for both of the examples, matrices $R$, $Q$ and $Q_F$ are selected such that convergrnce to the origin is given more weight comparing to the control effort as long as constraints are satisfied. \\
+We use MATLAB and MPT toolbox software (\cite{matlabMPT})  to compute the explicit MPC, while underlying computations rely on YALMIP(\cite{matlabYALMIP}). For the set of $\varepsilon$ and $\delta$ listed in the Table \ref{tab:ipd}, the off-line computed controller consists of $14$ regions with $58$ 2-D hyperplanes in total. Similarly, for the aircraft model MATLAB computed a robust EMPC with $27$ regions and $217$ 4-D hyperplanes. The only exception is when $\delta=0.30$ and $\varepsilon$=0.001 for which, we got $26$ regions having $208$ hyperplanes. In general, we expect that increasing $\delta$ results in shrinking of feasible set size.}
+
+
+%the feasible domain $X$ is bounded in the range $X_{0} \in
+%(-3.23, 3.23)$ and $X_{1}\in (-1.46, 1.46)$. MATLAB designs a controller with 14
+%regions and 58 hyperplanes for each combination of delta and $\varepsilon$.
+%% delta spans the interval from 0.05 to 0.3, while $\varepsilon$ from 0.0006 to 0.0050.  % it's in the table
+%For the aircraft problem, the domain of X is bounded in the range $X_{0} \in
+%(-10000, 10000)$, $X_{1}\in (-734, 734)$, $X_{2}\in (-10000, 10000)$ and
+%$X_{3}\in (-790, 790)$. MATLAB returns a controller with 27 regions and 217
+%hyperplanes, except when delta=0.30 and $\varepsilon$=0.001 where the controller
+%has 26 regions and 208 hyperplanes. In general, when the disturbance value
+%increases, the state domain X shrinks to be robust against a greater
+%disturbance, or the number of regions reduces.
 
 \eva{Explain why we choose 32 bits uniform as baseline}
 \eva{Explain why we don't compare against other tools (resp. the one)}
@@ -54,7 +58,7 @@ and mixed precision (`Mix'). We split the memory requirement into the bits
 required for storing F and G and H and K. We show the results for each benchmark
 for ten different combinations of delta and $\varepsilon$, varying one while
 keeping the other fixed.
-For the pendulum, the execution time of the analysis is 10 minutes no matter the
+For the pendulum, the execution time of the whole analysis is 10 minutes no matter the
 initial values for delta and $\varepsilon$, while for the aircraft it is 36
 minutes. \rocco{maybe table for execution times}
 
@@ -138,19 +142,48 @@ In the second halves in \autoref{tab:ipd}, we fix the value for delta and we try
 
 
 \subsection{Scalability}
+\Mahmoud{The goal of experiments in this section is to show that our algorithm works well even for the case that the controller consists of thousands of PWA functions and regions. 
+%Using the algorithm described in Section \ref{???}, the minimum number of bits for storing the controller is computed such that $\delta$ and $\varepsilon$ are respected. 
+This experiment is different from the end-to-end case in the sense that designing robust EMPC for the error bound $\delta$ is replaced with designing EMPC that might not count for $\delta$. Given an EMPC, one can perform robustness analysis to come up with an input error bound $\delta$ under which the performance specifications are satisfied. From the implementation point of view, this helps us to scale up-to controllers with thousands of regions, skiping the restrictions for designing robust EMPC with longer time horizons. At this point, our algorithm takes $\delta$ (along with a properly selected $\varepsilon$) and produces the optimum mixed precision that results in significant memory save.\\
 The benchmark in this experiment is the double integrator, a canonical example
-of a second order control system. 
+of a second order control system. Following gives the state space descreption for the discrete time version of double integrator
+\begin{equation}
+x_{k+1}=
+\begin{bmatrix}
+1 & T_s\\
+0& 1	
+\end{bmatrix}
+x_k+
+\begin{bmatrix}
+0\\
+T_s
+\end{bmatrix}u_k
+\label{eq:int2_ss}
+\end{equation}
+where, $T_s=0.1$ is the sample time. The state and input constraints are
+\begin{align*}
+	\begin{bmatrix}
+		-5\\-5
+	\end{bmatrix}\leq&
+	x_k\leq
+	\begin{bmatrix}
+	5\\5
+	\end{bmatrix}\\
+	-1\leq& u_k \leq 1
+\end{align*}}
 \eva{More details about this + citation}
 
-For this example, we fix the values for Delta to 0.1 and $\varepsilon$ to 0.001,
-but we consider also the prediction horizon m, as an input parameter for the
-analysis. At design time, the prediction horizon of the controller m models how
-many future iterations of the feed-forward system are considered in the
-optimization problem (infinite horizon would correspond to the optimal
-controller). Note that in this example, the number of regions is highly
-correlated with the prediction horizon m of the controller: the number of regions
-increases with larger m, and thus also increases the execution time of our analysis.
-Even if this is a general behavior, it is not the rule.
+\Mahmoud{For this example, $\delta$ and $\varepsilon$ are fixed into $0.1$ and $0.001$, respectively. However, by changing the time horizon $N$ we evaluate scalability of our approach for controllers with very large number of regions. Generally, increasing $N$ results in higher number of regions for the output controller. To compute the explicit model predictive controllers for different time horizons, we use MATLAB MPC toolbox.}
+ 
+%For this example, we fix the values for $\delta$ to $0.1$ and $\varepsilon$ to $0.001$,
+%but we consider also the prediction horizon $N$, as an input parameter for the
+%analysis. At design time, the prediction horizon of the controller m models how
+%many future iterations of the feed-forward system are considered in the
+%optimization problem (infinite horizon would correspond to the optimal
+%controller). Note that in this example, the number of regions is highly
+%correlated with the prediction horizon m of the controller: the number of regions
+%increases with larger m, and thus also increases the execution time of our analysis.
+%Even if this is a general behavior, it is not the rule.
 \eva{What does the above sentence mean?}
 
 The design of the controller in MATLAB takes few minutes, then controllers and
