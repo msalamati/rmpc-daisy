@@ -30,7 +30,7 @@ be found. Since our algorithm optimizes and adjust precision dynamically it will
 eventually find an implementation.
 
 \citet{Anta10} take an existing controller and its implementation, derive safe
-bounds from the controller under which stability is guarantees and verify that
+bounds from the controller under which stability is guaranteed and verify that
 the implementation in fixed-point arithmetic satisfies this error bound.
 Similarly, \citet{ParkPSL17} takes an existing floating-point controller
 implementation, reconstructs the controller and verifies that roundoff errors
@@ -49,6 +49,7 @@ arithmetic. While this algorithm generates the controller and its
 implementation, due to limitations in BMC it only considers uniform fixed-point
 word length in steps of 8.
 \eva{I guess it also does not consider robustness? Not sure how this is related.}
+\Sadegh{Eva, You explanation is good. I think the way we look at the problem is different from \cite{Abate2017}: \cite{Abate2017} assumes a fixed precision is given and tries to design the controller with the specific precision such that the safety constraints are satisfied, so no discussion on robustness or memory usage. In our case we don't fix a precision. We find a controller together with a mixed precision that satisfies the constraints and respects the memory budget.}
 
 \citet{memoryMPC} propose to use universal numbers (unums) instead of
 traditional floating-point or fixed-point arithmetic for implementing robust
@@ -63,13 +64,13 @@ been investigated mostly for Model Predictive Control (MPC)~\cite{camacho2013mod
 Researchers have investigated designing MPC controllers for satisfying safety requirements expressed as temporal logic formulas 
 \cite{FMPS18,KaramanSF08,raman2014model,WongpiromsarnTM12,pant2017smooth,kim2017dynamic}.
 %,LiNSXL17, SadighK16,
-\Sadegh{We can reduce the references.}
+%\Sadegh{We can reduce the references.}
 The main technique is to optimize the robust satisfaction of 
 the formula~\cite{donze2010robust} (i.e., a quantitative measure of satisfaction).
 These works utilize MPC an an online method that requires solving at runtime often computationally 
 expensive optimization problems. In contrast, the explicit MPC used in our work performs controller synthesis at the design time.
 
-\Sadegh{adding a few references on explicit MPC.}
+%\Sadegh{adding a few references on explicit MPC.}
 
 % finite-precision only
 \paragraph{Finite-Precision Optimization}
