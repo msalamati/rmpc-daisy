@@ -1,13 +1,10 @@
 % !TEX root = main.tex
 \section{Motivation}\label{sec:example}
 
-Model Predictive Control (MPC) refers to the class of control strategies that design control actions by solving a finite horizon optimal control problem at each sampling instant. While each optimization gives a sequence of optimal control actions, only the first action is applied to the process. The same procedure is applied in the next time instance after receiving the updated value of the process state. MPC has shown to be successful in industrial applications since it is able to handle large number of states and control actions and automatically considers constraints in the optimization.
+% Model Predictive Control (MPC) refers to the class of control strategies that design control actions by solving a finite horizon optimal control problem at each sampling instant. While each optimization gives a sequence of optimal control actions, only the first action is applied to the process. The same procedure is applied in the next time instance after receiving the updated value of the process state. MPC has shown to be successful in industrial applications since it is able to handle large number of states and control actions and automatically considers constraints in the optimization.
+% 
+% The optimization of each time instance uses a dynamic model of the process to predict the future states and find the optimal sequence of actions that satisfies all the constraints. The objective function of the optimization is usually linear or quadratic. The resulting optimization problem can be cast as a linear program (LP) or quadratic program (QP), respectively, if the dynamic model is linear. For hybrid models with linear dynamics in each mode, the optimization problem can be cast as a mixed integer linear or quadratic program (MILP/MIQP). 
 
-The optimization of each time instance uses a dynamic model of the process to predict the future states and find the optimal sequence of actions that satisfies all the constraints. The objective function of the optimization is usually linear or quadratic. The resulting optimization problem can be cast as a linear program (LP) or quadratic program (QP), respectively, if the dynamic model is linear. For hybrid models with linear dynamics in each mode, the optimization problem can be cast as a mixed integer linear or quadratic program (MILP/MIQP). 
-
- The main difference between MPC and conventional control is in the nature of the function that maps the measured outputs to control actions. The former computes such a function online but the latter pre-computes it off-line. The required online computations in MPC limits its applicability to slow processes: the sampling time should be large enough to allow enough time for solving the optimization and obtaining the optimal action for the next time instance. Moreover, the optimization solver needs to be certified for using MPC in safety critical applications.
- % while the  therefore that in the latter the control function is pre-computed off-line.
-These issues can be tackled using \emph{Explicit MPC} under proper assumptions on the model, constraints and the objective function. Explicit MPC solves the optimization problem off-line over a bounded domain of the state variables by using multiparametric programming techniques. The output of Explicit MPC is the optimal control actions as an ?explicit? function of the states which is piecewise affine. This expands the class of systems being controlled by MPC strategies since the implementation requires only storing a lookup table of linear gains and performing an affine computation using the appropriate gains at each time instance. A survey on Explicit MPC can be found in \cite{Alessio2009}.
 
 \begin{figure}[t]
 	\begin{tabular}{cc}
@@ -18,9 +15,10 @@ These issues can be tackled using \emph{Explicit MPC} under proper assumptions o
 	\label{fig:inverted_pendulum}
 \end{figure}
 
-As an example of a dynamical system, consider the problem of designing a controller for an inverted pendulum depicted in Fig.~\ref{fig:inverted_pendulum}~{(a)}.
+As a simple example, consider the problem of designing a controller for an inverted pendulum depicted in Fig.~\ref{fig:inverted_pendulum}~{(a)}.
 The goal of the controller is to keep the pendulum at the vertical position while satisfying hard constraints on the state variables and control inputs.
-A model of the system can be constructed using physical principles. After linearization and time discretization, the model is
+A model of the system can be constructed using physical principles. 
+After linearization and time discretization, the model is
 	\begin{equation}
 		\begin{bmatrix}
 			 \theta_{k+1}\\
@@ -40,37 +38,68 @@ A model of the system can be constructed using physical principles. After linear
 		\end{bmatrix}u_k + w_k
 		\label{eq:pendul_ss}
 	\end{equation}
-	where $\theta_k$, $\omega_k$ and $u_k$ denote respectively the angular position, angular speed and the input torque at time $kT_s$ with $T_s$ being an appropriate sample time.
-	The disturbance $w_k\in\mathbb R^2$ bounded with $\|w_k\|\leq \Delta$ captures the modeling error due to linearization and discretization. The parameter $g=9.81 [m/s^2]$ is the gravitational acceleration, $m$ is the ball mass, $b$ is the rotational fraction coefficient and $L$ is the length of the bar. Starting from an initial state $(\theta_0,\omega_0)$, we would like the system's trajectory to converge to its equilibrium point $\theta=0$ and $\omega=0$, while $\theta_k\in[-\pi,\pi]$ and $\omega_k\in[-\pi/8,\pi/8]$ in all time instances.\\
-	There are many control schemes that can guarantee convergence of the trajectories to the rest position (e.g., state feedback or linear quadratic regulator), but fail to ensure hard constraints on the states at all time instances. The main feature of MPC schemes is to automatically include these constraints in the design of control actions.
-	%
-	%  adding polytopic constraints, MPC schemes will be the best choice. 
-	%In literature, many control schemes are proposed for stablizing the system around the equilibrium point. 
-	%In order to design a controller which takes additional safety constraints are taken into account, model predictive control (MPC) schemes seem to be best candidate. 
-	One major challenge of implementing model predictive controllers over embedded systems is to solve the related optimization within each sampled time inerval. Since the system under consideration is LTI, one can use explicit MPC \cite{Bemporad:2002} that computes partitions over state space together with affine functions which are then used to compute the optimal control input over their corresponding partition. For the inverted-pendulum example, the computed controller contains $12$ partition presented in Fig.~\ref{fig:inverted_pendulum}~{(b)}, each with an affine function that gives the control action over that partition.
+where $\theta_k$, $\omega_k$, and $u_k$ denote respectively the angular position, angular speed, 
+and the input torque at time $kT_s$ with $T_s$ being an appropriate sample time.
+The disturbance $w_k\in\mathbb R^2$ bounded with $\|w_k\|\leq \Delta$ captures the modeling error due to 
+linearization and discretization. 
+The parameter $g=9.81 [m/s^2]$ is the gravitational acceleration, $m$ is the ball mass, $b$ is the rotational fraction coefficient, 
+and $L$ is the length of the bar. 
+Starting from an initial state $(\theta_0,\omega_0)$, the control goal is to converge to the equilibrium point 
+$\theta=0$ and $\omega=0$.
+Additionally, we require the state constraints $\theta_k\in[-\pi,\pi]$ and $\omega_k\in[-\pi/8,\pi/8]$ to hold at all time instances.
+
+Our overall goal is to 
+(i) design a robust MPC that achieves the performance objectives including hard constraints in spite of a bounded
+distubrance $\Delta$ modeling the implementation error due to fixed precision;
+and at the same time
+(ii) to minimize the total number of bits that are required for storing the explicit controller 
+while ensuring the error $e\leq \Delta$ is satisfied by the implementation.
+
+% There are many control schemes that can guarantee convergence of the trajectories to the rest position (e.g., state feedback or linear quadratic regulator), but fail to ensure hard constraints on the states at all time instances. The main feature of MPC schemes is to automatically include these constraints in the design of control actions.
+%	One major challenge of implementing model predictive controllers over embedded systems is to solve the related optimization within each sampled time inerval. Since the system under consideration is LTI, one can use explicit MPC \cite{Bemporad:2002} that computes partitions over state space together with affine functions which are then used to compute the optimal control input over their corresponding partition. For the inverted-pendulum example, the computed controller contains $12$ partition presented in Fig.~\ref{fig:inverted_pendulum}~{(b)}, each with an affine function that gives the control action over that partition.
 	
-	%To overcome this issue, in [Bemporad:2002], explicite MPC, a multi-parametric programming based approach is proposed for LTI systems. 
-	In many practical applications, explicit MPC is implemented over relatively low-price embedded systems with limited memory capacity and computational power. The partitions together with the affine functions should be stored on the embedded system.
-	Computing the control action, i.e., evaluating the affine function for a specific state, can be performed efficiently using for example binary tree search. However, the memory limitations is more crucial since the memory usage increases linearly with the number of partitions.
-	In this paper we discuss a method for reducing the memory usage in applying explicit MPC to LTI dynamical systems.
-	%The goal of this paper is to propose a mTherefore, we would like to explore ways to reduce the required memory for storing the controller efficiently.
+%	In many practical applications, explicit MPC is implemented over relatively low-price embedded systems with limited memory capacity and computational power. The partitions together with the affine functions should be stored on the embedded system.
+%	Computing the control action, i.e., evaluating the affine function for a specific state, can be performed efficiently using for example binary tree search. However, the memory limitations is more crucial since the memory usage increases linearly with the number of partitions.
+%	In this paper we discuss a method for reducing the memory usage in applying explicit MPC to LTI dynamical systems.
 	
-	Many low-end embedded systems only support fixed point arithmetic which causes errors that is inversely proportional to the number of bits used for representing each variable. It is necessary to account for such errors in the design stage of the controllers to be able to enforce hard constraints on the states at the final implementation of the controller. Our proposed method iteratively solves a robust version of the MPC with varying bound on the disturbance to include such errors.   %Therefore, one needs to formulate the problem as robust EMPC to count for disturbance input $|\delta|\leq \Delta$ which is summed up with the control input torque $u$ in each time step.
+%	Many low-end embedded systems only support fixed point arithmetic which causes errors that is inversely proportional to the number of bits used for representing each variable. It is necessary to account for such errors in the design stage of the controllers to be able to enforce hard constraints on the states at the final implementation of the controller. Our proposed method iteratively solves a robust version of the MPC with varying bound on the disturbance to include such errors.   %Therefore, one needs to formulate the problem as robust EMPC to count for disturbance input $|\delta|\leq \Delta$ which is summed up with the control input torque $u$ in each time step.
 	 %Setting the number of bits for storing different variables, one can compute the upper bound for approximation error, $\bar\omega$.
 	%However, we would like to achieve the minimum number of bits to reduce memory requirements.
 	
-	In summary, we design a robust explicit MPC, taking fixed-point arithmetic errors into account and find a minimal set of mixed precision assignments for all the quantities that must be stored on the embedded system. Denote the overall error produced by the fixed finite precision implementation by $e$.
-	%Denote the total number of bits required for implementation of RMPC by $N_b$. Given the maximum memory budget denoted by $\bar N_b$, the overall goal will be to design a robust MPC that (i) achieves the performance objectives including hard constraints and (ii) is implemented in a way that $N_b\leq \bar N_b$.
-   The overall goal will be to (i) design a robust MPC that achieves the performance objectives including hard constraints while the error because of the fixed-point implementation is taken into account and (ii) to minimize the total number of bits that are required for storing the computed RMPC over the embedded system while $e\leq \Delta$ is satisfied.
-	%while the error resulted by fixed-point arithmetic is smaller than the error bound $\Delta$.
-	Our approach iteratively expand the bound on disturbance $\Delta+\Delta_0$, designs a robust explicit MPC controller with this bound and uses state-of-the-art fixed-point error analyzers to find the minimum total number of bits for storing the controller into the embedded system with maximum error $\Delta_0$.\\
+%	In summary, we design a robust explicit MPC, taking fixed-point arithmetic errors into account and find a minimal set of mixed precision assignments for all the quantities that must be stored on the embedded system. 
+% Denote the overall error produced by the fixed finite precision implementation by $e$.
+
+%Our approach iteratively expand the bound on disturbance $\Delta+\Delta_0$, designs a robust explicit MPC controller with this bound and 
+% uses state-of-the-art fixed-point error analyzers to find the minimum total number of bits for storing the controller into the embedded system with maximum error $\Delta_0$.
 	
-	Figure \ref{fig:overview} gives a high-level overview of our proposed setup. 
-	%We start with defining the memory budget $\bar N_b$ and an initial bound $\Delta_0$. For the inverted pendulum example, we choose $\bar N_b=6000$ and $\Delta_0=0$. 
-	We start with defining an initial bound $\Delta_0$. For the inverted pendulum example, we choose $\Delta_0=0$. To design robust explicit MPC, MATLAB is run and the output of the controller is computed. Next, we ask Daisy to provide us with a mixed-precision scheme respecting the error bound $\Delta$. However, $\Delta_0=0$ is not realizable as error resulted from fixed-point implementation is always greater than zero. Therefore, we go ahead and increase $\Delta$ by $0.05$. Solving the robust explicit MPC problem for the new disturbance bound gives the new controller. Next, we ask Daisy to provide us with fixed-point precision for all the parameters such that the new bound is respected. The mixed-precision scheme given by Daisy results in total number of bits $6084$ for the corresponding robust explicit MPC. The mixed precision implementation takes about $10\%$ less memory compare to the smallest uniform precision that respects $\Delta$. 
-	%The mixed-precision scheme given by Daisy results in total number of bits $N_b=6084$ and since $N_b>\bar N_b$, we increase $\Delta$ again. Increasing $\Delta$ by $0.1$, Daisy provides us with a mixed-precision scheme with $N_b=5900$ for the corresponding robust explicit MPC. As $N_b<\bar N_b$ the algorithm stops. The mixed precision implementation takes $11\%$ less memory compare to the smallest uniform precision that respects $\Delta$. 
-%	Using the output of Daisy, we are able to reduce memory requirements for the embedded systems up-to $20\%$ comparing to the case that uniform fixed-point precision is used.
-	
+Figure \ref{fig:overview} gives a high-level overview of our proposed setup. 
+We start by defining an initial bound $\Delta_0$. 
+For our example, we choose $\Delta_0=0$. 
+We use MATLAB to find a robust explicit MPC with the bound $\Delta_0$ on the disturbance.
+Next, we ask Daisy \cite{Daisy} 
+to provide us with a mixed-precision scheme such that the implementation satisfies the error bound $\Delta$, that is,
+at all points in the control domain, the difference between the (infinite precision) controller function
+and its implementation in the mixed-precision scheme is at most $\Delta$.
+
+Unfortunately, $\Delta_0=0$ is not realizable,  as the error resulting from a fixed-point 
+implementation is always greater than zero. 
+Therefore, we increase $\Delta$ by $0.05$ and try again. 
+Solving the robust explicit MPC problem for the new disturbance bound gives the new controller,
+shown in Figure~\ref{fig:inverted_pendulum}(b).
+The controller has \RM{XX} regions.
+\RM{give the control function. I think it will be good to explicitly write the polyhedra and the affine maps} 
+
+Next, we ask Daisy to provide us with mixed-precision implementation for all the parameters and to compute a static bound on the
+implementation error. 
+The mixed-precision scheme given by Daisy results in an implementation with $6084$ bits in all 
+for the corresponding robust explicit MPC.
+Daisy also computes a static error bound of \RM{what?}
+Since this error bound is less than our robustness margin $\Delta = 0.05$, we terminate the loop
+and return this implementation.
+The mixed precision implementation takes about $10\%$ less memory compared 
+to the smallest uniform precision implementation that respects $\Delta$,
+and about $XXX\%$ \RM{what} less memory than an implementation that uniformly uses
+32 bits per constant.
 	
 	
 	\tikzstyle{block} = [draw, rectangle, 
@@ -108,7 +137,12 @@ A model of the system can be constructed using physical principles. After linear
 			\draw [->] (delta) -| node [above] {} (RMPC);
 	
 	\end{tikzpicture}
-	\caption{high-level description of the proposed memory-efficient robust MPC design}
+	\caption{high-level description of the proposed memory-efficient robust MPC design
+\RM{what is $\bar{\Delta}$}
+\RM{try to draw a better picture spanning only one column. the information in this pic is sparse}
+\RM{why is $u$ a single affine map?}
+\RM{why is Daisy only giving $e$? Shouldn't it also return the best mixed precision impl?}
+}
 	\label{fig:overview}
 \end{figure*}
 
