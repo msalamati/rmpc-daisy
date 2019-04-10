@@ -9,7 +9,7 @@ lengths fully automatically in~\autoref{sec:Controller_Synthesis}.
 \eva{Should we mention here the paper which does the LP-based analysis, i.e.
 contrast our approach?}
 
-The output of the controller is affected by two main sources errors which an error
+In the same way described in \cite{imperialrmpc}, the output of the controller can be affected by two main sources errors which an error
 analysis has to capture: 
 \begin{itemize}
   \item[(i)] \emph{incorrect region selection}: an incorrect control action can be chosen
@@ -28,8 +28,7 @@ where $i,j$ are the indexes of two generic regions $\mathcal{R}_{i}$ and
 $\mathcal{R}_{j}$, \\ $neighbour(\mathcal{R}_{i},\mathcal{R}_{j})$ states that
 two regions share at least a point, $u_{i}$ is the
 control action for controller $i$, and $err(u_{i})_{p}$ is
-the approximation error for computing $u_{i}$ using precision p.
-
+the approximation error for computing the activation function $u_{i}$ in fixed precision using p bits format.
 \paragraph{Incorrect Region Selection}
 
 The first part of the error in~\autoref{eq:delta} captures the error due to
@@ -62,9 +61,9 @@ correct region.
 how. Please explicitly define $border_{i,j}$.}
 In formula $\exists\; m,n \;$such that:
 \begin{equation}
-(H_{i}\statevar-K_{j})_{m} = (H_{j}\statevar-K_{j})_{n}
+border_{i,j}=(H_{i}\statevar-K_{j})_{m} = (H_{j}\statevar-K_{j})_{n}
 \end{equation}
-where $m$ and $n$ are the indexes of the two hyperplanes. We label with $border_{i,j}$ the matching border shared among the two regions.
+where $m$ and $n$ are the indexes of the matching border respectively in $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$.
 
 The width of the tube $\varepsilon$, i.e. the uncertainty in computing $x_k$ and
 thus the correct region, is due to two sources of errors: analog-to-digital
@@ -79,24 +78,23 @@ and is given by:
 \begin{equation*}
 \varepsilon_{A/D}=\frac{V_{cc}}{2^{p}-1}
 \end{equation*}
-where $V_{cc}$ is the reference voltage of the converter (e.g. typically 5V) and
-$p$ represents the number of bits.
+where $V_{cc}$ is the reference voltage of the converter (e.g. typically 5V), p is the number of bits available to quantize the analog signal, and $2^{p}$ is the resolution of the converter.
+
 \eva{which bits, who determines these?}
 
 While $\varepsilon_{A/D}$ is intrinsic to the capabilities of the device,
-$\varepsilon_{Q}$ depends on the precision used to store the boundaries. This
+$\varepsilon_{Q}$ depends on the precision used to store the boundaries, and it is user defined at compile time. This
 second error can be tuned based on a trade-off between accuracy of the storage and
-memory storage needed~\cite{memoryMPC}.
+memory storage required~\cite{memoryMPC}.
 %
 $\varepsilon_{Q}$ is given by:
 \begin{equation}\label{eq:quantizationlines}
-  \varepsilon_{Q} > (H-\hat{H}_{p})\qstatevar+(K-\hat{K}_{p})
+  \varepsilon_{Q} > |(H-\hat{H}_{p})\qstatevar+(K-\hat{K}_{p})|
 \end{equation}
 \eva{Shouldn't this equation have some absolute values in it?}
-\eva{The equation above does not give any hint for how to compute it. I would prefer to
-add the inequality to \autoref{eq:epsilontot} and give an equality here that explicitly
-shows how to compute this. I assume there is some maximization going on here. Then also rephrase the below}
-This inequality assures that the distance between any hyperplane represented in infinite precision (H and K), and its counter-part quantized in p bits ($\hat{H}_{p}$ and $\hat{K}_{p}$), is bounded by $\varepsilon_{Q}$. 
+\eva{The equation above does not give any hint for how to compute it. I would prefer to add the inequality to \autoref{eq:epsilontot} and give an equality here that explicitly shows how to compute this. Then also rephrase the below}
+
+The inequality guarantees that the distance between any hyperplane in infinite precision (H and K), and its counter-part quantized in p bits precision ($\hat{H}_{p}$ and $\hat{K}_{p}$) is bounded by $\varepsilon_{Q}$.
 
 
 \paragraph{Approximate Control Output}
@@ -108,13 +106,19 @@ in finite precision arithmetic:
 \end{equation}
 where $\hat{F}$ and $\hat{G}$ represent the rounded values (in p bits) for the infinite precision values $F$ and $G$.
 
-In (\ref{eq:fperror}) the domain for \statevarmath are all the points in region
-$i$, together with all the values in the tube between region $i$ and
-any of the neighbors of $i$. Even if some points in the tube do not belong to
-region $i$, it might that $u_{i}$ is (erroneously) activated. 
-\eva{$u_{i}$, or some $u_{j}$?}
-
+In (\ref{eq:fperror}) the domain for \statevarmath are all the points in region $i$, together with all the values in the tube surrounding region $i$. 
+In this way we compute the error also for those points, that belong to a neighbor of $i$, but because of $\varepsilon$ they are erroneously located inside region $i$.
 
 \eva{This section so far says nothing about how we actually compute these errors (incl. with which tools). 
 This should come here}
 \paragraph{Implementation}
+
+The designer of the controller fixes the value for $epsilon$ at compile time before starting the analysis. $\varepsilon_{Q}$ is also a user dependent parameter fixed at compile time. The value for $\varepsilon_{Q}$ depends on the total amount of memory we can dedicate to the storage of H and K on the target controller.
+
+The first part of equation (7) is solved in MATLAB. Since the function $u_{i}-u_{j}$ is linear, and we define the tube as a convex region, we need to evaluate the function only at the corner points of the tube and keep the value with the maximal magnitude.
+
+The second part of equation (7), and the precision required for hyperplanes storage are both computed in Daisy. 
+The way we use the analyzer is the following: we give an error bound in input to Daisy together with the coefficients we want to quantize (H, K or F, G). Daisy iteratively tries different uniform precisions for the quantization of the coefficients, and stops when it finds the minimal word-length such that the error in input is satisfied.
+Daisy starts the search from unary word-length (1bit), and increases the precision with a one by one step at each iteration. It stops when the current (uniform) configuration introduces an approximation error that is bounded by the input error. This minimal word-length is going to be the baseline for the mixed-precision tuning phase.
+
+Our analysis returns the total memory (in bits) required by the configuration detected in Daisy. The designer can then tune the epsilon value based on the memory consumption of the current configuration. 
