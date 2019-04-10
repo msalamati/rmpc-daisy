@@ -11,10 +11,10 @@ These issues can be tackled using \emph{Explicit MPC} under proper assumptions o
 
 \begin{figure}[t]
 	\begin{tabular}{cc}
-	\includegraphics[width=2cm,height=4cm]{Figs/inv_pend.png}&	\includegraphics[width=6cm,height=4cm]{Figs/regs.jpg}\\
+	\includegraphics[width=2cm,height=3cm]{Figs/inv_pend.png}&	\includegraphics[width=6cm,height=4cm]{Figs/regs.jpg}\\
 	(a)&(b)
 	\end{tabular}
-	\caption{(a) Inverted pendulum; (b) 2-D plot of polyhedral partitions for an explicit MPC applied to the inverted pendulum.\Sadegh{Scale the figures better to resemble the actual image, it is now squeezed horizontally.}}
+	\caption{(a) Inverted pendulum; (b) 2-D plot of polyhedral partitions for an explicit MPC applied to the inverted pendulum.}
 	\label{fig:inverted_pendulum}
 \end{figure}
 
@@ -59,11 +59,16 @@ A model of the system can be constructed using physical principles. After linear
 	 %Setting the number of bits for storing different variables, one can compute the upper bound for approximation error, $\bar\omega$.
 	%However, we would like to achieve the minimum number of bits to reduce memory requirements.
 	
-	In summary, we design a robust explicit MPC, taking fixed-point arithmetic errors into account and find a minimal set of mixed precision assignments for all the quantities that must be stored on the embedded system. Denote the total number of bits required for implementation of RMPC by $N_b$. Given the maximum memory budget denoted by $\bar N_b$, the overall goal will be to design a robust MPC that (i) achieves the performance objectives including hard constraints and (ii) is implemented in a way that $N_b\leq \bar N_b$.
+	In summary, we design a robust explicit MPC, taking fixed-point arithmetic errors into account and find a minimal set of mixed precision assignments for all the quantities that must be stored on the embedded system. Denote the overall error produced by the fixed finite precision implementation by $e$.
+	%Denote the total number of bits required for implementation of RMPC by $N_b$. Given the maximum memory budget denoted by $\bar N_b$, the overall goal will be to design a robust MPC that (i) achieves the performance objectives including hard constraints and (ii) is implemented in a way that $N_b\leq \bar N_b$.
+   The overall goal will be to (i) design a robust MPC that achieves the performance objectives including hard constraints while the error because of the fixed-point implementation is taken into account and (ii) to minimize the total number of bits that are required for storing the computed RMPC over the embedded system while $e\leq \Delta$ is satisfied.
 	%while the error resulted by fixed-point arithmetic is smaller than the error bound $\Delta$.
 	Our approach iteratively expand the bound on disturbance $\Delta+\Delta_0$, designs a robust explicit MPC controller with this bound and uses state-of-the-art fixed-point error analyzers to find the minimum total number of bits for storing the controller into the embedded system with maximum error $\Delta_0$.\\
 	
-	Figure \ref{fig:overview} gives a high-level overview of our proposed setup. We start with defining the memory budget $\bar N_b$ and an initial bound $\Delta_0$. For the inverted pendulum example, we choose $\bar N_b=6000$ and $\Delta_0=0$. To design robust explicit MPC, MATLAB is run and the output controller is computed. Next, we ask Daisy to provide us with a mixed-precision scheme respecting the error bound $\Delta$. However, $\Delta_0=0$ is not realizable as error resulted from fixed-point implementation is always greater than zero. Therefore, we go ahead and increase $\Delta$ by \Sadegh{$0.05$}. \Sadegh{Is there a way to justify this choice?} Solving the robust explicit MPC problem for the new disturbance bound gives the new controller. Next, we ask Daisy to provide us with fixed-point precision for all the parameters such that the new bound is respected. The mixed-precision scheme given by Daisy results in total number of bits $N_b=6084$ and since $N_b>\bar N_b$, we increase $\Delta$ again. Increasing $\Delta$ by $0.1$, Daisy provides us with a mixed-precision scheme with $N_b=5900$ for the corresponding robust explicit MPC. As $N_b<\bar N_b$ the algorithm stops. The mixed precision implementation takes $11\%$ less memory compare to the smallest uniform precision that respects $\Delta$. 
+	Figure \ref{fig:overview} gives a high-level overview of our proposed setup. 
+	%We start with defining the memory budget $\bar N_b$ and an initial bound $\Delta_0$. For the inverted pendulum example, we choose $\bar N_b=6000$ and $\Delta_0=0$. 
+	We start with defining an initial bound $\Delta_0$. For the inverted pendulum example, we choose $\Delta_0=0$. To design robust explicit MPC, MATLAB is run and the output of the controller is computed. Next, we ask Daisy to provide us with a mixed-precision scheme respecting the error bound $\Delta$. However, $\Delta_0=0$ is not realizable as error resulted from fixed-point implementation is always greater than zero. Therefore, we go ahead and increase $\Delta$ by $0.05$. Solving the robust explicit MPC problem for the new disturbance bound gives the new controller. Next, we ask Daisy to provide us with fixed-point precision for all the parameters such that the new bound is respected. The mixed-precision scheme given by Daisy results in total number of bits $6084$ for the corresponding robust explicit MPC. The mixed precision implementation takes about $10\%$ less memory compare to the smallest uniform precision that respects $\Delta$. 
+	%The mixed-precision scheme given by Daisy results in total number of bits $N_b=6084$ and since $N_b>\bar N_b$, we increase $\Delta$ again. Increasing $\Delta$ by $0.1$, Daisy provides us with a mixed-precision scheme with $N_b=5900$ for the corresponding robust explicit MPC. As $N_b<\bar N_b$ the algorithm stops. The mixed precision implementation takes $11\%$ less memory compare to the smallest uniform precision that respects $\Delta$. 
 %	Using the output of Daisy, we are able to reduce memory requirements for the embedded systems up-to $20\%$ comparing to the case that uniform fixed-point precision is used.
 	
 	
@@ -77,30 +82,22 @@ A model of the system can be constructed using physical principles. After linear
 	\begin{figure*}[t]
 		\begin{tikzpicture}[auto, node distance=2cm,>=latex',scale=1]
 			\centering
-			\node [block,scale=.8, pin={[pinstyle]above:$\Delta=\Delta_0$},
-			node distance=5cm] (RMPC) {RMPC design (MATLAB)};
-			\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
-			\node [block, scale=1,right of=RMPC,
-			node distance=5cm,text width=3cm] (mixed) {Mixed precision computation (Daisy)};
+			\node [block,scale=1,,text width=3.5cm, pin={[pinstyle]above:$\Delta=\Delta_0$},
+			node distance=1cm] (RMPC) {Robust explicit MPC design (computed by MATLAB)};
+			%\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
+			\node [block, scale=1,right=2.5cm of RMPC,
+			node distance=5cm,text width=4cm] (mixed) {Finite precision implementation (computed by Daisy)};
 			\node [draw, diamond, 
-			minimum height=3em, minimum width=3em, right of=mixed,
-			node distance=5cm] (decide) {$N_b\leq \bar N_b$};
+			minimum height=3em, minimum width=3em, right =1cm of mixed,
+			node distance=5cm] (decide) {$e\leq \bar \Delta$};
 			\node [block, right of=decide,
 			node distance=3cm] (done) {Done};
 			\node [block, below of= decide,
 			node distance=3cm] (delta) {increase $\Delta$};
-			\node [scale=.3] at (2.25,-.5)  {
-				$
-				K(x_k)=
-				\begin{cases}
-				F_1x_k+G_1 & \text{if $x_k\in \mathcal{R}_1$}\\
-				F_2x_k+G_2 & \text{if $x_k\in \mathcal{R}_2$}\\
-				\vdots\\
-				F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
-				\end{cases} 
-				$
+			\node [scale=1] at (3,-.25)  {
+				$u(x)=Kx+v$
 			};
-		\node at (7.5,-.35) {$N_b$};
+		\node at (9,-.25) {$e$};
 			
 			
 			\draw [draw,->] (RMPC) -- node [pos=-.1] {}(mixed);
