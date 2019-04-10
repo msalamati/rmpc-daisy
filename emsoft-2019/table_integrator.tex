@@ -1,0 +1,49 @@
+\begin{table*}[t]
+  \centering
+  \caption{Double Integrator.\textmd{ Hrz is the prediction horizon in RMPC, Time is the execution time in minutes, Regs is the number of regions of the controller with Hyps hyperplanes. Uni32 is the total number of bits when all operations are in 32 bits, Uni the minimal uniform precision required, Mix is mixed-precision, \%32vU and UvM are the benefit of uniform and mixed precisions.}}
+  \label{tab:di}
+  \begin{tabular}{|rrrrrrrrrrrrrr|}
+    \cline{5-14}
+    \multicolumn{4}{c}{} &
+    %\multicolumn{2}{c}{} &
+    \multicolumn{5}{|c|}{F and G} &
+    \multicolumn{5}{c|}{H and K} \\
+    \hline
+    %\cline{5-6}
+    %\cline{9-12}
+    %\cline{13-16}
+    \multicolumn{1}{|c}{Hrz}&
+    \multicolumn{1}{c}{Time}&
+    %\multicolumn{1}{c}{Eps} &
+    \multicolumn{1}{c}{Regs} &
+    \multicolumn{1}{c}{Hyps} &
+    %\multicolumn{1}{c}{\maxUij} &
+    %\multicolumn{1}{c}{Err-Bound} &
+    \multicolumn{1}{c}{Uni32}&
+    \multicolumn{1}{c}{Uni}&
+    \multicolumn{1}{c}{Mix}&
+    \multicolumn{1}{c}{\%32vU}&
+    \multicolumn{1}{c}{\%UvM}&
+    \multicolumn{1}{c}{Uni32}&
+    \multicolumn{1}{c}{Uni}&
+    \multicolumn{1}{c}{Mix}&
+    \multicolumn{1}{c}{\%32vU}&
+    \multicolumn{1}{c|}{\%UvM} \\
+    \hline
+    2 & 2 & 9 & 72 & 1728 & 810 (p=15) & 628 & 53.1\% & 22.5\% & 13824 & 7776 (p=18) & 7280 & 43.8\%& 6.3\% \\
+    5 & 9 & 53 & 424 & 10176 & 5088 (p=16) & 3623 & 50\% & 28.8\% & 81408 & 45792 (p=18) & 42656 & 43.8\% & 6.8\% \\
+    8 & 23 & 143 & 1144 & 27456 & 13728 (p=16) & 9864 & 50\%  & 28.1\% & 219648 & 123552 (p=18) & 114948 & 43.8\% & 7.0\% \\
+    11 & 47 & 277 & 2216 & 53184 & 26592 (p=16) & 18980 & 50\% & 28.6\% & 425472 & 239328 (p=18) & 222616 & 43.8\% & 7.0\% \\
+    
+    14 & 73 & 431& 3446& 82752& 41376 (p=16)& 28685& 50\% & 30\% & 661632& 372168 (p=18)& 346020& 43.8\% &7.0\% \\
+    
+    17 & 106 & 621 & 4968 & 119232 & 59616 (p=16) & 40503 & 50\% & 32\% & 953856& 536544 (p=18)& 498668& 43.8\% & 7.0\% \\
+    
+    21 & 150 & 928 & 7432 & 178368 & 89184 (p=16) & 59409 & 50\% & 31.38\% & 1426944 & 802656 (p=18) & 745936 & 43.8\% & 7\%  \\
+    
+    25 & & & & & & & & & & & & & \\
+    
+    %25 & 445 &1299 & 23382 & 249408 & 109116 (p=14) & 80524 & 56.3\% & 26.2\% & 2992896 & 1589976 (p=17) & 1355675 & 46.9\% & 14.7\% \\
+    \hline
+  \end{tabular}
+\end{table*}
