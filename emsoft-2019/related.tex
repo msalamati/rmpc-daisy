@@ -1,1 +1,20 @@
+% !TEX root = main.tex
 \section{Related Work}
+
+Any digital controller can be implemented using a wide range of available platforms. Large-size manufacturers use industrial digital computers called \emph{programmable logic controller (PLC)} for such implementations. A PLC is able to perform the computations required by a digital controller using floating-point arithmetic.  Low-end applications utilize microcontrollers with limited memory capacity and computational power to keep the costs of the implementation down.
+
+A digital controller is implemented as an input-output relation or as a state-space representation.
+A controller specifies a unique input-output behaviour but has uncountably many state-space representations that are mathematically equivalent.  However, the actual finite-precision implementations of these equivalent representations will result in different errors. See~\cite{ParkPSL17} for an analysis of the finite-precision error in the implementations of different state-space representations and \cite{Anta10} for a software tool that can check system stability under finite-precision implementation errors.
+
+The problem of controller synthesis under safety requirements on the states has
+been investigated mostly for Model Predictive Control (MPC)~\cite{camacho2013model} (also called receding horizon control).
+Researchers have investigated designing MPC controllers for satisfying safety requirements expressed as temporal logic formulas 
+\cite{FMPS18,KaramanSF08,raman2014model,WongpiromsarnTM12,pant2017smooth,kim2017dynamic}.
+%,LiNSXL17, SadighK16,
+\Sadegh{We can reduce the references.}
+The main technique is to optimize the robust satisfaction of 
+the formula~\cite{donze2010robust} (i.e., a quantitative measure of satisfaction).
+These works utilize MPC an an online method that requires solving at runtime often computationally 
+expensive optimization problems. In contrast, the explicit MPC used in our work performs controller synthesis at the design time.
+
+\Sadegh{adding a few references on explicit MPC.}
