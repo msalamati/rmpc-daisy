@@ -19,13 +19,13 @@ analysis has to capture:
     using quantized $F_i$ and $G_i$, accumulating errors.
 \end{itemize}
 
-We thus have to ensure that these errors remain below the error bound $\Delta$
+We thus have to ensure that these errors remain below the error bound $\delta$
 used to design the robust MPC controller:
 \begin{align}\label{eq:delta}
-  \max_{\forall i,j. neighbour(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}| + \max_{\forall i.\mathcal{R}_{i}\in\mathcal{R}} err(u_{i})_{p} \le \Delta
+  \max_{\forall i,j. \mathit{neighbour}(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}| + \max_{\forall i.\mathcal{R}_{i}\in\mathcal{R}} err(u_{i})_{p} \le \delta
 \end{align}
 where $i,j$ are the indexes of two generic regions $\mathcal{R}_{i}$ and
-$\mathcal{R}_{j}$, \\ $neighbour(\mathcal{R}_{i},\mathcal{R}_{j})$ states that
+$\mathcal{R}_{j}$, \\ $\mathit{neighbour}(\mathcal{R}_{i},\mathcal{R}_{j})$ states that
 two regions share at least a point, $u_{i}$ is the
 control action for controller $i$, and $err(u_{i})_{p}$ is
 the approximation error for computing the activation function $u_{i}$ in fixed precision using p bits format.
@@ -36,8 +36,8 @@ selection of the wrong control action, i.e. with infinite-precision arithmetic
 and in the absence of any uncertainty from hardware measurements we would choose
 control action $u_i$, but due to uncertainties we actually choose control action $u_j$:
 \begin{align} \label{eq:maximization}
-  &\max_{\forall i,j.neighbour(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}|= \\
-  &\max_{\forall i,j.neighbour(\mathcal{R}_{i},\mathcal{R}_{j})}|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|\nonumber
+  &\max_{\forall i,j.\mathit{neighbour}(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}|= \\
+  &\max_{\forall i,j.\mathit{neighbour}(\mathcal{R}_{i},\mathcal{R}_{j})}|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|\nonumber
 \end{align}
 
 %Because of the linearity of the function $u_{i}-u_{j}$, and because of the
@@ -51,9 +51,9 @@ will choose a wrong region only in a relative narrow neighbourhood, or
 \emph{tube}, around the boundary between two regions $R_i$ and $R_j$.
 In~\autoref{eq:maximization}, we thus constrain $x_k$ to be within an appropriate tube:
 \begin{equation}\label{eq:tube}
-(border_{i,j} >= -\varepsilon) \land (border_{i,j} <= \varepsilon)
+(\mathit{border}_{i,j} \ge -\varepsilon) \land (\mathit{border}_{i,j} \le \varepsilon)
 \end{equation}
-where $border_{i,j}$ constrains $x_k$ to be on the border between two regions
+where $\mathit{border}_{i,j}$ constrains $x_k$ to be on the border between two regions
 $R_i$ and $R_j$ and $\varepsilon$ captures the uncertainty in computing the
 correct region.
 
@@ -61,7 +61,7 @@ correct region.
 how. Please explicitly define $border_{i,j}$.}
 In formula $\exists\; m,n \;$such that:
 \begin{equation}
-border_{i,j}=(H_{i}\statevar-K_{j})_{m} = (H_{j}\statevar-K_{j})_{n}
+\mathit{border}_{i,j}=(H_{i}\statevar-K_{j})_{m} = (H_{j}\statevar-K_{j})_{n}
 \end{equation}
 where $m$ and $n$ are the indexes of the matching border respectively in $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$.
 
