@@ -1,83 +1,120 @@
+%!TEX root = main.tex
 \section{Error Analysis}
 \label{sec:Error_Analysis}
-\eva{Assuming a given precision, how to compute the error for a given controller}
 
-The output of the controller can be affected by two main errors: (i) the controller chooses the wrong activation function because of imperfect implementation of point location algorithm, and (ii) the approximation error deriving from finite precision arithmetic used to compute the activation function itself~\cite{imperialrmpc}.\\
-The disturbance value $\Delta$ has to be an upper bound for the summation of both imprecisions. In formula:
-\begin{flalign}
-\label{eq:delta}
-&\Delta >= \max_{\forall i,j\;|\;neighbour(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}| + \max_{\forall i\;|\mathcal{R}_{i}\;in\;\mathcal{R}} err(u_{i})_{p}
-\end{flalign}
-where $i,j$ are the indexes of two generic regions $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$, \\ $neighbour(\mathcal{R}_{i},\mathcal{R}_{j})$ states when two regions share at least a point (later is defined in details), $u_{i}$ is the activation function for controller $i$ (same for $u_{j}$), $err(u_{i})_{p}$ is the approximation error for computing $u_{i}$ using precision p.
+We first present our error analysis assuming given fixed-point word lengths,
+before explaining our optimization algorithm which determines suitable word
+lengths fully automatically in~\autoref{sec:Controller_Synthesis}.
+\eva{The `p' below is the fixed/uniform word length? If so, please explain here}
+\eva{Should we mention here the paper which does the LP-based analysis, i.e.
+contrast our approach?}
 
-The finite-precision implementation of the point location algorithm introduces some error $\epsilon$ on the top of the exact value of $x_{k}$. Assuming that any point in region $i$ could be erroneously assigned to region $j$, without any  knowledge of the actual magnitude of $\epsilon$, is a too wide over-approximation of the existing instability. 
-%In an hypothetic scenario where all the measurements were done in infinite precision arithmetic and without any uncertainty, we assume the controller $i$ would be activated. Instead, because we cannot rely on infinite precision, controller $j$ is selected. 
-%The error committed is the difference between the output of the two branches $i$ and $j$.
-%The controller has to be robust against a mistake in choosing controller $i$ instead of $j$ (or vice-versa), only when \qstatevarmath falls into the \texttt{tube} between $i$ and $j$, and not for all the points in the two regions. 
-There are two main sources of error affecting the magnitude of $\epsilon$: (i) the first one is caused by analog-digital conversion $\varepsilon_{A/D}$
-%, happening just before the controller receives an estimation of the plant from the sensors. We call this error $\varepsilon_{A/D}$: 
+The output of the controller is affected by two main sources errors which an error
+analysis has to capture: 
+\begin{itemize}
+  \item[(i)] \emph{incorrect region selection}: an incorrect control action can be chosen
+    due to analog-digital conversion and quantization of $H_i$ and $K_i$,
 
-\begin{equation}\nonumber
-\varepsilon_{A/D}=\frac{V_{cc}}{2^{p}-1}
+  \item[(ii)] \emph{approximate control output}: the control output is computed
+    using quantized $F_i$ and $G_i$, accumulating errors.
+\end{itemize}
+
+We thus have to ensure that these errors remain below the error bound $\Delta$
+used to design the robust MPC controller:
+\begin{align}\label{eq:delta}
+  \max_{\forall i,j. neighbour(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}| + \max_{\forall i.\mathcal{R}_{i}\in\mathcal{R}} err(u_{i})_{p} \le \Delta
+\end{align}
+where $i,j$ are the indexes of two generic regions $\mathcal{R}_{i}$ and
+$\mathcal{R}_{j}$, \\ $neighbour(\mathcal{R}_{i},\mathcal{R}_{j})$ states that
+two regions share at least a point, $u_{i}$ is the
+control action for controller $i$, and $err(u_{i})_{p}$ is
+the approximation error for computing $u_{i}$ using precision p.
+
+\paragraph{Incorrect Region Selection}
+
+The first part of the error in~\autoref{eq:delta} captures the error due to
+selection of the wrong control action, i.e. with infinite-precision arithmetic
+and in the absence of any uncertainty from hardware measurements we would choose
+control action $u_i$, but due to uncertainties we actually choose control action $u_j$:
+\begin{align} \label{eq:maximization}
+  &\max_{\forall i,j.neighbour(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}|= \\
+  &\max_{\forall i,j.neighbour(\mathcal{R}_{i},\mathcal{R}_{j})}|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|\nonumber
+\end{align}
+
+%Because of the linearity of the function $u_{i}-u_{j}$, and because of the
+%convexity of the regions $i$ and $j$, it is enough to evaluate function
+%(\ref{eq:maximization}) at the corner points of the \texttt{tube}, instead of
+%solving a maximization problem.
+
+A naive computation of this error would consider all possible values of $x_k$.
+This would lead to a gross over-approximation, however, since the controller
+will choose a wrong region only in a relative narrow neighbourhood, or
+\emph{tube}, around the boundary between two regions $R_i$ and $R_j$.
+In~\autoref{eq:maximization}, we thus constrain $x_k$ to be within an appropriate tube:
+\begin{equation}\label{eq:tube}
+(border_{i,j} >= -\varepsilon) \land (border_{i,j} <= \varepsilon)
 \end{equation}
+where $border_{i,j}$ constrains $x_k$ to be on the border between two regions
+$R_i$ and $R_j$ and $\varepsilon$ captures the uncertainty in computing the
+correct region.
 
-Where $V_{cc}$ is the reference voltage of the converter (e.g. typical 5V) and $p$ represents the number of bits.
-
-The second error affecting $\epsilon$ is caused by (ii) the quantization of region bounds $\mathcal{R}$ in memory. We call this error $\varepsilon_{Q}$ for error quantization.
-
-While $\varepsilon_{A/D}$ is intrinsic in the capabilities of the device, $\varepsilon_{Q}$ depends on the precision used to store the boundaries. This second error can be tuned based on a trade-off among accuracy of the storage and memory save~\cite{memoryMPC}.
-The rule for $\varepsilon_{Q}$ is the following:
-\begin{equation}\label{eq:quantizationlines}
-\varepsilon_{Q} > (H-\hat{H}_{p})\qstatevar+(K-\hat{K}_{p})
-\end{equation}
-This inequality assures that the distance between any hyperplane represented in infinite precision (H and K), and its counter-part quantized in p bits ($\hat{H}_{p}$ and $\hat{K}_{p}$), is bounded by $\varepsilon_{Q}$. 
-
-The final formula for $\epsilon$ is then:
-\begin{equation}\label{eq:epsilontot}
-\varepsilon=\varepsilon_{A/D}+\varepsilon_{Q}
-\end{equation}
-%\subsection{Finite Precision Implementation}
-We use epsilon to build a safe space around the hyperplanes of regions $\mathcal{R}$, such that the maximization function is computed only when \statevarmath follows inside this space among two neighbour regions.
-Two regions are neighbors when they share at least a border.
-
+\eva{The below, I believe, is somehow defining $border_{i,j}$, but I don't understand
+how. Please explicitly define $border_{i,j}$.}
 In formula $\exists\; m,n \;$such that:
 \begin{equation}
 (H_{i}\statevar-K_{j})_{m} = (H_{j}\statevar-K_{j})_{n}
 \end{equation}
 where $m$ and $n$ are the indexes of the two hyperplanes. We label with $border_{i,j}$ the matching border shared among the two regions.
 
-From the equation of $border_{i,j}$, we delimit the geometrical space where it makes sense to compute the first maximization problem in (\ref{eq:delta}) with the intersection of two half-spaces: 
-\begin{equation}\label{eq:tube}
-\begin{aligned}
-(border_{i,j} >= -\varepsilon) \land
-(border_{i,j} <= \varepsilon)
-\end{aligned} 
+The width of the tube $\varepsilon$, i.e. the uncertainty in computing $x_k$ and
+thus the correct region, is due to two sources of errors: analog-to-digital
+conversion $\varepsilon_{A/D}$ and the quantization of region bounds
+$\mathcal{R}$ in memory $\varepsilon_{Q}$:
+\begin{equation}\label{eq:epsilontot}
+  \varepsilon=\varepsilon_{A/D}+\varepsilon_{Q}
 \end{equation}
-where $\varepsilon$ is defined in (\ref{eq:epsilontot}). Sometimes later we refer at (\ref{eq:tube}) as the \texttt{tube}, due to its shape for 2D problems. We can easily extend this model to the case when two regions share only a single point.
 
-The effect of selecting the wrong activation function are similar to instability in the switch reported in Listing \ref{lst:caseof}. In case all the arithmetic were exact (infinite precision) and without any uncertainty from hardware measurements, we assume the controller $i$ would be activated. Instead, because of approximation errors, controller $j$ is selected.
-In the following, given $i$ and $j$ the index of two generic regions in $\mathcal{R}$:
-\begin{flalign}
-\label{eq:maximization}
-&\max_{\forall i,j\;|\;neighbour(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}|=\\
-&\max_{\forall i,j\;|\;neighbour(\mathcal{R}_{i},\mathcal{R}_{j})}|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|\nonumber
-\end{flalign}
-where \statevarmath satisfies (\ref{eq:tube}) between two regions $i$ and $j$.
-%Because of the linearity of the function $u_{i}-u_{j}$, and because of the convexity of the regions $i$ and $j$, it is enough to evaluate function (\ref{eq:maximization}) at the corner points of the \texttt{tube}, instead of solving a maximization problem. 
-We compute (\ref{eq:maximization}) for all pairs of neighbor regions $i$ and $j$. 
+Analog conversion happens just before the controller receives the sensor input from the plant
+and is given by:
+\begin{equation*}
+\varepsilon_{A/D}=\frac{V_{cc}}{2^{p}-1}
+\end{equation*}
+where $V_{cc}$ is the reference voltage of the converter (e.g. typically 5V) and
+$p$ represents the number of bits.
+\eva{which bits, who determines these?}
 
-%When \qstatevarmath belongs to the \texttt{tube}, it might be that $u_{i}$ is activated instead of $u_{j}$ (or vice-versa). Otherwise, when \qstatevarmath does not belong to the tube, no matter the error $\varepsilon$, the right activation function is activated, and we consider only the error deriving from the computation itself.
+While $\varepsilon_{A/D}$ is intrinsic to the capabilities of the device,
+$\varepsilon_{Q}$ depends on the precision used to store the boundaries. This
+second error can be tuned based on a trade-off between accuracy of the storage and
+memory storage needed~\cite{memoryMPC}.
+%
+$\varepsilon_{Q}$ is given by:
+\begin{equation}\label{eq:quantizationlines}
+  \varepsilon_{Q} > (H-\hat{H}_{p})\qstatevar+(K-\hat{K}_{p})
+\end{equation}
+\eva{Shouldn't this equation have some absolute values in it?}
+\eva{The equation above does not give any hint for how to compute it. I would prefer to
+add the inequality to \autoref{eq:epsilontot} and give an equality here that explicitly
+shows how to compute this. I assume there is some maximization going on here. Then also rephrase the below}
+This inequality assures that the distance between any hyperplane represented in infinite precision (H and K), and its counter-part quantized in p bits ($\hat{H}_{p}$ and $\hat{K}_{p}$), is bounded by $\varepsilon_{Q}$. 
 
-Since computing $u_{i}$ itself introduces some imprecision because of finite precision arithmetic, the system has to be robust against an error that is:
 
+\paragraph{Approximate Control Output}
+
+Computing $u_{i}$ itself introduces imprecision because $u_i$ needs to be evaluated 
+in finite precision arithmetic:
 \begin{equation}\label{eq:fperror}
-err(u_{i})_{p}=|(\hat{F}_{p}-F)\statevar+(\hat{G}_{p}-G)|
+  err(u_{i})_{p}=|(\hat{F}_{p}-F)\statevar+(\hat{G}_{p}-G)|
 \end{equation}
-
 where $\hat{F}$ and $\hat{G}$ represent the rounded values (in p bits) for the infinite precision values $F$ and $G$.
 
-In (\ref{eq:fperror}) the domain for \statevarmath are all the points in region $i$, together with all the values in the \texttt{tube} between region $i$ and any of the neighbors of $i$. Even if some points in the tube do not belong to region $i$, it might that $u_{i}$ is (erroneously) activated. We compute (\ref{eq:fperror}) for all regions in $\mathcal{R}$ and we take the maximum value of the error.
+In (\ref{eq:fperror}) the domain for \statevarmath are all the points in region
+$i$, together with all the values in the tube between region $i$ and
+any of the neighbors of $i$. Even if some points in the tube do not belong to
+region $i$, it might that $u_{i}$ is (erroneously) activated. 
+\eva{$u_{i}$, or some $u_{j}$?}
 
-%\begin{equation}\label{eq:maxfperror}
-%\max_{\forall \regionimath{i}\;in\;\statespace} err(u_{i})_{p}
-%\end{equation}
+
+\eva{This section so far says nothing about how we actually compute these errors (incl. with which tools). 
+This should come here}
+\paragraph{Implementation}
