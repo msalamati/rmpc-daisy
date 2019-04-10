@@ -1,5 +1,53 @@
+%!TEX root = main.tex
 \section{Controller Synthesis}\label{sec:Controller_Synthesis}
-\eva{How we actually get the controller, including feedback loop and mixed-precision tuning}
+
+\begin{figure}
+\begin{lstlisting}[language=Python,numbers=left,numbersep=3pt,frame=lines,keepspaces=true,escapeinside={(*}{*)},basicstyle=\small\ttfamily]
+ delta = input()
+ (*$\varepsilon_{Q}$*) = input()
+ assert (delta >= 0 and (*$\varepsilon_{Q}$*) > 0)
+ (*$\varepsilon$*) = (*$\varepsilon_{A/D}$*) + (*$\varepsilon_{Q}$*)
+
+ while True:
+   (*\maxUij*) = design_robust_MPC(delta, (*$\varepsilon$*))
+   if delta > (*\maxUij*):
+     (*$err_{max}(u_{i})_{p}$*) = delta-(*\maxUij*)
+     UNI_MIX_precision(F, G, (*$err_{max}(u_{i})_{p}$*))
+     UNI_MIX_precision(H, K, (*$\varepsilon_{Q}$*))
+     break
+   else:
+     delta=(*\maxUij*)+(*$\varepsilon_{SAFE}$*)
+\end{lstlisting}
+\caption{design of robust MPC with precision tuning}
+\label{lst:alg}
+\end{figure}
+
+\eva{The algorithm in \autoref{lst:alg} needs to be fixed:
+\begin{itemize}
+  \item Use the math symbol for Delta to be consistent with the rest of the paper
+  \item the function design\_robust\_MPC seems to do a lot more than just designing
+    the controller, i.e. it seems to return an error bound instead of a controller.
+    Split into more steps.
+  \item \maxUij and $err_{max}(u_{i})_{p}$ are not good variable names, use a proper variable name
+  \item UNI\_MIX\_precision should also be renamed to something more helpful, e.g. tune\_precision?
+\end{itemize}
+}
+
+In the previous section, we assumed a given precision $p$. In this section we
+present our algorithm for deriving a suitable value of $p$ fully automatically.
+
+\subsection{Algorithm}
+\eva{This section needs to structure the explanation in the order in which it
+appears in the algorithm (i.e. starting from the input and explaining why for
+instance $\epsilon_Q$ is an input), and should reference the lines in the
+algorithm, not only the equations from the previous section}
+
+\eva{The precision tuning, which is the main contribution of the paper is not explained.}
+
+\subsection{Implementation}
+\eva{Some notes about how this is implemented}
+
+\eva{Below is the previous text:}
 %In this work we present an innovative method for the off-line design (explicit) of robust MPC controllers for linear time invariant systems.
 We need to solve the two inequalities in (\ref{eq:delta}) (\ref{eq:quantizationlines}) in order to build a controller with guarantees of robustness.
 %The equation for $\varepsilon$ in (\ref{eq:epsilontot}),  contains: $\varepsilon_{A/D}$ that is the error introduced by the analog-digital conversion, and $\varepsilon_{Q}$ that is the error generated from the quantization of hyperplanes $\mathcal{R}$ in a finite number of bits.
@@ -21,25 +69,10 @@ In a similar way, we solve the inequality in (\ref{eq:delta}) with respect to p:
 Be aware that the left side of (\ref{eq:deltaminusmax}) is not parametrized in p (it is a plain number). Only the right size of (\ref{eq:deltaminusmax}) actually depends on the precision p. We compute the left side of the inequality using large enough precision p (e.g. 64 bits) such that we can safely ignore the error resulting from the computation.
 Then, we encode (\ref{eq:deltaminusmax}) in Daisy to detect precision p. Note that p used to solve (\ref{eq:quantizationlines}) can be different from $p'$ used to solve (\ref{eq:deltaminusmax}).
 
-\subsection{Algorithm}
+
+
 In Listing \ref{lst:alg} we describe the procedure used to design a robust MPC controller such that (\ref{eq:deltaminusmax}) is satisfied.
 
-\begin{lstlisting}[language=Python,numbers=left,numbersep=3pt,frame=lines,keepspaces=true,escapeinside={(*}{*)},caption=design of robust MPC with precision tuning,label={lst:alg}]
- delta = input()
- (*$\varepsilon_{Q}$*) = input()
- assert (delta >= 0 and (*$\varepsilon_{Q}$*) > 0)
- (*$\varepsilon$*) = (*$\varepsilon_{A/D}$*) + (*$\varepsilon_{Q}$*)
-
- while True:
-   (*\maxUij*) = design_robust_MPC(delta, (*$\varepsilon$*))
-   if delta > (*\maxUij*):
-     (*$err_{max}(u_{i})_{p}$*) = delta-(*\maxUij*)
-     UNI_MIX_precision(F, G, (*$err_{max}(u_{i})_{p}$*))
-     UNI_MIX_precision(H, K, (*$\varepsilon_{Q}$*))
-     break
-   else:
-     delta=(*\maxUij*)+(*$\varepsilon_{SAFE}$*)
-\end{lstlisting}
 
 First, the designer of the controller provides the initial values for delta and $\varepsilon_{Q}$. Even if it possible to assign value zero to delta~\cite{imperialrmpc}, we do not encourage such initialization value: it is going to fail the analysis (at least) for the first iteration, because the error in (\ref{eq:maxfperror}) is going to be greater than zero. A better initialization would be to set delta to an arbitrary small value, slightly greater than zero.
 
