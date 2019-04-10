@@ -112,13 +112,14 @@ In this way we compute the error also for those points, that belong to a neighbo
 \eva{This section so far says nothing about how we actually compute these errors (incl. with which tools). 
 This should come here}
 \paragraph{Implementation}
+%The designer of the controller fixes the value for $epsilon$ at compile time before starting the analysis. $\varepsilon_{Q}$ is also a user dependent parameter fixed at compile time. The value for $\varepsilon_{Q}$ depends on the total amount of memory we can dedicate to the storage of H and K on the target controller.
 
-The designer of the controller fixes the value for $epsilon$ at compile time before starting the analysis. $\varepsilon_{Q}$ is also a user dependent parameter fixed at compile time. The value for $\varepsilon_{Q}$ depends on the total amount of memory we can dedicate to the storage of H and K on the target controller.
+We used two software for implementing the analysis: MATLAB MPC Toolbox and Daisy. The two communicate through a Python interface.
 
-The first part of equation (7) is solved in MATLAB. Since the function $u_{i}-u_{j}$ is linear, and we define the tube as a convex region, we need to evaluate the function only at the corner points of the tube and keep the value with the maximal magnitude.
+The region selection error is computed in MATLAB. Since the function $u_{i}-u_{j}$ is linear, and we defined the tube as a convex region, we need to evaluate the function only at the corner points of the tube, and keep the result with the maximal magnitude.
 
-The second part of equation (7), and the precision required for hyperplanes storage are both computed in Daisy. 
-The way we use the analyzer is the following: we give an error bound in input to Daisy together with the coefficients we want to quantize (H, K or F, G). Daisy iteratively tries different uniform precisions for the quantization of the coefficients, and stops when it finds the minimal word-length such that the error in input is satisfied.
-Daisy starts the search from unary word-length (1bit), and increases the precision with a one by one step at each iteration. It stops when the current (uniform) configuration introduces an approximation error that is bounded by the input error. This minimal word-length is going to be the baseline for the mixed-precision tuning phase.
+The approximation error, and the precision required for borders are both computed in Daisy. 
+We provide in input to Daisy the expression we want to quantize together with the error bound we can tolerate. Daisy checks whether the input expression, quantized in unary uniform precision (1bit), introduces an error bounded by the input error. If this is not the case, Daisy increases the precision format by 1 bit and iterates again. The procedure terminates when the first valid format is matched. This minimal word-length is going to be the baseline for the mixed-precision tuning phase.
+The mixed-precision phase starts from the uniform precision detected in previous step (baseline).
 
-Our analysis returns the total memory (in bits) required by the configuration detected in Daisy. The designer can then tune the epsilon value based on the memory consumption of the current configuration. 
+%Our analysis returns the total memory (in bits) required by the configuration detected in Daisy. The designer can then tune the epsilon value based on the memory consumption of the current configuration. 

@@ -3,20 +3,21 @@
 
 \begin{figure}
 \begin{lstlisting}[language=Python,numbers=left,numbersep=3pt,frame=lines,keepspaces=true,escapeinside={(*}{*)},basicstyle=\small\ttfamily]
- delta = input()
+ (*$\delta$*) = input()
  (*$\varepsilon_{Q}$*) = input()
- assert (delta >= 0 and (*$\varepsilon_{Q}$*) > 0)
+ assert ((*$\delta$*) >= 0 and (*$\varepsilon_{Q}$*) > 0)
  (*$\varepsilon$*) = (*$\varepsilon_{A/D}$*) + (*$\varepsilon_{Q}$*)
 
  while True:
-   (*\maxUij*) = design_robust_MPC(delta, (*$\varepsilon$*))
-   if delta > (*\maxUij*):
-     (*$err_{max}(u_{i})_{p}$*) = delta-(*\maxUij*)
-     UNI_MIX_precision(F, G, (*$err_{max}(u_{i})_{p}$*))
-     UNI_MIX_precision(H, K, (*$\varepsilon_{Q}$*))
+   F,G,H,K = design_robust_MPC((*$\delta$*), (*$\varepsilon$*))
+   errorChoise = compute_MaxUiUj(F,G,H,K)
+   if (*$\delta$*) > errorChoise:
+     errorAct = (*$\delta-$\maxUij*)
+     UNI_MIX_precision(F, G, errorAct)
+     UNI_MIX_precision(H, K, (*$\varepsilon$*))
      break
    else:
-     delta=(*\maxUij*)+(*$\varepsilon_{SAFE}$*)
+     (*$\delta$*)=errorChoise+(*$\varepsilon_{SAFE}$*)
 \end{lstlisting}
 \caption{design of robust MPC with precision tuning}
 \label{lst:alg}
