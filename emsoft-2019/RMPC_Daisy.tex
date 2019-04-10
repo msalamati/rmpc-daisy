@@ -21,7 +21,7 @@ J^{\ast}(x_0)=\min_{u_0,\cdots,u_{N-1}}& \max_{w_0,\cdots,w_{N-1}} \sum_{i=0}^{N
 
 where $\bar A=A+BK$, $\mathcal U$ and $\mathcal X$ are polyhedral sets as feasible sets of inputs and states. $Q\in\reals^{n\times n}$, $R\in\reals^{m\times m}$ and $Q_F\in\reals^{n\times n}$ and $N$ denotes the length of prediction horizon.
 \begin{theorem}[\cite{delaPea:2005}]
-The optimization  \eqref{eq:RMPC_prob} can be translated into a multi-parametric quadratic problem which admits a closed-form solution $U_N=K_2(x_0)$. Furthermore, for the case that $Q\geq0$, $Q_F\geq0$ and $R>0$, the controller $\kappa$ is a continuous piecewise affine (PWA) function over polyhedral regions:
+The optimization  \eqref{eq:RMPC_prob} can be translated into a multi-parametric quadratic problem which admits a closed-form solution $U_N=\kappa(x_0)$. Furthermore, for the case that $Q\geq0$, $Q_F\geq0$ and $R>0$, the controller $\kappa$ is a continuous piecewise affine (PWA) function over polyhedral regions:
 \begin{equation}
 \kappa(x_k)=
 \begin{cases}
@@ -43,10 +43,10 @@ The essential idea of this theorem is to utilize the closed form $x_i=A^ix_0+\su
 &J^{\ast}(x_0)=x_0^TYx_0+\min_{z,\gamma}\frac{1}{2}z^THz+\gamma
 \end{align*}
 subject to
-\begin{align*}
-&G_mz+g_m\gamma\leq W_m+S_mx_0,\\
+\begin{align}
+&G_mz+g_m\gamma\leq W_m+S_mx_0,\nonumber\\
 &G_cz\leq W_c+S_cx_0
-\end{align*} 
+\end{align} 
 where, $z\in \reals^{mN}$ and $\gamma\in\reals$ are decision variables and matrices $Y$, $H$, $G_m$, $G_c$,$S_m$, $S_c$, $W_m$, $W_c$, $g_m$ are matrices of proper sizes that can be easily obtained based on problem parameters (\cite{delaPea:2005}). \eqref{eq:multi_param_prog} can be solved efficiently using multi-parametric techniques to compute explicite form of robust MPC.
 %\Sadegh{What is a multi-parametric quadratic problem? Not defined.}
 
@@ -58,19 +58,19 @@ The controller $\kappa$ can be computed using multi-parametric toolbox of MATLAB
 \end{equation}
 
 
-The actual implementation of the controller requires storing the matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. At each time step $k$, the current state $x_k$ is used to detect the right polytope $i$ such that $H_i x_k\le K_i$. Then the control action $u_k = F_i x_k + G_i$ is computed and applied to the system.
+The actual implementation of the controller requires storing the matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. At each time step $k$, the current state $x_k$ is used to detect the right polytope $i$ such that $H_i x_k\le K_i$. Then the control action $v_k = F_i x_k + G_i$ is computed and applied to the system.
 
 %Therefore, given the state vector $x$, to compute control input, one has to first determine to which polytope does the state vector belong.
-Several algorithms are proposed in the literature [\cite{Mnnigmann:2011,Jones:2006}] to find the right polytope $i$ to which the state $x_k$ belong. The most straightforward technique is a linear search over all polytopes in \Sadegh{\statespace\space} using a switch/case conditional statement of Listing \ref{lst:caseof}.
+Several algorithms are proposed in the literature [\cite{Mnnigmann:2011,Jones:2006}] to find the right polytope $i$ to which the state $x_k$ belong. The most straightforward technique is a linear search over all polytopes in \statespace\space using a switch/case conditional statement of Listing \ref{lst:caseof}.
 %\Sadegh{Perhaps we can mention another approach here? add references.}
 
 \begin{lstlisting}[escapeinside={(*}{*)},label={lst:caseof}, caption=switch for region selection]
 switch((*\statevarmath*)):
-case (*$ H_{1}\statevar<=K_{1}$*) then (*$u_{k}=F_1x_k+G_1 $*)
-case (*$ H_{2}\statevar<=K_{2}$*) then (*$u_{2}=F_2x_k+G_2$*)
-case (*$ H_{3}\statevar<=K_{3}$*) then (*$u_{3}=F_3x_k+G_3$*)
+case (*$ H_{1}\statevar<=K_{1}$*) then (*$v_{k}=F_1x_k+G_1 $*)
+case (*$ H_{2}\statevar<=K_{2}$*) then (*$v_{k}=F_2x_k+G_2$*)
+case (*$ H_{3}\statevar<=K_{3}$*) then (*$v_{k}=F_3x_k+G_3$*)
 ...
-case (*$ H_{P}\statevar<=K_{P}$*) then (*$u_{P}=F_Px_k+G_P$*)
+case (*$ H_{P}\statevar<=K_{P}$*) then (*$v_{k}=F_Px_k+G_P$*)
 \end{lstlisting}
 %Once the polytope was determined, computing for $F_ix+G_i$ requires even less effort as it only involves summation and multiplication.  
 
