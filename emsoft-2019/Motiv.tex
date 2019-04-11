@@ -91,7 +91,7 @@ and its mixed-precision implementation is at most $\Delta_0$.
 }
 
 \Sadegh{
-Unfortunately, $\Delta_0=0$ is not realizable, as the point location error is $0.019$ and hence $e>\Delta_0$. 
+Unfortunately, $\Delta_0=0.01$ is not realizable, as the point location error is $0.019$ and hence $e>\Delta_0$. 
 %always greater than zero either due to selecting the wrong region in the affine controller function or due to the finite-precision computation of the control action.
 %\eva{Is this the error due to mixed-precision or due to wrong regions?}
 Therefore, we define $\Delta_1 := \Delta_0 + \varepsilon_{SAFE}$ with $\varepsilon_{SAFE}$ being a fixed threshold (we chose $\varepsilon_{SAFE} = 0.04$) and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 
