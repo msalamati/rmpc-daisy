@@ -50,8 +50,8 @@ bounded model checking (BMC) and tracks roundoff errors with interval
 arithmetic. While this algorithm generates the controller and its
 implementation, due to limitations in BMC it only considers uniform fixed-point
 word length in steps of 8.
-\eva{I guess it also does not consider robustness? Not sure how this is related.}
-\Sadegh{Eva, You explanation is good. I think the way we look at the problem is different from \cite{Abate2017}: \cite{Abate2017} assumes a fixed precision is given and tries to design the controller with the specific precision such that the safety constraints are satisfied, so no discussion on robustness or memory usage. In our case we don't fix a precision. We find a controller together with a mixed precision that satisfies the constraints and respects the memory budget.}
+% \eva{I guess it also does not consider robustness? Not sure how this is related.}
+% \Sadegh{Eva, You explanation is good. I think the way we look at the problem is different from \cite{Abate2017}: \cite{Abate2017} assumes a fixed precision is given and tries to design the controller with the specific precision such that the safety constraints are satisfied, so no discussion on robustness or memory usage. In our case we don't fix a precision. We find a controller together with a mixed precision that satisfies the constraints and respects the memory budget.}
 
 \citet{memoryMPC} propose to use universal numbers (unums) instead of
 traditional floating-point or fixed-point arithmetic for implementing robust
