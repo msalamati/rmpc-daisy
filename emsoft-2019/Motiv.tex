@@ -83,7 +83,8 @@ at all points in the control domain, the difference between the (infinite precis
 and its implementation in the mixed-precision scheme is at most $\Delta$.
 
 Unfortunately, $\Delta_0=0$ is not realizable,  as the error resulting from a fixed-point 
-implementation is always greater than zero. 
+implementation is always greater than zero.
+\eva{Is this the error due to mixed-precision or due to wrong regions?}
 Therefore, we increase $\Delta$ by $0.05$ and try again. 
 Solving the robust explicit MPC problem for the new disturbance bound gives the new controller,
 shown in Figure~\ref{fig:inverted_pendulum}(b).
