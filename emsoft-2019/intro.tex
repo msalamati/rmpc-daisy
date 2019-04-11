@@ -1,5 +1,7 @@
 \section{Introduction}
-
+\eva{General comment: it feels a bit long until the intro discusses the actual problem,
+but it reads nicely and motivates the problem well, so it's probably fine}
+\eva{General comment: should we add some more references to related work (and not only to MPC)?}
 Model predictive control (MPC) is a technique to design control actions by solving finite-horizon open-loop
 optimal control problems at each sampling instant.
 The result of each optimization gives a sequence of optimal control actions, only the first of which is applied
@@ -24,11 +26,11 @@ At run-time, the solution is evaluated on the current state as in conventional c
 For example, for linear time invariant models with linear constraints and quadratic costs, the optimization
 problem for MPC can be modeled as a quadratic program, and explicit MPC techniques solve the optimization problem
 using multi-parametric programming techniques.
-The explicit solution is representable as a partition of the controller domain into a number of polyhedral region,
+The explicit solution is representable as a partition of the controller domain into a number of polyhedral regions,
 and an affine map for each region.
 The implementation of explicit MPC stores a lookup table of the affine maps and performs a number of affine computations
 online to find the appropriate region for the current state and to evaluate the control.  
-Explicit MPC thus expands hte class of systems being controlled by MPC strategies, by taking out the need to compute fast online
+Explicit MPC thus expands the class of systems being controlled by MPC strategies, by taking out the need to compute fast online
 or to certify a complex optimization routine.
 
 However, there are still bottleneks in implementing explicit MPC on resource-constrained embedded micro-controllers.
@@ -36,28 +38,29 @@ First, implementations of explicit MPCs can suffer from large memory usage, beca
 problem can involve many (often hundreds) of regions.
 Since the memory consumption grows linearly with the number of regions, 
 this can be a limited factor in using explicit MPC on resource-constrained micro-controllers.
-Second, many low-end micro-controllers only support fixed point arithmetic.
+Second, many low-end micro-controllers only support fixed-point arithmetic.
 Errors in the controller implementation are inversely proportional to the number of bits used for representing each variable. 
 An implementation of explicit MPC has to be \emph{robust} to 
 implementation errors to be able to enforce hard constraints on the states at run time.
 
-In this paper, we consider the problem of implementing explicit MPC on low-end microcontrollers with fixed precision arithmetic
+In this paper, we consider the problem of implementing explicit MPC on low-end microcontrollers with fixed-point arithmetic
 in a \emph{memory-efficient} and \emph{robust} way.
-We propose an automatic controller and mixed-precision implementation co-design technique that computes a minimal set of mixed
+We propose an automatic controller and mixed-precision implementation co-design technique that computes a minimal set\todo{What is meant by minimal?} of mixed
 precision assignments for all variables while ensuring the resulting implementation error remains within the robustness margin.  
 
 
-Our proposed method iteratively solves a robust version of the MPC which explicitly models fixed-point implementation errors
-in the model; see Figure~\ref{fig:overview}.
+Our proposed method iteratively solves a robust version of the MPC which explicitly considers fixed-point implementation errors
+in the model; see~\autoref{fig:overview}.
 Initially, we estimate a bound $\Delta = \Delta_0$ on the implementation error and solve a
 min-max quadratic program for explicit robust MPC \cite{delaPea:2005}, where the system
 model has an explicit disturbance bounded by $\Delta$.
 The solution is represented as a piecewise affine map.
-We use an automated mixeed precision tuning tool to find an approximate implementation of the piecewise affine
+We use an automated mixed-precision tuning tool to find an approximate implementation of the piecewise affine
 map and statically compute the error of the implementation.
 If the error is at most $\Delta$, we are done: the implementation satisfies the robustness margin in the model.
 If not, we increase the error bound $\Delta$ and run the loop again to find a new robust controller and find its best mixed-precision
 implementation.
+\eva{We bound all of the errors, including ones from choosing the wrong region. Worth mentioning here?}
 
 We have implemented our algorithm on top of Matlab's multi-parametric toolbox 
 for robust explicit MPC \cite{Matlab-MPT?}
@@ -69,5 +72,5 @@ maintaining the correctness of the controller.
 In absolute terms, the saving corresponds to YYY KB over a uniform precision implementation on our largest benchmark.
 In each case, the analysis takes only a few minutes of computation.
 We also demonstrate the scalability of our mixed-precision tuning and error bounds analysis:
-we show that on explicit MPC controllers with thousands of regions, our tool finishes in a few minutes.
+we show that on explicit MPC controllers with thousands of regions, our tool finishes in a few minutes\todo{Hours?}.
 
