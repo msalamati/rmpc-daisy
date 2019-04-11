@@ -153,9 +153,9 @@ from minimal uniform to mixed precision (\%UvM) is only slightly less than the o
 %The second difference consists in the last two lines in Table\ref{tab:ipd}.
 For the aircraft example, when $\varepsilon_Q=0.0030$, the error due to selecting the wrong region (\maxUij) 
 exceeds the given value of $\Delta=0.1$ and our algorithm
-needs to design a new controller (corresponding to the \texttt{else} branch in~\autoref{fig:overview}). 
-The loop converges after 5 iterations (\texttt{then}
-branch of the conditional) with $\Delta=0.112$. In each iteration, the value
+needs to design a new controller (corresponding to the \texttt{No} branch in~\autoref{fig:overview}). 
+The loop converges after 5 iterations (\texttt{Yes}
+branch of the diagram) with $\Delta=0.112$. In each iteration, the value
 for $\Delta$ is increased by $\varepsilon_{SAFE} = 10^{-3}$.
 Thus, the algorithm reduces memory demand
 at the expense of slightly more disturbance for the controller. When
@@ -268,8 +268,7 @@ memory consumption remains below 15GB.
 
 
 \autoref{tab:di} shows the results of this experiment.
-We observe that our analysis scales up to 1200 controllers and 25000 hyperplanes \todo{these are not in the table!}
-in a few hours.  The computed minimal uniform precision saves on average $49.8\%$ of memory
+We observe that our analysis scales up to 1829 controllers and 14632 hyperplanes in a few hours.  The computed minimal uniform precision saves on average $49.8\%$ of memory
 compared to a uniform $32$ bit baseline overall (for F, G, H and K together). 
 Moreover, mixed-precision reduces the memory requirement by an additional
 $9.6\%$ on average with respect to the minimal uniform baseline.
