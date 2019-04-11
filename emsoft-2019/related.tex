@@ -34,7 +34,9 @@ bounds from the controller under which stability is guaranteed and verify that
 the implementation in fixed-point arithmetic satisfies this error bound.
 Similarly, \citet{ParkPSL17} takes an existing floating-point controller
 implementation, reconstructs the controller and verifies that roundoff errors
-due to finite precision remain below a user-given error bound.
+due to finite precision remain below a user-given error bound. The LCV tool~\cite{Park2019}
+additionally checks that the generated code is equivalent (within an error bound)
+to a Simulink block diagram model.
 
 Unlike previous work which assumed a given implementation precision, the
 approach presented in this paper synthesizes both the controller and the
@@ -80,5 +82,5 @@ where resource efficiency is generally important.
 Some work has used dynamic analyses for estimating
 errors~\cite{Gaffar2004,Mallik2007}, which, however, do not provide guarantees.
 Several approaches~\cite{Lee2006,Osborne2007,Kinsman2009,Pang2011} use sound
-error analysis techniques, similar to the ones implemented in the tool Daisy
-which we use.
+error analysis techniques and perform mixed-precision optimization~\cite{Lee2006,Pang2011},
+similar to the approach implemented in the tool Daisy which we use. 
