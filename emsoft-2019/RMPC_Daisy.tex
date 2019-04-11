@@ -1,6 +1,6 @@
 % !TEX root = main.tex
 \section{Explicit MPC and Finite Precision}
-In this section, we provide relevant background on robust explicit MPC and
+In this section, we provide relevant background on robust explicit MPC,
 fixed-point arithmetic and error analysis.
 
 \subsection{Robust Explicit MPC}
@@ -12,13 +12,16 @@ x_{k+1}=Ax_k+Bu_k+Ew_k,\quad  k=0,1,2,\ldots
 \end{equation}
 where $x\in \reals^{n\times 1}$ is the state, $u\in \reals^{m\times 1}$ is the control input and $w\in \reals^{d\times 1}$ is the disturbance. Matrices $A\in \reals^{n\times n}$, $B\in \reals^{n\times m}$ and $E\in \reals^{n\times d}$ are capturing respectively the effects of current state, input and disturbance on the next state. We assume the disturbance $w$ belongs to a set $\mathcal{W}$ where $\mathcal{W}$ is a polyhedral set.
 In this paper, we focus on the robust formulation of MPC which at each time step
-minimizes the worst-case value of the objective function\todo{which objective function? first mention here without explanation} with respect to the
-disturbances over the control inputs. We consider the objective function to
-be quadratic with respect to the states and inputs. To reduce the 
-conservativeness of the optimization and enlarge the set of feasible input
-trajectories, we assume the pair $(A,B)$ is stabilizable and
-$u_k=Kx_k+v_k$, where $K$ is selected such that some desired property such as stability is satisfied, and synthesize $v_k$ for the system.
-\eva{I don't understand the above sentence. Maybe split into several sentences? Where does $u_k$ come from (the sentence right now says you assume $u_k$)?}
+minimizes the worst-case value of an objective function with respect to the
+disturbances over the control inputs. We assume the objective function is
+quadratic with respect to the states and inputs.
+We assume a linear translation on the input with the form
+$$u_k=Kx_k+v_k$$
+and synthesize $v_k$ instead of $u_k$. This choice reduces the 
+conservativeness of the optimization and enlarges the set of feasible input
+trajectories. The matrix $K$ is selected such that some desired property is satisfied under suitable assumption on the system, e.g., stability property if the pair $(A,B)$ is stabilizable.
+
+%\eva{I don't understand the above sentence. Maybe split into several sentences? Where does $u_k$ come from (the sentence right now says you assume $u_k$)?}
 %The modifed state evolution of the system will be $x_{k+1}=\bar Ax_k+Bv_k+Ew_k$ with $\bar A := A +BK$.
 % and $v_k=\kappa(x_k)$ denotes the output of model predictive controller.  
 The constrained optimization at each time step is of the form
@@ -27,16 +30,16 @@ The constrained optimization at each time step is of the form
 J^{\ast}(x_0)=&\min_{v_0,\cdots,v_{N-1}} \max_{w_0,\cdots,w_{N-1}} \sum_{i=0}^{N-1}(x_i^TQx_i+u_i^TRu_i) + x_N^TQ_Fx_N\nonumber\\
 \text{s.t.} \quad &x_{i+1}=Ax_i+Bu_i + E w_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
 \quad &u_i=Kx_i+v_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
-&u_i\in\mathcal{U},\quad \forall w_i\in\mathcal{W}, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
-&x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W},\quad\forall i\in\{0,1,\cdots,N\},
+&u_i\in\mathcal{U},x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W},\,\,\forall i\in\{0,1,\cdots,N\},
+%&x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W},\quad\forall i\in\{0,1,\cdots,N\},
 \end{align}
 %\Sadegh{The role of disturbance is missing in the inequalities. We should say, we want to satisfy the inequalities for all possible values of the disturbance.}
 %
-where $\mathcal U$ and $\mathcal X$ are polyhedral sets as\todo{of?} feasible
-sets of inputs and states. Matrices $Q\in\reals^{n\times n}$ and
-$Q_F\in\reals^{n\times n}$ are positive definite, $R\in\reals^{m\times m}$ is
-positive semidefinite and $N$ denotes the length of the prediction horizon.
-\eva{What are $Q, Q_F, R$ and where do they come from?}
+where $\mathcal U$ and $\mathcal X$ are polyhedral sets denoting the feasible
+sets of inputs and states. Positive definite matrices $Q\in\reals^{n\times n}$ and
+$Q_F\in\reals^{n\times n}$ indicate weights on the states. $R\in\reals^{m\times m}$ is
+positive semidefinite and indicates a weight on the input in the objective function. $N$ denotes the length of the prediction horizon.
+%\eva{What are $Q, Q_F, R$ and where do they come from?}
 
 \begin{theorem}[\cite{delaPea:2005}]
 The optimization \eqref{eq:RMPC_prob} can be translated into a multi-parametric quadratic problem which admits a closed-form solution. Furthermore, for the case that $R>0$, the controller is $u_k = K x_k + \kappa(x_k)$ with $\kappa(\cdot)$ being a continuous piecewise affine (PWA) function over polyhedral regions:
@@ -49,7 +52,7 @@ F_2x_k+G_2 & \text{if $x_k\in \mathcal{R}_2$}\\
 F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
 \end{cases} 
 \end{equation}
-where $\mathcal{R}_i$ is a ploytope\todo{polytope?} determined by a set of linear inequalities $\mathcal R_i = \{x\in\mathcal X\,|\,H_ix\leq K_i\}$. 
+where $\mathcal{R}_i$ is a ployhedron determined by a set of linear inequalities $\mathcal R_i = \{x\in\mathcal X\,|\,H_ix\leq K_i\}$. 
 \end{theorem}
 The essential idea behind this theorem is to utilize the closed form $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$ and transform the optimization \eqref{eq:RMPC_prob} into the following quadratic program:
 %\begin{align}
