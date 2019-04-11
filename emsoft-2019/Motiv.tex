@@ -50,8 +50,8 @@ $\theta=0, \omega=0$.
 Additionally, we require the state constraints $\theta_k\in[-\pi,\pi]$ and $\omega_k\in[-\pi/8,\pi/8]$ to hold at all time instances.
 
 Our overall goal is to 
-(i) design a robust MPC controller that achieves the performance objectives including hard constraints in spite of \Sadegh{an additional bounded
-disturbance $\Delta$ modeling the implementation error (both errors due to choosing a wrong region and the finite-precision computation of the control action);}
+(i) design a robust MPC controller that achieves the performance objectives including hard constraints in spite of an additional bounded
+disturbance $\Delta$ modeling the implementation error (both errors due to choosing a wrong region and the finite-precision computation of the control action);
 and at the same time
 %\eva{what about the modelling error that $\Delta$ bounded in the paragraph before?}
 (ii) to minimize the total number of bits that are required for storing the explicit controller.
@@ -74,23 +74,19 @@ and at the same time
 % uses state-of-the-art fixed-point error analyzers to find the minimum total number of bits for storing the controller into the embedded system with maximum error $\Delta_0$.
 	
 Figure \ref{fig:overview} gives a high-level overview of our proposed setup.
-\Sadegh{
 We start by selecting an initial bound $\Delta_0$ on the implementation error and enlarge $\mathcal W$ with $\Delta_0$ as $\mathcal W_{\Delta_0}$, where
 \begin{equation}
 \mathcal W_{\Delta} := \{w_1+w_2 \,|\, w_1\in \mathcal W, \|w_2\|\le \Delta\}
 \quad\text{ for all } \Delta\ge 0.
 \end{equation}
- }
  
- \Sadegh{
 For our example, we choose $\Delta_0=0.01$ and $\mathcal W = \{0\}$. 
-We use MATLAB to find a robust explicit MPC with disturbance set $\mathcal W_{\Delta_0}$. Over the computed controller, we compute the error due to incorrect region selection $e$ and in case that $e<\Delta$, we ask Daisy
+We use MATLAB to find a robust explicit MPC with disturbance set $\mathcal W_{\Delta_0}$. Over the computed controller, we compute the error due to an incorrect region selection $e$ and in case that $e<\Delta_0$, we ask Daisy
 to provide a mixed-precision scheme such that the associated implementation error is at most $\Delta_0$, that is,
 at all points in the control domain, the difference between the infinite-precision controller function
 and its mixed-precision implementation is at most $\Delta_0$.
-}
 
-\Sadegh{
+
 Unfortunately, $\Delta_0=0.01$ is not realizable, as the point location error is $0.019$ and hence $e>\Delta_0$. 
 %always greater than zero either due to selecting the wrong region in the affine controller function or due to the finite-precision computation of the control action.
 %\eva{Is this the error due to mixed-precision or due to wrong regions?}
@@ -99,7 +95,7 @@ Solving the robust explicit MPC problem for this enlarged disturbance set gives 
 shown in Figure~\ref{fig:inverted_pendulum}(b).
 The controller has $14$ regions.
 \RM{give the control function. I think it will be good to explicitly write the polyhedra and the affine maps} 
-}
+
 %\begin{equation}
 %\kappa(x_k)=
 %\begin{cases}
