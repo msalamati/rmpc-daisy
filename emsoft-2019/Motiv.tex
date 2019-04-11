@@ -54,8 +54,7 @@ Our overall goal is to
 disturbance $\Delta$ modeling the implementation error (both errors due to choosing a wrong region and the finite-precision computation of the control action);}
 and at the same time
 %\eva{what about the modelling error that $\Delta$ bounded in the paragraph before?}
-(ii) to minimize the total number of bits that are required for storing the explicit controller 
-while ensuring the implementation error $e\leq \Delta$ is satisfied by the implementation.
+(ii) to minimize the total number of bits that are required for storing the explicit controller.
 
 % There are many control schemes that can guarantee convergence of the trajectories to the rest position (e.g., state feedback or linear quadratic regulator), but fail to ensure hard constraints on the states at all time instances. The main feature of MPC schemes is to automatically include these constraints in the design of control actions.
 %	One major challenge of implementing model predictive controllers over embedded systems is to solve the related optimization within each sampled time inerval. Since the system under consideration is LTI, one can use explicit MPC \cite{Bemporad:2002} that computes partitions over state space together with affine functions which are then used to compute the optimal control input over their corresponding partition. For the inverted-pendulum example, the computed controller contains $12$ partition presented in Fig.~\ref{fig:inverted_pendulum}~{(b)}, each with an affine function that gives the control action over that partition.
@@ -84,79 +83,133 @@ We start by selecting an initial bound $\Delta_0$ on the implementation error an
  }
  
  \Sadegh{
-For our example, we choose $\Delta_0=0$ and $\mathcal W = \{0\}$. 
-We use MATLAB to find a robust explicit MPC with disturbance set $\mathcal W_{\Delta_0}$.
-Next, we ask Daisy
+For our example, we choose $\Delta_0=0.01$ and $\mathcal W = \{0\}$. 
+We use MATLAB to find a robust explicit MPC with disturbance set $\mathcal W_{\Delta_0}$. Over the computed controller, we compute the error due to incorrect region selection $e$ and in case that $e<\Delta$, we ask Daisy
 to provide a mixed-precision scheme such that the associated implementation error is at most $\Delta_0$, that is,
 at all points in the control domain, the difference between the infinite-precision controller function
 and its mixed-precision implementation is at most $\Delta_0$.
 }
 
 \Sadegh{
-Unfortunately, $\Delta_0=0$ is not realizable, as the implementation error is always greater than zero either due to selecting the wrong region in the affine controller function or due to the finite-precision computation of the control action.
+Unfortunately, $\Delta_0=0.01$ is not realizable, as the point location error is $0.019$ and hence $e>\Delta_0$. 
+%always greater than zero either due to selecting the wrong region in the affine controller function or due to the finite-precision computation of the control action.
 %\eva{Is this the error due to mixed-precision or due to wrong regions?}
-Therefore, we define $\Delta_1 := \Delta_0 + \delta$ with $\delta$ being a fixed threshold (we chose $\delta = 0.05$) and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 
+Therefore, we define $\Delta_1 := \Delta_0 + \varepsilon_{SAFE}$ with $\varepsilon_{SAFE}$ being a fixed threshold (we chose $\varepsilon_{SAFE} = 0.04$) and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 
 Solving the robust explicit MPC problem for this enlarged disturbance set gives the new controller,
 shown in Figure~\ref{fig:inverted_pendulum}(b).
-The controller has \RM{XX} regions.
+The controller has $14$ regions.
 \RM{give the control function. I think it will be good to explicitly write the polyhedra and the affine maps} 
 }
+%\begin{equation}
+%\kappa(x_k)=
+%\begin{cases}
+%.05x_k-9.67 & \text{if $x_k\in \mathcal{R}_1$}\\
+%F_2x_k+G_2 & \text{if $x_k\in \mathcal{R}_2$}\\
+%\vdots\\
+%F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
+%\end{cases} 
+%\end{equation}
 
 Next, we ask Daisy to provide us with mixed-precision implementation for all the parameters and to compute a static bound on the
 implementation error. 
 The mixed-precision scheme given by Daisy results in an implementation with $6084$ bits in total 
 for the corresponding robust explicit MPC.
-Daisy also computes a static error bound of \RM{what?}
+Daisy also computes a static error bound of $0.03$.
 Since this error bound is less than our robustness margin $\Delta_1 = 0.05$, we terminate the loop
 and return this implementation.
 The mixed-precision implementation takes about $10\%$ less memory compared 
 to the smallest uniform precision implementation that respects $\Delta_1$,
-and about $XXX\%$ \RM{what} less memory than an implementation that uniformly uses
+and about $57\%$ less memory than an implementation that uniformly uses
 32 bits.
+
+\tikzstyle{block} = [draw, rectangle, 
+minimum height=4em, minimum width=6em]
+\tikzstyle{block2} = [draw, rectangle, 
+minimum height=1em, minimum width=4em]
+\tikzstyle{sum} = [draw,  circle, node distance=1cm]
+\tikzstyle{input} = [coordinate]
+\tikzstyle{output} = [coordinate]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+\begin{figure}[t]
+	\begin{tikzpicture}[auto, node distance=2cm,>=latex',scale=1]
+	\centering
+	\node [block,scale=1,,text width=5cm, pin={[pinstyle]above:$\Delta=\Delta_0$},
+	node distance=1cm] (RMPC) {Robust explicit MPC design};
+	%\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
+	\node [block, scale=1,below=2.5cm of RMPC,
+	node distance=5cm,text width=5cm] (Uij) {Point location error computation};
+	\node [draw, diamond, 
+	minimum height=3em, minimum width=3em, below =1cm of Uij,
+	node distance=5cm] (decide) {$e\leq  \Delta$};
+	\node [block, below=1cm of decide,node distance=3cm] (done) {Mixed-precision implementation};
+	\node [block2, right=2cm of decide,
+	node distance=3cm] (delta) {Increase $\Delta$};
+	\node [block,below of= done] (output) {Low-precision controller};
+	%\node [scale=1] at (3,-.25)  {$u(x)=Kx+v$};
+	\node at (9,-.25) {$e$};
 	
 	
-	\tikzstyle{block} = [draw, rectangle, 
-	minimum height=3em, minimum width=6em]
-	\tikzstyle{sum} = [draw,  circle, node distance=1cm]
-	\tikzstyle{input} = [coordinate]
-	\tikzstyle{output} = [coordinate]
-	\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
-	\begin{figure*}[t]
-		\begin{tikzpicture}[auto, node distance=2cm,>=latex',scale=1]
-			\centering
-			\node [block,scale=1,,text width=3.5cm, pin={[pinstyle]above:$\Delta=\Delta_0$},
-			node distance=1cm] (RMPC) {Robust explicit MPC design (computed by MATLAB)};
-			%\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
-			\node [block, scale=1,right=2.5cm of RMPC,
-			node distance=5cm,text width=4cm] (mixed) {Finite precision implementation (computed by Daisy)};
-			\node [draw, diamond, 
-			minimum height=3em, minimum width=3em, right =1cm of mixed,
-			node distance=5cm] (decide) {$e\leq \bar \Delta$};
-			\node [block, right of=decide,
-			node distance=3cm] (done) {Done};
-			\node [block, below of= decide,
-			node distance=3cm] (delta) {increase $\Delta$};
-			\node [scale=1] at (3,-.25)  {
-				$u(x)=Kx+v$
-			};
-		\node at (9,-.25) {$e$};
-			
-			
-			\draw [draw,->] (RMPC) -- node [pos=-.1] {}(mixed);
-			\draw [->] (mixed) -- node [name=aaa] {}(decide);
-			\draw [->] (decide) -- node [above,pos=.3] {Yes} (done);
-			\draw [->] (decide) -- node[pos=0.99] {} 
-			node [] {No} (delta);
-			\draw [->] (delta) -| node [above] {} (RMPC);
+	\draw [draw,->] (RMPC) -- node [left] {high-precision controller}(Uij);
+	\draw [->] (Uij) -- node [left] {$e$}(decide);
+	\draw [->] (decide) -- node [left,pos=.3] {Yes} (done);
+	\draw [->] (decide) -- node[pos=0.99] {} 
+	node [] {No} (delta);
+	\draw [->] (delta) |- node [above] {} (RMPC);
+	\draw [->] (done) -- node [above] {} (output);
 	
+	\node [block2, scale=1] at (1.885,-.42) {MATLAB} ;
+	\node [block2, scale=1] at (1.97,-4.18) {Daisy} ;
+	\node [block2, scale=1] at (1.58,-8.84) {Daisy} ;
 	\end{tikzpicture}
-	\caption{high-level description of the proposed memory-efficient robust MPC design
-\RM{what is $\bar{\Delta}$}
-\RM{try to draw a better picture spanning only one column. the information in this pic is sparse}
-\RM{why is $u$ a single affine map?}
-\RM{why is Daisy only giving $e$? Shouldn't it also return the best mixed precision impl?}
-}
+	\caption{high-level description of the proposed memory-efficient robust MPC design}
 	\label{fig:overview}
-\end{figure*}
+\end{figure}	
+	
+%	\tikzstyle{block} = [draw, rectangle, 
+%	minimum height=3em, minimum width=6em]
+%	\tikzstyle{sum} = [draw,  circle, node distance=1cm]
+%	\tikzstyle{input} = [coordinate]
+%	\tikzstyle{output} = [coordinate]
+%	\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+%	\begin{figure*}[t]
+%		\begin{tikzpicture}[auto, node distance=2cm,>=latex',scale=1]
+%			\centering
+%			\node [block,scale=1,,text width=3.5cm, pin={[pinstyle]above:$\Delta=\Delta_0$},
+%			node distance=1cm] (RMPC) {Robust explicit MPC design (computed by MATLAB)};
+%			%\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
+%			\node [block, scale=1,right=2.5cm of RMPC,
+%			node distance=5cm,text width=4cm] (mixed) {Finite precision implementation (computed by Daisy)};
+%			\node [draw, diamond, 
+%			minimum height=3em, minimum width=3em, right =1cm of mixed,
+%			node distance=5cm] (decide) {$e\leq \bar \Delta$};
+%			\node [block, right of=decide,
+%			node distance=3cm] (done) {Done};
+%			\node [block, below of= decide,
+%			node distance=3cm] (delta) {increase $\Delta$};
+%			\node [scale=1] at (3,-.25)  {
+%				$u(x)=Kx+v$
+%			};
+%		\node at (9,-.25) {$e$};
+%			
+%			
+%			\draw [draw,->] (RMPC) -- node [pos=-.1] {}(mixed);
+%			\draw [->] (mixed) -- node [name=aaa] {}(decide);
+%			\draw [->] (decide) -- node [above,pos=.3] {Yes} (done);
+%			\draw [->] (decide) -- node[pos=0.99] {} 
+%			node [] {No} (delta);
+%			\draw [->] (delta) -| node [above] {} (RMPC);
+%	
+%	\end{tikzpicture}
+%	\caption{high-level description of the proposed memory-efficient robust MPC design
+%\RM{what is $\bar{\Delta}$}
+%\RM{try to draw a better picture spanning only one column. the information in this pic is sparse}
+%\RM{why is $u$ a single affine map?}
+%\RM{why is Daisy only giving $e$? Shouldn't it also return the best mixed precision impl?}
+%}
+%	\label{fig:overview}
+%\end{figure*}
+
+
+
 
 	
