@@ -114,12 +114,12 @@ This should come here}
 \paragraph{Implementation}
 %The designer of the controller fixes the value for $epsilon$ at compile time before starting the analysis. $\varepsilon_{Q}$ is also a user dependent parameter fixed at compile time. The value for $\varepsilon_{Q}$ depends on the total amount of memory we can dedicate to the storage of H and K on the target controller.
 
-We used two software for implementing the analysis: MATLAB MPC Toolbox and Daisy. The two communicate through a Python interface.
+The two main quantities we need to compute are: the incorrect region error and the memory demand, because the values for $\delta$ and $\varepsilon_{Q}$ are given in input to the analysis.
 
-The region selection error is computed in MATLAB. Since the function $u_{i}-u_{j}$ is linear, and we defined the tube as a convex region, we need to evaluate the function only at the corner points of the tube, and keep the result with the maximal magnitude.
+\rocco{@Mahmoud below}
+The incorrect region error is computed in MATLAB multi-parametric toolbox. Due to the linearity of function $u_{i}-u_{j}$, and because we defined the tube as a convex region, we need to evaluate the function only at the corner points of the tube, and keep the result with the maximal magnitude.
 
-The approximation error, and the precision required for borders are both computed in Daisy. 
-We provide in input to Daisy the expression we want to quantize together with the error bound we can tolerate. Daisy checks whether the input expression, quantized in unary uniform precision (1bit), introduces an error bounded by the input error. If this is not the case, Daisy increases the precision format by 1 bit and iterates again. The procedure terminates when the first valid format is matched. This minimal word-length is going to be the baseline for the mixed-precision tuning phase.
-The mixed-precision phase starts from the uniform precision detected in previous step (baseline).
+The approximation error and the precision tuning for both borders and active functions are computed in Daisy. $\varepsilon_{Q}$ is given in input to the analysis. After we compute the incorrect region in MATLAB we obtain the value for max error $err(u_{i})$ from (8). Then we give the errors and the vectors F,G and H,K in input to Daisy. We used Daisy as a verification tool: we provide in input the expression we want to quantize (e.g. $\mathcal{R}_{i}$) together with the error bound we can tolerate (e.g. $\varepsilon_{Q}$), and Daisy returns a precision configuration (uniform or mixed) such that the input error is satisfied. The way it finds the right configuration for uniform precision is the following: it starts by checking whether the input expression, quantized in unary uniform precision (1bit), introduces an error bounded by the input error. If this is not the case, Daisy increases the precision format by 1 bit and check whether the error now is satisfied. This unary increment runs inside a loop that terminates when the first valid format is matched. This uniform word-length is going to be the baseline for the mixed-precision tuning phase. The mixed-precision algorithm keeps a list of variables to quantize, and collects different candidate configurations that satisfy the input error. It returns the best configuration based on the evaluation of a quality function. 
+
 
 %Our analysis returns the total memory (in bits) required by the configuration detected in Daisy. The designer can then tune the epsilon value based on the memory consumption of the current configuration. 
