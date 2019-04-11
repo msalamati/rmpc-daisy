@@ -2,24 +2,24 @@
 \section{Controller Synthesis}\label{sec:Controller_Synthesis}
 
 \begin{figure}
-\begin{lstlisting}[language=Python,numbers=left,numbersep=3pt,frame=lines,keepspaces=true,escapeinside={(*}{*)},basicstyle=\small\ttfamily]
- (*$\delta$*) = input()
- (*$\varepsilon_{Q}$*) = input()
- assert ((*$\delta$*) >= 0 and (*$\varepsilon_{Q}$*) > 0)
- (*$\varepsilon$*) = (*$\varepsilon_{A/D}$*) + (*$\varepsilon_{Q}$*)
+\begin{lstlisting}[language=Python,numbers=left,numbersep=3pt,frame=lines,keepspaces=true,mathescape=true,basicstyle=\small\ttfamily]
+ $\Delta$ = input()
+ $\varepsilon_{Q}$ = input()
+ assert ($\Delta$ >= 0 and $\varepsilon_{Q}$ > 0)
+ $\varepsilon$ = $\varepsilon_{A/D}$ + $\varepsilon_{Q}$
 
- while True:
-   F,G,H,K = design_robust_MPC((*$\delta$*))
-   errorChoise = incorrect_region_error(F,G,H,K,(*$\varepsilon$*))
-   if (*$\delta$*) > errorChoise:
-     errorAct = (*$\delta$*) - errorChoise
-     precision_tuning(F, G, errorAct)
-     precision_tuning(H, K, (*$\varepsilon$*))
-     break
+ while true:
+   F, G, H, K = design_robust_MPC($\Delta$)
+   errorRegion = incorrect_region_error(F, G, H, K, $\varepsilon$)
+   if $\Delta$ > errorRegion:
+     errorAct = $\Delta$ - errorRegion
+     $\hat{\text{F}}$, $\hat{\text{G}}$ = precision_tuning(F, G, errorAct)
+     $\hat{\text{H}}$, $\hat{\text{K}}$ = precision_tuning(H, K, $\varepsilon$)
+     return $\hat{\text{F}}$, $\hat{\text{G}}$, $\hat{\text{H}}$, $\hat{\text{K}}$
    else:
-     (*$\delta$*)=errorChoise+(*$\varepsilon_{SAFE}$*)
+     $\Delta$ = errorRegion + $\varepsilon_{SAFE}$
 \end{lstlisting}
-\caption{design of robust MPC with precision tuning}
+\caption{Algorithm for designing memory-efficient robust EMPC controller}
 \label{lst:alg}
 \end{figure}
 
@@ -33,15 +33,21 @@
 %}
 
 In the previous section, we assumed a given precision $p$. In this section we
-present our algorithm for deriving a suitable value of $p$ fully automatically.
+present our algorithm for deriving suitable values of $p$ fully automatically.
+Further, while~\autoref{sec:Error_Analysis} assumed a uniform fixed-point precision,
+our tuning algorithm derives possibly different precisions for different control
+values.
 
 \subsection{Algorithm}
 \eva{This section needs to structure the explanation in the order in which it
 appears in the algorithm (i.e. starting from the input and explaining why for
 instance $\varepsilon_Q$ is an input), and should reference the lines in the
 algorithm, not only the equations from the previous section}
-\autoref{lst:alg} reports the optimization algorithm we implemented to build robust MPC controllers with guaranteed error bounds.
+\autoref{lst:alg} shows a high-level view of our optimization algorithm for
+implementing robust MPC controllers with guaranteed error bounds.
 
+\eva{\autoref{lst:alg} needs another input: state-space model which goes into the MPC designer}
+\eva{Add here the explanation why $\varepsilon_Q$ is an input}
 From line 1 to 3, the procedure waits for input parameters from the designer: $\delta$ and $\varepsilon_{Q}$. $\delta$ is the maximal disturbance coefficient the controller has to be designed for. It is a problem dependent parameter, and thus can be any positive number. Typically, it is in the order of 0.1.
 $\varepsilon_{Q}$ is the imprecision error-bound for the quantization of borders. 
 The latter has to be strictly greater than zero, otherwise we could rely on infinite precision for storage of borders. Usually, the value for $\varepsilon_{Q}$ is in the order of 0.001.
