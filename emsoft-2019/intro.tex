@@ -57,15 +57,15 @@ min-max quadratic program for explicit robust MPC \cite{delaPea:2005}, where the
 model has an explicit disturbance bounded by $\Delta$.
 The solution is represented as a piecewise affine map.
 We use an automated mixed-precision tuning tool to find an approximate implementation of the piecewise affine
-map and statically compute the error of the implementation.
+map. 
+We statically compute the error of the implementation, taking into account errors
+in evaluating the affine maps as well as choosing the wrong affine map due to quantization.
 If the error is at most $\Delta$, we are done: the implementation satisfies the robustness margin in the model.
 If not, we increase the error bound $\Delta$ and run the loop again to find a new robust controller and find its best mixed-precision
 implementation.
-\eva{We bound all of the errors, including ones from choosing the wrong region. Worth mentioning here?}
-\eva{According to sec 5, the loop is not due to mixed-tuning failing, but due to the region error being too large}
 
 We have implemented our algorithm on top of Matlab's multi-parametric toolbox 
-for robust explicit MPC \cite{Matlab-MPT?}
+for robust explicit MPC~\cite{matlabMPT}
 and the Daisy tool for multi-precision tuning and fixed-point error analysis \cite{Daisy}.
 We have applied our technique on a number of standard benchmark examples.
 Our implementation finds that our mixed-precision implementation can save up to 20\% memory (on average, XXX\%) in controller
