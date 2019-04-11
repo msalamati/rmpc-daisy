@@ -1,3 +1,4 @@
+% !TEX root = main.tex
 \section{Introduction}
 \eva{General comment: it feels a bit long until the intro discusses the actual problem,
 but it reads nicely and motivates the problem well, so it's probably fine}
@@ -33,7 +34,7 @@ online to find the appropriate region for the current state and to evaluate the 
 Explicit MPC thus expands the class of systems being controlled by MPC strategies, by taking out the need to compute fast online
 or to certify a complex optimization routine.
 
-However, there are still bottleneks in implementing explicit MPC on resource-constrained embedded micro-controllers.
+However, there are still bottlenecks in implementing explicit MPC on resource-constrained embedded micro-controllers.
 First, implementations of explicit MPCs can suffer from large memory usage, because the solution of the optimization
 problem can involve many (often hundreds) of regions.
 Since the memory consumption grows linearly with the number of regions, 
@@ -45,7 +46,7 @@ implementation errors to be able to enforce hard constraints on the states at ru
 
 In this paper, we consider the problem of implementing explicit MPC on low-end microcontrollers with fixed-point arithmetic
 in a \emph{memory-efficient} and \emph{robust} way.
-We propose an automatic controller and mixed-precision implementation co-design technique that computes a minimal set\todo{What is meant by minimal?} of mixed
+We propose an automatic controller and mixed-precision implementation co-design technique that computes a minimal set \todo{What is meant by minimal?} of mixed
 precision assignments for all variables while ensuring the resulting implementation error remains within the robustness margin.  
 
 
@@ -65,7 +66,7 @@ implementation.
 
 We have implemented our algorithm on top of Matlab's multi-parametric toolbox 
 for robust explicit MPC \cite{Matlab-MPT?}
-and the Daisy tool for muti-precision tuning and fixed-point error analysis \cite{Daisy}.
+and the Daisy tool for multi-precision tuning and fixed-point error analysis \cite{Daisy}.
 We have applied our technique on a number of standard benchmark examples.
 Our implementation finds that our mixed-precision implementation can save up to 20\% memory (on average, XXX\%) in controller
 implementations over a uniform-precision implementation (and a saving of XXX\% over a uniform 32-bit implementation), while
