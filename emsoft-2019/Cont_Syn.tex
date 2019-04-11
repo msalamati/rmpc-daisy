@@ -3,18 +3,19 @@
 
 \begin{figure}
 \begin{lstlisting}[language=Python,numbers=left,numbersep=3pt,frame=lines,keepspaces=true,mathescape=true,basicstyle=\small\ttfamily]
+ model = input() 
  $\Delta$ = input()
  $\varepsilon_{Q}$ = input()
  assert ($\Delta$ >= 0 and $\varepsilon_{Q}$ > 0)
  $\varepsilon$ = $\varepsilon_{A/D}$ + $\varepsilon_{Q}$
 
  while true:
-   F, G, H, K = design_robust_MPC($\Delta$)
+   F, G, H, K = design_robust_MPC(model, $\Delta$)
    errorRegion = incorrect_region_error(F, G, H, K, $\varepsilon$)
    if $\Delta$ > errorRegion:
      errorAct = $\Delta$ - errorRegion
      $\hat{\text{F}}$, $\hat{\text{G}}$ = precision_tuning(F, G, errorAct)
-     $\hat{\text{H}}$, $\hat{\text{K}}$ = precision_tuning(H, K, $\varepsilon$)
+     $\hat{\text{H}}$, $\hat{\text{K}}$ = precision_tuning(H, K, $\varepsilon_Q$)
      return $\hat{\text{F}}$, $\hat{\text{G}}$, $\hat{\text{H}}$, $\hat{\text{K}}$
    else:
      $\Delta$ = errorRegion + $\varepsilon_{SAFE}$
@@ -34,80 +35,125 @@
 
 In the previous section, we assumed a given precision $p$. In this section we
 present our algorithm for deriving suitable values of $p$ fully automatically.
-Further, while~\autoref{sec:Error_Analysis} assumed a uniform fixed-point precision,
+Further, while~\autoref{sec:Error_Analysis} assumed a uniform finite precision,
 our tuning algorithm derives possibly different precisions for different control
 values.
 
-\subsection{Algorithm}
-\eva{This section needs to structure the explanation in the order in which it
-appears in the algorithm (i.e. starting from the input and explaining why for
-instance $\varepsilon_Q$ is an input), and should reference the lines in the
-algorithm, not only the equations from the previous section}
+%\subsection{Algorithm}
 \autoref{lst:alg} shows a high-level view of our optimization algorithm for
 implementing robust MPC controllers with guaranteed error bounds.
 
-\eva{\autoref{lst:alg} needs another input: state-space model which goes into the MPC designer}
-\eva{Add here the explanation why $\varepsilon_Q$ is an input}
-From line 1 to 3, the procedure waits for input parameters from the designer: $\delta$ and $\varepsilon_{Q}$. $\delta$ is the disturbance . It is a problem dependent parameter, and thus can be any positive number. Typically, it is in the order of 0.1.
-$\varepsilon_{Q}$ is the imprecision error-bound for the quantization of borders. 
-The latter has to be strictly greater than zero, otherwise we could rely on infinite precision for storage of borders. Usually, the value for $\varepsilon_{Q}$ is in the order of 0.001.
+Given a state-space model of a plant (line 1), our algorithm returns four matrices
+$\hat{\text{F}}$, $\hat{\text{G}}$, $\hat{\text{H}}$, and $\hat{\text{K}}$,
+which soundly implement a robust explicit MPC controller in mixed-precision
+fixed-point arithmetic.
+Our algorithm takes two additional inputs, $\Delta$ and $\varepsilon_Q$ (line 2, 3). 
+The disturbance $\Delta$ provided by the user represents a starting point for 
+the search for a robust controller. In principle, the user can set $\Delta = 0$,
+however note that the finite-precision implementation of the controller will always
+incur at least some small error. In practice we thus start the search with a slightly
+larger value, e.g. $\Delta = 0.1$. Our algorithm will perform a linear search and
+increase $\Delta$ if needed.
 
-In line 4, we compute the error $\varepsilon$ as described in (11), where $\varepsilon_{A/D}$ is a constant parameter dependent on the specific of the converter.
+The third input parameter is $\varepsilon_Q$. In~\autoref{sec:Error_Analysis} we
+showed that if the user provides a precision $p$, then we can automatically
+compute $\varepsilon_Q$.
+Now, we want to \emph{derive} a suitable precision $p$, however, and face an
+issue. In order to derive $p$ for some expression, Daisy and any other precision
+tuning tool requires an error bound which should be satisfied. I.e. either a
+precision $p$ is given, and we can compute an error bound, or the error bound is
+given and we can derive a precision $p$. We cannot do both at the same time; the
+problem would be underconstrained. We solve this chicken-and-egg issue by
+requiring the user to provide $\varepsilon_Q$ as the input.
 
-Once input parameters are verified, in line 7 we design the controller in MATLAB multi-parametric toolbox. The suite receives in input the coefficient $\delta$, and the state space model for the plant (e.g. inverted pendulum or aircraft) we need to control. The suite returns a piecewise affine function (F and G) together with a polytopes region partitioning (H and K).
+We need to distribute the available `disturbance budget' among the two error
+sources: error due to selecting the wrong region, which is given by the
+quantization of $\hat{\text{H}}$ and $\hat{\text{K}}$, and the error due to
+quantization of the control action, given by $\hat{\text{F}}$, $\hat{\text{G}}$.
+The quantization of $\hat{\text{H}}$ and $\hat{\text{K}}$ is determined by
+$\varepsilon_Q$, thus by providing this input value, the user effectively
+chooses how much precision to allow for $\hat{\text{H}}$ and $\hat{\text{K}}$.
+Note that this precision comes at the expense of the precision of
+$\hat{\text{F}}$ and $\hat{\text{G}}$, i.e. the more accurately $\hat{\text{H}}$
+and $\hat{\text{K}}$ are represented, the more approximate $\hat{\text{F}}$ and
+$\hat{\text{G}}$ need to be and vice versa.
+We note that one could straight-forwardly extend our algorithm to include an
+outer loop which would explore different values for $\varepsilon_Q$. For our
+experiments in~\autoref{sec:experiments}, we vary this value manually.
 
-In line 8, we compute the incorrect region error: we build the tube regions around the borders (\ref{eq:tube})  using $\varepsilon$ and we compute (\ref{eq:maximization}) for the corner points of the tube.
 
-In the conditional in line 9, we check whether the robustness $\delta$ is greater than the incorrect region error. If this is not the case, the initial value for $\delta$ was not robust to the magnitude of this error, and we need to re-design the controller with a greater $\delta$. 
-Indeed in line 15, the value $\delta$ for the next iteration has to be at least the same magnitude of the current errorChoise. Moreover, we increase by a small scalar $\varepsilon_{SAFE}$ (in the order of 0.001) the value for $\delta$ to speed-up the convergence of the analysis. 
+% From line 1 to 3, the procedure waits for input parameters from the designer: $\delta$ and $\varepsilon_{Q}$. $\delta$ is the disturbance . It is a problem dependent parameter, and thus can be any positive number. Typically, it is in the order of 0.1.
+% $\varepsilon_{Q}$ is the imprecision error-bound for the quantization of borders. 
+% The latter has to be strictly greater than zero, otherwise we could rely on infinite precision for storage of borders. Usually, the value for $\varepsilon_{Q}$ is in the order of 0.001.
 
-In case the conditional in line 9 succeeds, the precision tuning phase starts. The way we do the precision tuning is the following: we provide in input to Daisy a numerical error-bound together with an expression to quantize (e.g. an activation function). Daisy returns in output both the minimal-uniform precision, and the mixed-precision configuration, such that the quantization of the expression in the given precision configuration introduces an error that is bounded by the input error.
+Unlike the initial $\Delta$, $\varepsilon_Q$ needs to be strictly positive (line 4)
+for mixed-precision tuning tools to work correctly.
+Line 5 computes the width of the tubes $\varepsilon$ as shown in~\autoref{eq:epsilontot},
+which will be used to bound the error due to selecting the wrong region
+($\varepsilon_{A/D}$ is a constant parameter dependent on the specifics of the
+converter).
 
-In line 10 we compute the error bound for approximate control output error. This is going to be the maximal error we tolerate for activation functions. The precision tuning at line 11 receives in input the approximation control error together with the coefficients F and G. In Line 12 we give to Daisy the error $\varepsilon$ for borders, together with the hyperplanes coefficients H and K.
+The algorithm then calls Matlab's multi-parametric toolbox to design an explicit
+MPC controller for the given state-space model which is robust to the initial
+disturbance $\Delta$ (line 8). The result is a controller represented by four matrices
+\texttt{F, G, H, K} given in high precision.
+
+\emph{Assuming} that we can implement the polytope region partitioning (given by
+matrices \texttt{H, K}) with an implementation error of at most $\varepsilon_Q$,
+our algorithm proceeds to compute the error due to selecting the wrong region (line 9).
+This computation works as explained in~\autoref{sec:Error_Analysis}, \autoref{eq:maximization}.
+
+% Once input parameters are verified, in line 7 we design the controller in MATLAB
+% multi-parametric toolbox. The suite receives in input the coefficient $\delta$,
+% and the state space model for the plant (e.g. inverted pendulum or aircraft) we
+% need to control. The suite returns a piecewise affine function (F and G)
+% together with a polytopes region partitioning (H and K).
+
+% In line 8, we compute the incorrect region error: we build the tube regions around the borders (\ref{eq:tube})  using $\varepsilon$ and we compute (\ref{eq:maximization}) for the corner points of the tube.
+
+The algorithm then checks whether the region error remains below the disturbance
+bound used for the synthesis of the controller (line 10). 
+If the error already exceeds $\Delta$, we do not attempt to compute a finite-precision
+assignment, as the controller design is already infeasible.
+In this case, we increase $\Delta$ by a fixed (small) amount $\varepsilon_{SAFE}$ (line 16) and 
+design a new controller. 
+
+% In the conditional in line 9, we check whether the robustness $\delta$ is greater than the incorrect region error. If this is not the case, the initial value for $\delta$ was not robust to the magnitude of this error, and we need to re-design the controller with a greater $\delta$. 
+% Indeed in line 15, the value $\delta$ for the next iteration has to be at least the same magnitude of the current errorChoise. Moreover, we increase by a small scalar $\varepsilon_{SAFE}$ (in the order of 0.001) the value for $\delta$ to speed-up the convergence of the analysis. 
+
+If the region error is smaller than $\Delta$, we still have an error budget \texttt{errorAct} left
+over to implement the control actions in finite precision (line 11).
+For the precision assignment, we first call Daisy with the expressions for the
+control actions given by \texttt{F} and \texttt{G}, and the remaining error
+budget as the error bound (line 12).
+Then we call Daisy with the expressions of the region bounds given by \texttt{H}
+and \texttt{K}, now with the error bound $\varepsilon_Q$ (line 13).
+In both cases, Daisy determines a quantization of the input matrices (Daisy also
+determines the fixed-point formats of the arithmetic operations, which we ignore here).
+Daisy either computes a minimal uniform fixed-point precision (word length),
+i.e. it searches for the smallest uniform precision which still satisfies the
+error bound, or it returns a mixed-precision assignment, where each value and
+intermediate operation can potentially have different word length.
+In our experiments in~\autoref{sec:experiments}, we compare the two modes and show
+that mixed-precision leads to smaller memory footprints.
+
+Note that Daisy always returns a quantization (at least for our linear
+expressions). If the error bound given is very small (but larger than zero),
+Daisy will return a fixed-point precision with a large number bits, but will not
+fail.
+
+% In case the conditional in line 9 succeeds, the precision tuning phase starts. The way we do the precision tuning is the following: we provide in input to Daisy a numerical error-bound together with an expression to quantize (e.g. an activation function). Daisy returns in output both the minimal-uniform precision, and the mixed-precision configuration, such that the quantization of the expression in the given precision configuration introduces an error that is bounded by the input error.
+
+% In line 10 we compute the error bound for approximate control output error. This is going to be the maximal error we tolerate for activation functions. The precision tuning at line 11 receives in input the approximation control error together with the coefficients F and G. In Line 12 we give to Daisy the error $\varepsilon$ for borders, together with the hyperplanes coefficients H and K.
 
 %\eva{The precision tuning, which is the main contribution of the paper is not explained.}
 
-\subsection{Implementation}
-\eva{Some notes about how this is implemented}
-We wrote a script Python to interface the design of the controller in MATLAB Toolbox with the precision tuning phase in Daisy. The script divides in two main components: (i) a parser to process the output from MATLAB suite and (ii) a procedure to encode the vectors F,G and H,K in expressions formatted for Daisy.
+\paragraph{Implementation}
 
+We implemented our algorithm in a Python script which interfaces between Matlab
+and Daisy and which implements the high-level structure from~\autoref{lst:alg}.
+The interface parses the output from Matlab and encodes the matrices \texttt{F,
+G, H, K} and the error bounds in Daisy's input format.
+\eva{Can we say something about parallelization?}
 
-
-\eva{Below is the previous text:}
-%In this work we present an innovative method for the off-line design (explicit) of robust MPC controllers for linear time invariant systems.
-We need to solve the two inequalities in (\ref{eq:delta}) (\ref{eq:quantizationlines}) in order to build a controller with guarantees of robustness.
-%The equation for $\varepsilon$ in (\ref{eq:epsilontot}),  contains: $\varepsilon_{A/D}$ that is the error introduced by the analog-digital conversion, and $\varepsilon_{Q}$ that is the error generated from the quantization of hyperplanes $\mathcal{R}$ in a finite number of bits.
-%This $\varepsilon_{Q}$ can be tuned based on memory availability in the micro-controller.
-%The rule for $\varepsilon_{Q}$ is the following:
-%\begin{equation}\label{eq:quantizationlines}
-%\varepsilon_{Q} > (H-\hat{H}_{p})\qstatevar+(K-\hat{K}_{p})
-%\end{equation}
-%This inequality assures that the distance between any hyperplane represented in infinite precision (H and K), and its counter-part quantized in p bits ($(\hat{H})_{p}$ and $(\hat{K})_{p}$), is bounded by $\varepsilon_{Q}$. 
-We use Daisy to solve inequality (\ref{eq:quantizationlines}) with respect to p: we assign an arbitrary value to $\varepsilon_{Q}$ and find the minimal-precision p such that the inequality holds. The main advantage of using this approach (compared to fixing the precision p a priori), is that the value for $\varepsilon_{Q}$ can be regulated based on micro-controller specifications (e.g. memory availability).
-%To solve (\ref{eq:quantizationlines}) we used Daisy: a static analyzer for finite precision expressions, ables to provide a sound upper-bound to the maximal approximation error of a formula with respect to its real (infinite precision) counterpart. Since the magnitude of the round-off error depends on the range of input variables, any variable encoded in Daisy has to be bounded.
-In a similar way, we solve the inequality in (\ref{eq:delta}) with respect to p:
-\begin{flalign}
-\label{eq:deltaminusmax}
-&delta - \Big(\max_{\forall i,j\;|\;neighbour(i,j)}|u_{i}-u_{j}|\Big)>=\\
-& \max_{\forall\;\regionimath{i}\;in\;\statespace} err(u_{i})_{p}\nonumber
-\end{flalign}
-
-Be aware that the left side of (\ref{eq:deltaminusmax}) is not parametrized in p (it is a plain number). Only the right size of (\ref{eq:deltaminusmax}) actually depends on the precision p. We compute the left side of the inequality using large enough precision p (e.g. 64 bits) such that we can safely ignore the error resulting from the computation.
-Then, we encode (\ref{eq:deltaminusmax}) in Daisy to detect precision p. Note that p used to solve (\ref{eq:quantizationlines}) can be different from $p'$ used to solve (\ref{eq:deltaminusmax}).
-
-
-
-In Listing \ref{lst:alg} we describe the procedure used to design a robust MPC controller such that (\ref{eq:deltaminusmax}) is satisfied.
-
-
-First, the designer of the controller provides the initial values for delta and $\varepsilon_{Q}$. Even if it possible to assign value zero to delta~\cite{imperialrmpc}, we do not encourage such initialization value: it is going to fail the analysis (at least) for the first iteration, because the error in (\ref{eq:maxfperror}) is going to be greater than zero. A better initialization would be to set delta to an arbitrary small value, slightly greater than zero.
-
-On the other hand, the value for $\varepsilon_{Q}$ has to be strictly greater than zero, otherwise we could rely on infinite precision for p in (\ref{eq:quantizationlines}).
-
-Once input parameters are verified, we design the controller in MATLAB. 
-
-We compute (\ref{eq:maximization}) and we compare the result with delta. Again, in the conditional inside the loop, delta has to be strictly greater than \maxUij\space otherwise we do not have space for computing the precision for (\ref{eq:deltaminusmax}). In case the conditional is true,
-the precision tuning phase starts.
-For the precision tuning of activation functions, we allow an error that is bounded by the left side of inequality (\autoref{eq:deltaminusmax}). While for the quantization of hyperplanes the error bound is $\varepsilon_{Q}$.
-
-In case the conditional fails and \maxUij is greater than or equal to delta, the controller needs to be re-designed with a robustness value that is at least equal to the current value of \maxUij. The same suggestion for input parameters holds also here: the constant $\varepsilon_{SAFE}$ is used to relax the value for delta, to a value slightly greater than \maxUij. In this way, we relax the constraint used in the next iteration of precision tuning. Otherwise, in case $\varepsilon_{SAFE}$ is equal to zero, the next iteration of the loop is going to predict unnecessarily wide precision value for p, usually greater than 32 bits. 
+% We wrote a script Python to interface the design of the controller in MATLAB Toolbox with the precision tuning phase in Daisy. The script divides in two main components: (i) a parser to process the output from MATLAB suite and (ii) a procedure to encode the vectors F,G and H,K in expressions formatted for Daisy.
