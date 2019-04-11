@@ -15,7 +15,8 @@
 \usepackage{xparse}
 \setlength{\tabcolsep}{0.5em} % for the horizontal padding
 {\renewcommand{\arraystretch}{1.1}% for the vertical padding
-%\usepackage[dvipsnames]{xcolor}
+\renewcommand{\dblfloatpagefraction}{0.5} % allow float page
+
 \usepackage[backgroundcolor=Apricot, textsize=footnotesize]{todonotes}
 \newcommand*{\eva}[1]{\todo[author=Eva,inline,caption={}]{#1}}
 \newcommand*{\rocco}[1]{\todo[author=Rocco,inline,caption={}]{#1}}

@@ -1,15 +1,15 @@
-\begin{table*}[t]
+\begin{table*}[p]
   \centering
   \caption{Inverted Pendulum and Aircraft.
   \textmd{ 
   Memory requirements in number of bits for storing F, G and H, K for uniform 32
   bit precision (Uni32), uniform custom precision (Uni, word length chosen in
-  parentheses) and mixed precision (Mix), for different values of delta and
-  $\varepsilon$.
-  The maximal error due to a wrong activation function is \maxUij and the error bound for
-  finite precision activation functions $err(u_{i})$.
-  \%32vsU is the percentage of memory save using Uni instead of the baseline Uni32,
-  then \%UvsM is the percentage of memory save using Mix instead of Uni.
+  parentheses) and mixed precision (Mix), for different values of $\Delta$ and
+  $\varepsilon_Q$.
+  The error due to choosing a wrong region is denoted as `max' and the finite-precision
+  error bound in evaluating the control actions as $err(u_{i})$.
+  \%32vsU is the percentage of memory saved using Uni compared to the baseline Uni32,
+  and \%UvsM is the percentage of memory saved using Mix compared to Uni.
   % delta is the disturbance used to design the controller, and $\varepsilon$ the
   % size of the safe space between two generic regions (\texttt{tube}). We fix
   % $\varepsilon$ and try different delta (in red) and vice-versa. The maximal
@@ -23,82 +23,82 @@
   % the difference between Uni and Mix.
   }}
   \label{tab:ipd}
-  \begin{tabular}{|l|rrrrrrrrrrrrrr|}
-    \cline{6-15}
-    \multicolumn{1}{c}{} & %name of the sample
-    \multicolumn{4}{c}{} &
-    \multicolumn{5}{|c|}{F and G} &
-    \multicolumn{5}{c|}{H and K} \\
-    \cline{2-15}
+  \begin{tabular}{l|rr|rrrrr|rrrrr}
+    \toprule
+     & & & \multicolumn{5}{c}{F and G} & \multicolumn{5}{|c}{H and K} \\
+    %\cline{2-13}
     %\cline{5-6}
     %\cline{9-12}
     %\cline{13-16}
-    \multicolumn{1}{c}{\multirow{14}{*}{\rotatebox{90}{pendulum}}} &
-    \multicolumn{1}{|c}{delta}&
-    \multicolumn{1}{c}{$\varepsilon$} &
-    \multicolumn{1}{c}{max} &
-    \multicolumn{1}{c}{$err(u_{i})$} &
-    \multicolumn{1}{c}{Uni32}&
+    
+    \multirow{14}{*}{\rotatebox{90}{pendulum}} &  
+    \multicolumn{1}{c}{$\Delta$}&
+    \multicolumn{1}{c}{$\varepsilon_Q$} &
+    %\multicolumn{1}{c}{max} &
+    %\multicolumn{1}{c}{$err(u_{i})$} &
+    \multicolumn{1}{|c}{Uni32}&
     \multicolumn{1}{c}{Uni}&
     \multicolumn{1}{c}{Mix}&
     \multicolumn{1}{c}{\%32vU}&
     \multicolumn{1}{c}{\%UvM}&
-    \multicolumn{1}{c}{Uni32}&
+    \multicolumn{1}{|c}{Uni32}&
     \multicolumn{1}{c}{Uni}&
     \multicolumn{1}{c}{Mix}&
     \multicolumn{1}{c}{\%32vU}&
-    \multicolumn{1}{c|}{\%UvM} \\
-    \cline{1-15}
-    & \color{red}{0.30} & 0.001 & 0.02 & 0.28 & 2688 & 924 (p=11) & 759 & 65.6\% & 17.9\% & 11136 & 5568 (p=16) & 4991 & 50\% & 10.7\% \\
+    \multicolumn{1}{c}{\%UvM} \\
     
-    & \color{red}{0.20} & 0.001 & 0.02 & 0.18 & 2688 & 924 (p=11) & 806 & 65.6\% & 12.8\% & 11136 & 5568 (p=16)& 4992 & 50\% & 10.3\% \\
+    \midrule
+
+    & \color{red}{0.30} & 0.001   & 2688 & 924 (p=11) & 759 & 65.6\% & 17.9\% & 11136 & 5568 (p=16) & 4991 & 50\% & 10.7\% \\
     
-    & \color{red}{0.10} & 0.001 & 0.02 & 0.08 & 2688 & 1008 (p=12) & 908 & 65.5\% & 10\% & 11136 & 5568 (p=16)& 4992 & 50\% & 10.3\% \\
+    & \color{red}{0.20} & 0.001   & 2688 & 924 (p=11) & 806 & 65.6\% & 12.8\% & 11136 & 5568 (p=16)& 4992 & 50\% & 10.3\% \\
     
-    & \color{red}{0.08} & 0.001 & 0.02 & 0.06 & 2688 & 1092 (p=13) & 946 & 59.4\% & 13.4\% & 11136 & 5568 (p=16) & 4992 & 50\% & 10.3\% \\
+    & \color{red}{0.10} & 0.001   & 2688 & 1008 (p=12) & 908 & 65.5\% & 10\% & 11136 & 5568 (p=16)& 4992 & 50\% & 10.3\% \\
     
-    & \color{red}{0.05} & 0.001 & 0.02 & 0.03 & 2688 & 1176 (p=14) & 1030 & 56.3\% & 12.4\% & 11136 & 5568 (p=16) & 4992 & 50\% & 10.3\% \\ 
+    & \color{red}{0.08} & 0.001   & 2688 & 1092 (p=13) & 946 & 59.4\% & 13.4\% & 11136 & 5568 (p=16) & 4992 & 50\% & 10.3\% \\
+    
+    & \color{red}{0.05} & 0.001   & 2688 & 1176 (p=14) & 1030 & 56.3\% & 12.4\% & 11136 & 5568 (p=16) & 4992 & 50\% & 10.3\% \\ 
     
     % Empy Line
-    & & & & & & & & & & & & & &\\
+    & & & & & & & & & & & &\\
     % Empy Line
     
-    & 0.1 & \color{red}{0.0006} & 0.012 & 0.088 & 2688 & 1008 (p=12) & 891 & 62.5\% & 11.6\% & 11136 & 5916 (p=17) & 5261 & 46.9\% & 11\% \\
+    & 0.1 & \color{red}{0.0006}  & 2688 & 1008 (p=12) & 891 & 62.5\% & 11.6\% & 11136 & 5916 (p=17) & 5261 & 46.9\% & 11\% \\
     
-    & 0.1 & \color{red}{0.0008} & 0.016 & 0.084 & 2688 & 1008 (p=12) & 901 & 62.5\% & 10.6\% & 11136 & 5568 (p=16) & 5135 & 50\% & 7.77\% \\
+    & 0.1 & \color{red}{0.0008}  & 2688 & 1008 (p=12) & 901 & 62.5\% & 10.6\% & 11136 & 5568 (p=16) & 5135 & 50\% & 7.77\% \\
     
-    & 0.1 & \color{red}{0.0010} & 0.019 & 0.081 & 2688 & 1008 (p=12) & 908 & 62.5\% & 10\% & 11136 & 5568 (p=16) & 4992 & 50\% & 10.3\% \\
+    & 0.1 & \color{red}{0.0010}  & 2688 & 1008 (p=12) & 908 & 62.5\% & 10\% & 11136 & 5568 (p=16) & 4992 & 50\% & 10.3\% \\
     
-    & 0.1 & \color{red}{0.0030} & 0.059 & 0.041 & 2688 &  1092 (p=13) & 993 & 59.4\% & 9.1\% & 11136 & 4872 (p=14) & 4462 & 56.3\% & 8.4\% \\
+    & 0.1 & \color{red}{0.0030}  & 2688 &  1092 (p=13) & 993 & 59.4\% & 9.1\% & 11136 & 4872 (p=14) & 4462 & 56.3\% & 8.4\% \\
     
-    & 0.1 & \color{red}{0.0050} & 0.099 & 0.001 & 2688 & 1680 (p=20) & 1527 & 37.5\% & 9.1\% & 11136 & 4872 (p=14) & 4204 & 56.3\% & 13.7\% \\
-    \cline{1-15}
+    & 0.1 & \color{red}{0.0050}  & 2688 & 1680 (p=20) & 1527 & 37.5\% & 9.1\% & 11136 & 4872 (p=14) & 4204 & 56.3\% & 13.7\% \\
+    
+    \midrule
+
     \multirow{12}{*}{\rotatebox{90}{aircraft}}
-    & \color{red}{0.30} & 0.001 & 0.037 & 0.263 & 9984 & 6864 (p=22) & 6210 & 31.3\% & 9.5\% & 79872 & 64896 (p=26) & 53059 & 18.8\% & 18.2\% \\
+    & \color{red}{0.30} & 0.001  & 9984 & 6864 (p=22) & 6210 & 31.3\% & 9.5\% & 79872 & 64896 (p=26) & 53059 & 18.8\% & 18.2\% \\
     
-    & \color{red}{0.20} & 0.001 & 0.037 & 0.163 & 10368 & 7452 (p=23) & 6725 & 28.1\% & 9.8\% & 82944 & 67392 (p=26) & 55098 & 18.8\% & 18.2\% \\
+    & \color{red}{0.20} & 0.001  & 10368 & 7452 (p=23) & 6725 & 28.1\% & 9.8\% & 82944 & 67392 (p=26) & 55098 & 18.8\% & 18.2\% \\
     
-    & \color{red}{0.10} & 0.001 & 0.037 & 0.063 & 10368 & 7776 (p=24) & 7134 & 25\% & 8.3\% & 82944 & 67392 (p=26) & 55098 & 18.8\% & 18.2\% \\
+    & \color{red}{0.10} & 0.001  & 10368 & 7776 (p=24) & 7134 & 25\% & 8.3\% & 82944 & 67392 (p=26) & 55098 & 18.8\% & 18.2\% \\
     
-    & \color{red}{0.08} & 0.001 & 0.037 & 0.043 & 10368 & 7776 (p=24) & 7275 & 25\% & 6.4\% & 82944 & 67392 (p=26) & 55098 & 18.8\% & 18.2\% \\
+    & \color{red}{0.08} & 0.001  & 10368 & 7776 (p=24) & 7275 & 25\% & 6.4\% & 82944 & 67392 (p=26) & 55098 & 18.8\% & 18.2\% \\
     
-    & \color{red}{0.05} & 0.001 & 0.037 & 0.013 & 10368 & 8424 (p=26) & 7840 & 18.8\% & 6.9\% & 82944 & 67392 (p=26) & 55098 & 18.8\% & 18.3\% \\
+    & \color{red}{0.05} & 0.001  & 10368 & 8424 (p=26) & 7840 & 18.8\% & 6.9\% & 82944 & 67392 (p=26) & 55098 & 18.8\% & 18.3\% \\
     
     % Empy Line
-    & & & & & & & & & & & & & &\\
+    & & & & & & & & & & & &\\
     % Empy Line
     
-    & 0.1 & \color{red}{0.0006} & 0.022 & 0.078 & 10368 & 7776 (p=24) & 7047 & 25\% & 9.4\% & 82944 & 69984 (p=27) & 55705 & 15.6\% & 20.4\% \\
+    & 0.1 & \color{red}{0.0006}  & 10368 & 7776 (p=24) & 7047 & 25\% & 9.4\% & 82944 & 69984 (p=27) & 55705 & 15.6\% & 20.4\% \\
     
-    & 0.1 & \color{red}{0.0008} & 0.030 & 0.071 & 10368 & 7776 (p=24) & 7125 & 25\% & 8.4\% & 82944 & 69984 (p=27) & 57859 & 15.6\% & 17.3\% \\
+    & 0.1 & \color{red}{0.0008}  & 10368 & 7776 (p=24) & 7125 & 25\% & 8.4\% & 82944 & 69984 (p=27) & 57859 & 15.6\% & 17.3\% \\
     
-    & 0.1 & \color{red}{0.0010} & 0.037 & 0.063 & 10368 & 7776 (p=24) & 7134 & 25\% & 8.3\% & 82944 & 67392 (p=26) & 55098 & 18.8\% & 18.2\% \\
+    & 0.1 & \color{red}{0.0010}  & 10368 & 7776 (p=24) & 7134 & 25\% & 8.3\% & 82944 & 67392 (p=26) & 55098 & 18.8\% & 18.2\% \\
     
-    % & 0.112* & \color{red}{0.0030} & 0.111 & 0.001000000068 & 10368 &  9720 (p=30) & 9051 & 6.3\% & 6.9\% & 82944 & 64800 (p=25) & 52754 & 21.9\% & 18.6\% \\
-    & 0.112* & \color{red}{0.0030} & 0.111 & 0.0011 & 10368 &  9720 (p=30) & 9051 & 6.3\% & 6.9\% & 82944 & 64800 (p=25) & 52754 & 21.9\% & 18.6\% \\
+    & 0.112* & \color{red}{0.0030}  & 10368 &  9720 (p=30) & 9051 & 6.3\% & 6.9\% & 82944 & 64800 (p=25) & 52754 & 21.9\% & 18.6\% \\
     
-    % & 0.185* &\color{red}{0.0050} & 0.185 & 0.001000000090 & 10368 & 9720 (p=30) & 9051 & 6.3\% & 6.9\% & 82944 & 62208 (p=24) & 47877 & 25\%& 23.1\% \\
-    & 0.185* &\color{red}{0.0050} & 0.185 & 0.0011 & 10368 & 9720 (p=30) & 9051 & 6.3\% & 6.9\% & 82944 & 62208 (p=24) & 47877 & 25\%& 23.1\% \\
-    \cline{1-15}
+    & 0.185* &\color{red}{0.0050}  & 10368 & 9720 (p=30) & 9051 & 6.3\% & 6.9\% & 82944 & 62208 (p=24) & 47877 & 25\%& 23.1\% \\
+    \bottomrule
   \end{tabular}
 \end{table*}
