@@ -1,5 +1,6 @@
 % !TEX root = main.tex
-\section{Overview}\label{sec:example}
+\section{Overview}
+\label{sec:example}
 
 % Model Predictive Control (MPC) refers to the class of control strategies that design control actions by solving a finite horizon optimal control problem at each sampling instant. While each optimization gives a sequence of optimal control actions, only the first action is applied to the process. The same procedure is applied in the next time instance after receiving the updated value of the process state. MPC has shown to be successful in industrial applications since it is able to handle large number of states and control actions and automatically considers constraints in the optimization.
 % 
@@ -40,8 +41,8 @@ After linearization and time discretization, the model is
 	\end{equation}
 where $\theta_k$, $\omega_k$, and $u_k$ denote respectively the angular position, angular speed, 
 and the input torque at time $kT_s$ with $T_s$ being an appropriate sample time.
-The disturbance $w_k\in\mathbb R^2$, bounded by $\|w_k\|\leq \Delta$, captures the modeling error due to 
-linearization and discretization. 
+The disturbance $w_k\in\mathbb R^2$, \Sadegh{bounded with a polyhedral set $w_k\in \mathcal W$, captures the modeling error due to 
+linearization and discretization}. 
 The parameter $g=9.81 [m/s^2]$ is the gravitational acceleration, $m$ is the ball mass, $b$ is the rotational fraction coefficient, 
 and $L$ is the length of the bar. 
 Starting from an initial state $(\theta_0,\omega_0)$, the control goal is to converge to the equilibrium point 
@@ -49,12 +50,12 @@ $\theta=0, \omega=0$.
 Additionally, we require the state constraints $\theta_k\in[-\pi,\pi]$ and $\omega_k\in[-\pi/8,\pi/8]$ to hold at all time instances.
 
 Our overall goal is to 
-(i) design a robust MPC controller that achieves the performance objectives including hard constraints in spite of a bounded
-disturbance $\Delta$ modeling the implementation error due to finite precision;
+(i) design a robust MPC controller that achieves the performance objectives including hard constraints in spite of \Sadegh{an additional bounded
+disturbance $\Delta$ modeling the implementation error (both errors due to choosing a wrong region and the finite-precision computation of the control action);}
 and at the same time
-\eva{what about the modelling error that $\Delta$ bounded in the paragraph before?}
+%\eva{what about the modelling error that $\Delta$ bounded in the paragraph before?}
 (ii) to minimize the total number of bits that are required for storing the explicit controller 
-while ensuring the error $e\leq \Delta$ is satisfied by the implementation.
+while ensuring the implementation error $e\leq \Delta$ is satisfied by the implementation.
 
 % There are many control schemes that can guarantee convergence of the trajectories to the rest position (e.g., state feedback or linear quadratic regulator), but fail to ensure hard constraints on the states at all time instances. The main feature of MPC schemes is to automatically include these constraints in the design of control actions.
 %	One major challenge of implementing model predictive controllers over embedded systems is to solve the related optimization within each sampled time inerval. Since the system under consideration is LTI, one can use explicit MPC \cite{Bemporad:2002} that computes partitions over state space together with affine functions which are then used to compute the optimal control input over their corresponding partition. For the inverted-pendulum example, the computed controller contains $12$ partition presented in Fig.~\ref{fig:inverted_pendulum}~{(b)}, each with an affine function that gives the control action over that partition.
@@ -73,33 +74,43 @@ while ensuring the error $e\leq \Delta$ is satisfied by the implementation.
 %Our approach iteratively expand the bound on disturbance $\Delta+\Delta_0$, designs a robust explicit MPC controller with this bound and 
 % uses state-of-the-art fixed-point error analyzers to find the minimum total number of bits for storing the controller into the embedded system with maximum error $\Delta_0$.
 	
-Figure \ref{fig:overview} gives a high-level overview of our proposed setup. 
-We start by defining an initial bound $\Delta_0$. 
-For our example, we choose $\Delta_0=0$. 
-We use MATLAB to find a robust explicit MPC with the bound $\Delta_0$ on the disturbance.
+Figure \ref{fig:overview} gives a high-level overview of our proposed setup.
+\Sadegh{
+We start by selecting an initial bound $\Delta_0$ on the implementation error and enlarge $\mathcal W$ with $\Delta_0$ as $\mathcal W_{\Delta_0}$, where
+\begin{equation}
+\mathcal W_{\Delta} := \{w_1+w_2 \,|\, w_1\in \mathcal W, \|w_2\|\le \Delta\}
+\quad\text{ for all } \Delta\ge 0.
+\end{equation}
+ }
+ 
+ \Sadegh{
+For our example, we choose $\Delta_0=0$ and $\mathcal W = \{0\}$. 
+We use MATLAB to find a robust explicit MPC with disturbance set $\mathcal W_{\Delta_0}$.
 Next, we ask Daisy
-to provide us with a mixed-precision scheme such that the implementation satisfies the error bound $\Delta$, that is,
-at all points in the control domain, the difference between the (infinite precision) controller function
-and its implementation in the mixed-precision scheme is at most $\Delta$.
+to provide a mixed-precision scheme such that the associated implementation error is at most $\Delta_0$, that is,
+at all points in the control domain, the difference between the infinite-precision controller function
+and its mixed-precision implementation is at most $\Delta_0$.
+}
 
-Unfortunately, $\Delta_0=0$ is not realizable,  as the error resulting from a fixed-point 
-implementation is always greater than zero.
-\eva{Is this the error due to mixed-precision or due to wrong regions?}
-Therefore, we increase $\Delta$ by $0.05$ and try again. 
-Solving the robust explicit MPC problem for the new disturbance bound gives the new controller,
+\Sadegh{
+Unfortunately, $\Delta_0=0$ is not realizable, as the implementation error is always greater than zero either due to selecting the wrong region in the affine controller function or due to the finite-precision computation of the control action.
+%\eva{Is this the error due to mixed-precision or due to wrong regions?}
+Therefore, we define $\Delta_1 := \Delta_0 + \delta$ with $\delta$ being a fixed threshold (we chose $\delta = 0.05$) and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 
+Solving the robust explicit MPC problem for this enlarged disturbance set gives the new controller,
 shown in Figure~\ref{fig:inverted_pendulum}(b).
 The controller has \RM{XX} regions.
 \RM{give the control function. I think it will be good to explicitly write the polyhedra and the affine maps} 
+}
 
 Next, we ask Daisy to provide us with mixed-precision implementation for all the parameters and to compute a static bound on the
 implementation error. 
 The mixed-precision scheme given by Daisy results in an implementation with $6084$ bits in total 
 for the corresponding robust explicit MPC.
 Daisy also computes a static error bound of \RM{what?}
-Since this error bound is less than our robustness margin $\Delta = 0.05$, we terminate the loop
+Since this error bound is less than our robustness margin $\Delta_1 = 0.05$, we terminate the loop
 and return this implementation.
 The mixed-precision implementation takes about $10\%$ less memory compared 
-to the smallest uniform precision implementation that respects $\Delta$,
+to the smallest uniform precision implementation that respects $\Delta_1$,
 and about $XXX\%$ \RM{what} less memory than an implementation that uniformly uses
 32 bits.
 	
