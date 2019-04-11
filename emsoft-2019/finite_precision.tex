@@ -11,11 +11,11 @@ however, more compilation effort to determine certain operations statically at
 compile time (that the floating-point hardware unit performs dynamically).
  
 % general blob about fixed-point arithmetic
-The main task at compile time is to select the fixed-point format for each value
+The main task at compile time is to select the fixed-point format for each input and intermediate value
 in the program. The format specifies the total word length and how many bits are
 available for the integer part of the number. Given ranges on program inputs, a
-range analysis estimates possibles ranges of all intermediate values in the
-program, which in turn determine how many integer bits are sufficient to
+range analysis is usually used to estimate ranges of all intermediate values in the
+program~\cite{Pang2011,Kinsman2009}, which in turn determine how many integer bits are sufficient to
 avoid overflow. The remaining bits of the total word length represent the
 fractional part of a number; more fractional bits provide more precision. 
 
@@ -24,15 +24,16 @@ Finite precision unavoidably introduces roundoff errors, which can accumulate
 during the course of a computation.
 A sound static roundoff error analysis computes a guaranteed upper bound on the
 error of the result by tracking worst-case errors at every operation. Given a
-word length for each value, several tools~\cite{Daisy,Gappa} automatically determine the number of
-integer bits needed and compute roundoff errors using a dataflow analysis.
+word length for each value, several tools automatically determine the number of
+integer bits needed and compute roundoff errors using a dataflow analysis~\cite{Daisy,Gappa}.
 They track real-valued ranges at every intermediate operation. These ranges
 determine the fixed-point formats and thus also the individual worst-case roundoff errors,
 which the analyses track separately from the ranges. To ensure guaranteed
 error bounds, both the ranges and errors are computed using interval~\cite{intervals} or
-affine arithmetic~\cite{affineArithmetic} which compute sound enclosures. Since intervals do not
-track correlations between variables and affine arithmetic tracks only linear
-ones, the resulting ranges and errors are over-approximated.
+affine arithmetic~\cite{affineArithmetic} which compute sound enclosures. 
+Affine arithmetic tracks linear correlations between variables, so for linear expressions
+the computed ranges are as tight as possible (nonlinear arithmetic
+leads to over-approximations).
 % A standard technique to increase accuracy of the computed errors is interval
 % subdivision, which divides the input domain into equally-sized subdomains and
 % runs roundoff error analysis separately for each subdomain. The
@@ -42,7 +43,7 @@ ones, the resulting ranges and errors are over-approximated.
 % mixed-precision tuning
 To reduce memory usage and increase efficiency, we want to choose as short word
 lengths as possible. Mixed-precision tuning tools automatically determine possibly different
-word lengths for different values. Compared to uniform precision (or word length),
+word lengths for different values~\cite{DaisyTuning,Lee2006}. Compared to uniform precision (or word length),
 mixed-precision often leads to improved resource usage, but due to the complexity of
 fixed-point arithmetic and the error analysis, is challenging to do manually.  
 Automated mixed-precision tuning tools usually perform a search: they repeatedly
