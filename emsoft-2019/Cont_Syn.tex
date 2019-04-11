@@ -9,12 +9,12 @@
  (*$\varepsilon$*) = (*$\varepsilon_{A/D}$*) + (*$\varepsilon_{Q}$*)
 
  while True:
-   F,G,H,K = design_robust_MPC((*$\delta$*), (*$\varepsilon$*))
-   errorChoise = compute_MaxUiUj(F,G,H,K)
+   F,G,H,K = design_robust_MPC((*$\delta$*))
+   errorChoise = incorrect_region_error(F,G,H,K,(*$\varepsilon$*))
    if (*$\delta$*) > errorChoise:
-     errorAct = (*$\delta-$\maxUij*)
-     UNI_MIX_precision(F, G, errorAct)
-     UNI_MIX_precision(H, K, (*$\varepsilon$*))
+     errorAct = (*$\delta$*) - errorChoise
+     precision_tuning(F, G, errorAct)
+     precision_tuning(H, K, (*$\varepsilon$*))
      break
    else:
      (*$\delta$*)=errorChoise+(*$\varepsilon_{SAFE}$*)
@@ -23,16 +23,14 @@
 \label{lst:alg}
 \end{figure}
 
-\eva{The algorithm in \autoref{lst:alg} needs to be fixed:
-\begin{itemize}
-  \item Use the math symbol for Delta to be consistent with the rest of the paper
-  \item the function design\_robust\_MPC seems to do a lot more than just designing
-    the controller, i.e. it seems to return an error bound instead of a controller.
-    Split into more steps.
-  \item \maxUij and $err_{max}(u_{i})_{p}$ are not good variable names, use a proper variable name
-  \item UNI\_MIX\_precision should also be renamed to something more helpful, e.g. tune\_precision?
-\end{itemize}
-}
+%\eva{The algorithm in \autoref{lst:alg} needs to be fixed:
+%\begin{itemize}
+  %\item Use the math symbol for Delta to be consistent with the rest of the paper
+  %\item the function design\_robust\_MPC seems to do a lot more than just designing the controller, i.e. it seems to return an error bound instead of a controller. Split into more steps.
+  %\item \maxUij and $err_{max}(u_{i})_{p}$ are not good variable names, use a proper variable name
+  %$\item UNI\_MIX\_precision should also be renamed to something more helpful, e.g. tune\_precision?
+%\end{itemize}
+%}
 
 In the previous section, we assumed a given precision $p$. In this section we
 present our algorithm for deriving a suitable value of $p$ fully automatically.
@@ -40,8 +38,26 @@ present our algorithm for deriving a suitable value of $p$ fully automatically.
 \subsection{Algorithm}
 \eva{This section needs to structure the explanation in the order in which it
 appears in the algorithm (i.e. starting from the input and explaining why for
-instance $\epsilon_Q$ is an input), and should reference the lines in the
+instance $\varepsilon_Q$ is an input), and should reference the lines in the
 algorithm, not only the equations from the previous section}
+\autoref{lst:alg} reports the optimization algorithm we implemented to build robust MPC controllers with guaranteed error bounds.
+
+From line 1 to 3, the procedure waits for input parameters from the designer: $\delta$ and $\varepsilon_{Q}$. $\delta$ is the maximal disturbance coefficient the controller has to be designed for. It is a problem dependent parameter, and thus can be any positive number. Typically, it is in the order of 0.1.
+$\varepsilon_{Q}$ is the imprecision error-bound for the quantization of borders. 
+The latter has to be strictly greater than zero, otherwise we could rely on infinite precision for storage of borders. Usually, the value for $\varepsilon_{Q}$ is in the order of 0.001.
+
+In line 4, we compute the error $\varepsilon$ as described in (11), where $\varepsilon_{A/D}$ is a constant parameter dependent on the specific of the converter.
+
+Once input parameters are verified, in line 7 we design the controller in MATLAB MPC Toolbox. The suite receives in input the coefficient $\delta$, and the state space model for the plant (e.g. inverted pendulum or aircraft) we need to control. The suite returns a piecewise affine function (F and G) together with a polytopes region partitioning (H and K).
+
+In line 8, we compute the incorrect region error: we build the tube regions around the borders (\ref{eq:tube})  using $\varepsilon$ and we compute (\ref{eq:maximization}) for the corner points of the tube.
+
+In the conditional in line 9, we check whether the robustness $\delta$ is greater than the incorrect region error. If this is not the case, the initial value for $\delta$ was not robust to the magnitude of this error, and we need to re-design the controller with a greater $\delta$. 
+Indeed in line 15, the value $\delta$ for the next iteration has to be at least the same magnitude of the current errorChoise. Moreover, we increase by a small scalar $\varepsilon_{SAFE}$ (in the order of 0.001) the value for $\delta$ to speed-up the convergence of the analysis. 
+
+In case the conditional in line 9 succeeds, the precision tuning phase starts. The way we do the precision tuning is the following: we provide in input to Daisy a numerical error-bound together with an expression to quantize (e.g. an activation function). Daisy returns in output both the minimal-uniform precision, and the mixed-precision configuration, such that the quantization of the expression in the given precision configuration introduces an error that is bounded by the input error.
+
+In line 10 we compute the error bound for approximate control output error. This is going to be the maximal error we tolerate for activation functions. The precision tuning at line 11 receives in input the approximation control error together with the coefficients F and G. In Line 12 we give to Daisy the error $\varepsilon$ for borders, together with the hyperplanes coefficients H and K.
 
 \eva{The precision tuning, which is the main contribution of the paper is not explained.}
 
