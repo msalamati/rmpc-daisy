@@ -14,7 +14,7 @@
    if (*$\delta$*) > errorChoise:
      errorAct = (*$\delta$*) - errorChoise
      precision_tuning(F, G, errorAct)
-     precision_tuning(H, K, (*$\varepsilon$*))
+     precision_tuning(H, K, (*$\varepsilon_{Q}$*))
      break
    else:
      (*$\delta$*)=errorChoise+(*$\varepsilon_{SAFE}$*)
@@ -42,13 +42,13 @@ instance $\varepsilon_Q$ is an input), and should reference the lines in the
 algorithm, not only the equations from the previous section}
 \autoref{lst:alg} reports the optimization algorithm we implemented to build robust MPC controllers with guaranteed error bounds.
 
-From line 1 to 3, the procedure waits for input parameters from the designer: $\delta$ and $\varepsilon_{Q}$. $\delta$ is the maximal disturbance coefficient the controller has to be designed for. It is a problem dependent parameter, and thus can be any positive number. Typically, it is in the order of 0.1.
+From line 1 to 3, the procedure waits for input parameters from the designer: $\delta$ and $\varepsilon_{Q}$. $\delta$ is the disturbance . It is a problem dependent parameter, and thus can be any positive number. Typically, it is in the order of 0.1.
 $\varepsilon_{Q}$ is the imprecision error-bound for the quantization of borders. 
 The latter has to be strictly greater than zero, otherwise we could rely on infinite precision for storage of borders. Usually, the value for $\varepsilon_{Q}$ is in the order of 0.001.
 
 In line 4, we compute the error $\varepsilon$ as described in (11), where $\varepsilon_{A/D}$ is a constant parameter dependent on the specific of the converter.
 
-Once input parameters are verified, in line 7 we design the controller in MATLAB MPC Toolbox. The suite receives in input the coefficient $\delta$, and the state space model for the plant (e.g. inverted pendulum or aircraft) we need to control. The suite returns a piecewise affine function (F and G) together with a polytopes region partitioning (H and K).
+Once input parameters are verified, in line 7 we design the controller in MATLAB multi-parametric toolbox. The suite receives in input the coefficient $\delta$, and the state space model for the plant (e.g. inverted pendulum or aircraft) we need to control. The suite returns a piecewise affine function (F and G) together with a polytopes region partitioning (H and K).
 
 In line 8, we compute the incorrect region error: we build the tube regions around the borders (\ref{eq:tube})  using $\varepsilon$ and we compute (\ref{eq:maximization}) for the corner points of the tube.
 
@@ -59,10 +59,13 @@ In case the conditional in line 9 succeeds, the precision tuning phase starts. T
 
 In line 10 we compute the error bound for approximate control output error. This is going to be the maximal error we tolerate for activation functions. The precision tuning at line 11 receives in input the approximation control error together with the coefficients F and G. In Line 12 we give to Daisy the error $\varepsilon$ for borders, together with the hyperplanes coefficients H and K.
 
-\eva{The precision tuning, which is the main contribution of the paper is not explained.}
+%\eva{The precision tuning, which is the main contribution of the paper is not explained.}
 
 \subsection{Implementation}
 \eva{Some notes about how this is implemented}
+We wrote a script Python to interface the design of the controller in MATLAB Toolbox with the precision tuning phase in Daisy. The script divides in two main components: (i) a parser to process the output from MATLAB suite and (ii) a procedure to encode the vectors F,G and H,K in expressions formatted for Daisy.
+
+
 
 \eva{Below is the previous text:}
 %In this work we present an innovative method for the off-line design (explicit) of robust MPC controllers for linear time invariant systems.
