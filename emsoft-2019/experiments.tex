@@ -127,7 +127,7 @@ memory savings by mixed-precision for storing H and K than for the inverted pend
 % We use Matlab's MPT toolbox~\cite{matlabMPT} to compute the
 % explicit MPC, while underlying computations rely on YALMIP(\cite{matlabYALMIP}).
 %We evaluate our algorithm with different choices of $\varepsilon_Q$ and $\Delta$.
-For the inverted pendulum Matlab's MPT toolbox~\cite{matlabMPT} computes a controller
+We use Matlab's MPT toolbox~\cite{matlabMPT} to compute the explicit MPC, while underlying computations rely on YALMIP(\cite{matlabYALMIP}). For the inverted pendulum MPT toolbox~\cite{matlabMPT} computes a controller
 consisting of $14$ regions with $58$ 2D hyperplanes in total for all choices of $\varepsilon_Q$ and $\Delta$. 
 For the aircraft model, Matlab computes a robust EMPC with
 $27$ regions and $217$ 4D hyperplanes for most values of $\varepsilon_Q$ and $\Delta$. 
@@ -243,7 +243,7 @@ respectively. By changing the time horizon $N$, we evaluate the scalability
 of our approach for controllers with very large number of regions, as 
 increasing $N$ generally results in a higher number of regions for the output controller. To
 compute the explicit model predictive controllers for different time horizons,
-we use Matlab's MPC toolbox. \todo{is this the same as before? If so, add a 'again'}
+we use Matlab's MPC toolbox. %\todo{is this the same as before? If so, add a 'again'}
  
 %For this example, we fix the values for $\delta$ to $0.1$ and $\varepsilon$ to $0.001$,
 %but we consider also the prediction horizon $N$, as an input parameter for the
