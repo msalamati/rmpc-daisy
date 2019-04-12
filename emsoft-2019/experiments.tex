@@ -127,7 +127,10 @@ memory savings by mixed-precision for storing H and K than for the inverted pend
 % We use Matlab's MPT toolbox~\cite{matlabMPT} to compute the
 % explicit MPC, while underlying computations rely on YALMIP(\cite{matlabYALMIP}).
 %We evaluate our algorithm with different choices of $\varepsilon_Q$ and $\Delta$.
-We use Matlab's MPT toolbox~\cite{matlabMPT} to compute the explicit MPC, while underlying computations rely on YALMIP(\cite{matlabYALMIP}). For the inverted pendulum MPT toolbox~\cite{matlabMPT} computes a controller
+We use Matlab's MPT toolbox~\cite{matlabMPT} to compute the explicit MPC, while underlying computations rely on YALMIP(\cite{matlabYALMIP}). 
+\eva{What are the 'underlying computations'? Isn't this supposed to go into the
+implementation section of Section 5?}
+For the inverted pendulum MPT toolbox~\cite{matlabMPT} computes a controller
 consisting of $14$ regions with $58$ 2D hyperplanes in total for all choices of $\varepsilon_Q$ and $\Delta$. 
 For the aircraft model, Matlab computes a robust EMPC with
 $27$ regions and $217$ 4D hyperplanes for most values of $\varepsilon_Q$ and $\Delta$. 
