@@ -98,7 +98,7 @@ MPC controller for the given state-space model which is robust to the initial
 disturbance $\Delta$ (line 8). The result is a controller represented by four matrices
 \texttt{F, G, H, K} given in high precision.
 
-\emph{Assuming} that we can implement the polytope region partitioning (given by
+\emph{Assuming} that we can implement the polyhedral region partitioning (given by
 matrices \texttt{H, K}) with an implementation error of at most $\varepsilon_Q$,
 our algorithm proceeds to compute the error due to selecting the wrong region (line 9).
 This computation works as explained in~\autoref{sec:Error_Analysis}, \autoref{eq:maximization}.

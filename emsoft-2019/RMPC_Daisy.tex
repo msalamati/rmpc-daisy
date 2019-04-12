@@ -52,7 +52,7 @@ F_2x_k+G_2 & \text{if $x_k\in \mathcal{R}_2$}\\
 F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
 \end{cases} 
 \end{equation}
-where $\mathcal{R}_i$ is a ployhedron determined by a set of linear inequalities $\mathcal R_i = \{x\in\mathcal X\,|\,H_ix\leq K_i\}$. 
+where $\mathcal{R}_i$ is a polyhedral region determined by a set of linear inequalities $\mathcal R_i = \{x\in\mathcal X\,|\,H_ix\leq K_i\}$. 
 \end{theorem}
 The essential idea behind this theorem is to utilize the closed form $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$ and transform the optimization \eqref{eq:RMPC_prob} into the following quadratic program:
 %\begin{align}
@@ -77,10 +77,10 @@ Let us denote the set of states $x_0$ for which the optimization  \eqref{eq:mult
 \end{equation}
 
 
-The actual implementation of the controller requires storing the matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. At each time step $k$, the current state $x_k$ is used to detect the right polytope $i$ such that $H_i x_k\le K_i$. Then the control action $v_k = F_i x_k + G_i$ is computed and applied to the system.
+The actual implementation of the controller requires storing the matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. At each time step $k$, the current state $x_k$ is used to detect the right polyhedral region $i$ such that $H_i x_k\le K_i$. Then the control action $v_k = F_i x_k + G_i$ is computed and applied to the system.
 
 %Therefore, given the state vector $x$, to compute control input, one has to first determine to which polytope does the state vector belong.
-Several algorithms are proposed in the literature \cite{Mnnigmann:2011,Jones:2006} to find the right polytope $i$ to which the state $x_k$ belong. The most straightforward technique is a linear search over all polytopes in \statespace\space using a switch/case conditional statement as shown in~\autoref{lst:caseof}.
+Several algorithms are proposed in the literature \cite{Mnnigmann:2011,Jones:2006} to find the right polyhedral region $i$ to which the state $x_k$ belong. The most straightforward technique is a linear search over all polyhedral region in \statespace\space using a switch/case conditional statement as shown in~\autoref{lst:caseof}.
 %\Sadegh{Perhaps we can mention another approach here? add references.}
 
 \begin{figure}[t]
