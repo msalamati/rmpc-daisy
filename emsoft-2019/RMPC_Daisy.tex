@@ -65,7 +65,8 @@ J^{\ast}(x_0)=\min_{z,\gamma}& \left[x_0^TYx_0+\frac{1}{2}z^THz+\gamma\right]\\
 \text{s.t.} \quad &G_mz+g_m\gamma\leq W_m+S_mx_0,\nonumber\\
 &G_cz\leq W_c+S_cx_0\nonumber
 \end{align}
-where, $z\in \reals^{mN}$ and $\gamma\in\reals$ are decision variables and $Y$, $H$, $G_m$, $G_c$,$S_m$, $S_c$, $W_m$, $W_c$, $g_m$ are matrices of proper sizes that can be easily obtained from the original optimization \eqref{eq:RMPC_prob}  (see \cite{delaPea:2005}).
+where $z\in \reals^{mN}$ and $\gamma\in\reals$ are decision variables, and $Y$, $H$, $G_m$, $G_c$, $S_m$, $S_c$, $W_m$, $W_c$, and $g_m$ 
+are matrices of proper sizes that can be easily obtained from the original optimization \eqref{eq:RMPC_prob}  (see \cite{delaPea:2005}).
 
 %\Sadegh{Adding a remark and saying that the approach works as long as the solution of formulated optimization has a piecewise affine form?} 
 
@@ -80,17 +81,17 @@ Let us denote the set of states $x_0$ for which the optimization  \eqref{eq:mult
 The actual implementation of the controller requires storing the matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. At each time step $k$, the current state $x_k$ is used to detect the right polyhedral region $i$ such that $H_i x_k\le K_i$. Then the control action $v_k = F_i x_k + G_i$ is computed and applied to the system.
 
 %Therefore, given the state vector $x$, to compute control input, one has to first determine to which polytope does the state vector belong.
-Several algorithms are proposed in the literature \cite{Mnnigmann:2011,Jones:2006} to find the right polyhedral region $i$ to which the state $x_k$ belong. The most straightforward technique is a linear search over all polyhedral region in \statespace\space using a switch/case conditional statement as shown in~\autoref{lst:caseof}.
-%\Sadegh{Perhaps we can mention another approach here? add references.}
+Several algorithms are proposed in the literature \cite{Mnnigmann:2011,Jones:2006} to find the right polyhedral region $i$ to which the state $x_k$ belong. 
+The most straightforward technique is a linear search over all polyhedral regions (Fig.~\ref{lst:caseof}).
 
 \begin{figure}[t]
-\begin{lstlisting}[mathescape=true,basicstyle=\small\ttfamily,morekeywords={switch, case, then}]
-switch($\statevar$):
-  case ($H_{1}\statevar<=K_{1}$) then ($v_{k}=F_1x_k+G_1$)
-  case ($H_{2}\statevar<=K_{2}$) then ($v_{k}=F_2x_k+G_2$)
-  case ($H_{3}\statevar<=K_{3}$) then ($v_{k}=F_3x_k+G_3$)
-    ...
-  case ($ H_{P}\statevar<=K_{P}$) then ($v_{k}=F_Px_k+G_P$)
+\begin{lstlisting}[mathescape=true,basicstyle=\small\ttfamily,morekeywords={if, then, elseif, return}]
+if ($H_{1}\statevar \leq K_{1}$) then $v_{k}=F_1x_k+G_1$
+elseif ($H_{2}\statevar \leq K_{2}$) then $v_{k}=F_2x_k+G_2$
+elseif ($H_{3}\statevar \leq K_{3}$) then $v_{k}=F_3x_k+G_3$
+...
+elseif ($ H_{P}\statevar\leq K_{P}$) then $v_{k}=F_Px_k+G_P$
+return $v_k$
 \end{lstlisting}
 \caption{Structure of an explicit MPC controller}
 \label{lst:caseof}
