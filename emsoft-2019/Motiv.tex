@@ -132,11 +132,11 @@ Who is Daisy?}
 \RM{A better version is to informally define incorrect region selection. Say that we run an algorithm for incorrect region
 selection to bound the possible error. 
 Break the sentence into two. Introduce Daisy as a mixed-precision tuning tool.}
-Over the computed controller, we compute the error due to an incorrect region selection $e$ and in case that $e<\Delta_0$, we ask Daisy
-to provide a mixed-precision scheme such that the associated implementation error is at most $\Delta_0$, that is,
+
+The output of robust  EMPC given by Matlab decomposes the control domain into a finite number of polyhedra together with an affine map for each domain. At each time step, the state vector $x_k$ is read (or estimated) and based on the domain that it belongs to, the output of controller is determined. However, due to error by fixed-point implementation, it is possible that the domain is selected incorrectly. This causes an error term which we refer to it as incorrect region selection error.
+Over the high-precision controller, we compute the error due to an incorrect region selection $e$. In case that $e<\Delta_0$, we would like to find the smallest number of bits required for implementing the controller such that we are still within the safe bound $\Delta_0$. To do so, we ask Daisy, which is a mixed-precision tuning tool, to provide us with a mixed-precision scheme such that the associated implementation error is at most $\Delta_0$, that is,
 at all points in the control domain, the difference between the infinite-precision controller function
 and its mixed-precision implementation is at most $\Delta_0$.
-
 
 Unfortunately, $\Delta_0=0.01$ is not realizable, as the region selection error is $0.019$ and hence $e>\Delta_0$. 
 %always greater than zero either due to selecting the wrong region in the affine controller function or due to the finite-precision computation of the control action.
