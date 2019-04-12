@@ -30,7 +30,7 @@ only used 15GB.
 
 We evaluate our complete pipeline on two benchmarks. 
 The first one is the inverted pendulum problem depicted in Section \ref{sec:example}, where we set
-$m=0.344$ kg, $b=0.48$ N s/m, $L=1.703$ m and $T_s=0.1$ s. The gain $K$ is
+$m=0.344$ kg, $b=0.48$ N s/m, $L=1.703$ m and $T_s=0.1$ s. The gain $\mu$ is
 selected such the $\bar A$ has poles at $-0.1$ and $-0.5$. Moreover, we select
 $N=2$, $R=1$ and $Q=Q_F=100\mathbf{\it I}$, where $\mathbf{ \it I}$ denotes the
 identity matrix of proper size. 
@@ -42,7 +42,7 @@ and the attack and pitch angles are the output states that need to be regulated.
 The open-loop system is unstable as it has a pole with positive real part. Both
 control inputs are constrained between $\pm25$ degrees. The outputs are
 only constrained during the first prediction horizon. You also specify scale
-factors for outputs. Using the gain $K$, the poles of $\bar A$ are placed at
+factors for outputs. Using the gain $\mu$, the poles of $\bar A$ are placed at
 $-5$, $-3$, $-1$ and $-2$. The robust MPC problem is solved for $N=2$,
 $R=\mathbf{\it I}$ and $Q=Q_F=5\mathbf{\it I}$. Note that for both of the
 examples, matrices $R$, $Q$ and $Q_F$ are selected such that convergence to the

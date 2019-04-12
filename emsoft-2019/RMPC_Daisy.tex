@@ -16,10 +16,10 @@ minimizes the worst-case value of an objective function with respect to the
 disturbances over the control inputs. We assume the objective function is
 quadratic with respect to the states and inputs.
 We assume a linear translation on the input with the form
-$$u_k=Kx_k+v_k$$
+$$u_k=\mu x_k+v_k$$
 and synthesize $v_k$ instead of $u_k$. This choice reduces the 
 conservativeness of the optimization and enlarges the set of feasible input
-trajectories. The matrix $K$ is selected such that some desired property is satisfied under suitable assumptions on the system, e.g., stability if the pair $(A,B)$ is stabilizable.
+trajectories. The matrix $\mu$ is selected such that some desired property is satisfied under suitable assumptions on the system, e.g., stability if the pair $(A,B)$ is stabilizable.
 
 %\eva{I don't understand the above sentence. Maybe split into several sentences? Where does $u_k$ come from (the sentence right now says you assume $u_k$)?}
 %The modifed state evolution of the system will be $x_{k+1}=\bar Ax_k+Bv_k+Ew_k$ with $\bar A := A +BK$.
@@ -29,7 +29,7 @@ The constrained optimization at each time step is of the form
 \label{eq:RMPC_prob}
 J^{\ast}(x_0)=&\min_{v_0,\cdots,v_{N-1}} \max_{w_0,\cdots,w_{N-1}} \sum_{i=0}^{N-1}(x_i^TQx_i+u_i^TRu_i) + x_N^TQ_Fx_N\nonumber\\
 \text{s.t.} \quad &x_{i+1}=Ax_i+Bu_i + E w_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
-\quad &u_i=Kx_i+v_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
+\quad &u_i=\mu x_i+v_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
 &u_i\in\mathcal{U},x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W},\,\,\forall i\in\{0,1,\cdots,N\},
 %&x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W},\quad\forall i\in\{0,1,\cdots,N\},
 \end{align}
@@ -43,7 +43,7 @@ positive semidefinite and indicates a weight on the input in the objective funct
 
 \begin{theorem}[\cite{delaPea:2005}]
 \label{thm:EMPC}
-The optimization \eqref{eq:RMPC_prob} can be translated into a multi-parametric quadratic problem which admits a closed-form solution. Furthermore, for the case that $R>0$, the controller is $u_k = K x_k + \kappa(x_k)$ with $\kappa(\cdot)$ being a continuous piecewise affine (PWA) function over polyhedral regions:
+The optimization \eqref{eq:RMPC_prob} can be translated into a multi-parametric quadratic problem which admits a closed-form solution. Furthermore, for the case that $R>0$, the controller is $u_k = \mu x_k + \kappa(x_k)$ with $\kappa(\cdot)$ being a continuous piecewise affine (PWA) function over polyhedral regions:
 \begin{equation}
 \kappa(x_k)=
 \begin{cases}
@@ -87,12 +87,12 @@ The most straightforward technique is a linear search over all polyhedral region
 
 \begin{figure}[t]
 \begin{lstlisting}[mathescape=true,basicstyle=\small\ttfamily,morekeywords={if, then, elseif, return}]
-if ($H_{1}\statevar \leq K_{1}$) then $u_{k}=F_1x_k+G_1$
-elseif ($H_{2}\statevar \leq K_{2}$) then $u_{k}=F_2x_k+G_2$
-elseif ($H_{3}\statevar \leq K_{3}$) then $u_{k}=F_3x_k+G_3$
+if ($H_{1}\statevar \leq K_{1}$) then $v_{k}=F_1x_k+G_1$
+elseif ($H_{2}\statevar \leq K_{2}$) then $v_{k}=F_2x_k+G_2$
+elseif ($H_{3}\statevar \leq K_{3}$) then $v_{k}=F_3x_k+G_3$
 ...
-elseif ($ H_{P}\statevar\leq K_{P}$) then $u_{k}=F_Px_k+G_P$
-return $u_k$
+elseif ($ H_{P}\statevar\leq K_{P}$) then $v_{k}=F_Px_k+G_P$
+return $v_k$
 \end{lstlisting}
 \caption{Structure of an explicit MPC controller}
 \label{lst:caseof}
