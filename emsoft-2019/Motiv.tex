@@ -118,34 +118,32 @@ to the smallest uniform precision implementation that respects $\Delta_1$,
 and about $57\%$ less memory than an implementation that uniformly uses
 32 bits.
 
-\tikzstyle{block} = [draw, rectangle, 
-minimum height=4em, minimum width=6em]
-\tikzstyle{block2} = [draw, rectangle, 
-minimum height=1em, minimum width=4em]
+\begin{figure}
+\tikzstyle{block} = [draw, rectangle, minimum height=4em, minimum width=6em]
+\tikzstyle{block1} = [draw, rectangle, minimum height=2em, minimum width=6em]
+\tikzstyle{block2} = [draw, rectangle, minimum height=1em, minimum width=4em]
+\tikzstyle{block3} = [draw, rectangle, minimum height=3.2em, minimum width=4em]
 \tikzstyle{sum} = [draw,  circle, node distance=1cm]
 \tikzstyle{input} = [coordinate]
 \tikzstyle{output} = [coordinate]
 \tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
-\begin{figure}[t]
-	\begin{tikzpicture}[auto, node distance=2cm,>=latex',scale=1]
-	\centering
-	\node [block,scale=1,,text width=5cm, pin={[pinstyle]above:$\Delta=\Delta_0$},
-	node distance=1cm] (RMPC) {Robust explicit MPC design};
+
+\centering
+	\begin{tikzpicture}[auto,node distance=2cm,>=latex',scale=1]
+	\node [block,scale=1,text width=3.8cm, pin={[pinstyle]above:$\Delta=\Delta_0$},
+	node distance=1cm, align=center, label={[anchor=south east, draw=black, inner sep=1pt]south east:MATLAB}] (RMPC) {Robust explicit MPC\\with disturbance set $\mathcal W_{\Delta}$};
 	%\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
-	\node [block, scale=1,below=2.5cm of RMPC,
-	node distance=5cm,text width=5cm] (Uij) {Point location error computation};
-	\node [draw, diamond, 
-	minimum height=3em, minimum width=3em, below =1cm of Uij,
-	node distance=5cm] (decide) {$e\leq  \Delta$};
-	\node [block, below=1cm of decide,node distance=3cm] (done) {Mixed-precision implementation};
-	\node [block2, right=2cm of decide,
+	\node [block3, scale=1,below=1.3cm of RMPC,
+	node distance=3.8cm,text width=4.4cm,  label={[anchor=south east, draw=black, inner sep=1pt]south east:Daisy}] (Uij) {Point location error computation};
+	\node [draw, diamond, minimum height=3em, minimum width=3em, below =0.8cm of Uij, node distance=5cm] (decide) {$e\leq  \Delta$};
+	\node [block3, below=0.8cm of decide,node distance=3cm, label={[anchor=south east, draw=black, inner sep=1pt]south east:Daisy}] (done) {Mixed-precision implementation};
+	\node [block2, right=1.3cm of decide,
 	node distance=3cm] (delta) {Increase $\Delta$};
-	\node [block,below of= done] (output) {Low-precision controller};
+	\node [block1,below = 0.8cm of done] (output) {Low-precision controller};
 	%\node [scale=1] at (3,-.25)  {$u(x)=Kx+v$};
 	\node at (9,-.25) {$e$};
 	
-	
-	\draw [draw,->] (RMPC) -- node [left] {high-precision controller}(Uij);
+	\draw [draw,->, align=center] (RMPC) -- node [left] {high-precision\\ controller}(Uij);
 	\draw [->] (Uij) -- node [left] {$e$}(decide);
 	\draw [->] (decide) -- node [left,pos=.3] {Yes} (done);
 	\draw [->] (decide) -- node[pos=0.99] {} 
@@ -153,11 +151,12 @@ minimum height=1em, minimum width=4em]
 	\draw [->] (delta) |- node [above] {} (RMPC);
 	\draw [->] (done) -- node [above] {} (output);
 	
-	\node [block2, scale=1] at (1.885,-.42) {MATLAB} ;
-	\node [block2, scale=1] at (1.97,-4.18) {Daisy} ;
-	\node [block2, scale=1] at (1.58,-8.84) {Daisy} ;
+	%\node [block2, scale=0.7] at (1.3,-.42) {MATLAB} ;
+	%\node [block2, scale=0.7] at (1.65,-2.95) {Daisy} ;
+	%\node [block2, scale=0.7] at (1.58,-7) {Daisy} ;
 	\end{tikzpicture}
-	\caption{high-level description of the proposed memory-efficient robust MPC design}
+	%\end{adjustbox}
+	\caption{High-level description of the proposed memory-efficient robust MPC design.}
 	\label{fig:overview}
 \end{figure}	
 	
