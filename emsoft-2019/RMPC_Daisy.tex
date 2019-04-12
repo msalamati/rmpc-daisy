@@ -10,7 +10,7 @@ We consider the class of linear time-invariant (LTI) systems characterized by th
 \label{eq:DSS}
 x_{k+1}=Ax_k+Bu_k+Ew_k,\quad  k=0,1,2,\ldots
 \end{equation}
-where $x\in \reals^{n\times 1}$ is the state, $u\in \reals^{m\times 1}$ is the control input and $w\in \reals^{d\times 1}$ is the disturbance. Matrices $A\in \reals^{n\times n}$, $B\in \reals^{n\times m}$ and $E\in \reals^{n\times d}$ are capturing respectively the effects of current state, input and disturbance on the next state. We assume the disturbance $w$ belongs to a set $\mathcal{W}$ where $\mathcal{W}$ is a polyhedral set.
+where $x\in \reals^{n\times 1}$ is the state, $u\in \reals^{m\times 1}$ is the control input and $w\in \reals^{d\times 1}$ is the disturbance. Matrices $A\in \reals^{n\times n}$, $B\in \reals^{n\times m}$ and $E\in \reals^{n\times d}$  capture respectively the effects of current state, input and disturbance on the next state. We assume the disturbance $w$ belongs to a set $\mathcal{W}$ where $\mathcal{W}$ is a polyhedral set.
 In this paper, we focus on the robust formulation of MPC which at each time step
 minimizes the worst-case value of an objective function with respect to the
 disturbances over the control inputs. We assume the objective function is
@@ -19,7 +19,7 @@ We assume a linear translation on the input with the form
 $$u_k=Kx_k+v_k$$
 and synthesize $v_k$ instead of $u_k$. This choice reduces the 
 conservativeness of the optimization and enlarges the set of feasible input
-trajectories. The matrix $K$ is selected such that some desired property is satisfied under suitable assumption on the system, e.g., stability property if the pair $(A,B)$ is stabilizable.
+trajectories. The matrix $K$ is selected such that some desired property is satisfied under suitable assumptions on the system, e.g., stability if the pair $(A,B)$ is stabilizable.
 
 %\eva{I don't understand the above sentence. Maybe split into several sentences? Where does $u_k$ come from (the sentence right now says you assume $u_k$)?}
 %The modifed state evolution of the system will be $x_{k+1}=\bar Ax_k+Bv_k+Ew_k$ with $\bar A := A +BK$.
@@ -71,7 +71,7 @@ are matrices of proper sizes that can be easily obtained from the original optim
 %\Sadegh{Adding a remark and saying that the approach works as long as the solution of formulated optimization has a piecewise affine form?} 
 
 The optimization \eqref{eq:multi_param_prog} can be solved using multi-parametric techniques to compute the explicit form of $\kappa(\cdot)$.
-An efficient implementation of such computations is available in the multi-parametric toolbox of MATLAB~\cite{matlabMPT, matlabYALMIP}.
+An efficient implementation of such computations is available in the multi-parametric toolbox of Matlab~\cite{matlabMPT, matlabYALMIP}.
 Let us denote the set of states $x_0$ for which the optimization  \eqref{eq:multi_param_prog} is feasible by $\mathcal X_s$. Then $\mathcal X_s\subseteq \mathcal X$ and is the union of all regions $\mathcal{R}_{i}$:
 \begin{equation}
 \mathcal X_s = \bigcup_{i}(H_{i}\statevar\leq K_{i}).
@@ -98,8 +98,8 @@ return $u_k$
 \end{figure}
 %Once the polytope was determined, computing for $F_ix+G_i$ requires even less effort as it only involves summation and multiplication.  
 
-To keep the cost of implementation down, low-end microcontrollers usually have
-limited memory and computational power. Therefore, implementation of the above
+To keep the implementation cost down, low-end microcontrollers usually have
+limited memory and computational power. Therefore, the implementation of the above
 explicit MPC on microcontrollers will bring some issues since all regions'
 matrices ($H_i$s and $K_i$s) and activation functions ($F_i$s and $G_i$s) have
 to be stored on the microcontroller. Our paper presents an
