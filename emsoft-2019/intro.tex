@@ -68,11 +68,19 @@ We have implemented our algorithm on top of Matlab's multi-parametric toolbox
 for robust explicit MPC~\cite{matlabMPT}
 and the Daisy tool for multi-precision tuning and fixed-point error analysis \cite{Daisy}.
 We have applied our technique on a number of standard benchmark examples.
-Our implementation finds that our mixed-precision implementation can save up to 20\% memory (on average, XXX\%) in controller
-implementations over a uniform-precision implementation (and a saving of XXX\% over a uniform 32-bit implementation), while
+Our implementation finds that our mixed-precision implementation can save up to 20\% memory (on average, \RM{XXX}\%) in controller
+implementations over a uniform-precision implementation (and a saving of \RM{XXX}\% over a uniform 32-bit implementation), while
 maintaining the correctness of the controller.
-In absolute terms, the saving corresponds to YYY KB over a uniform precision implementation on our largest benchmark.
+In absolute terms, the saving corresponds to \RM{YYY} KB over a uniform precision implementation on our largest benchmark.
 In each case, the analysis takes only a few minutes of computation.
 We also demonstrate the scalability of our mixed-precision tuning and error bounds analysis:
 we show that on explicit MPC controllers with thousands of regions, our tool finishes in a few minutes\todo{Hours?}.
+
+We summarize our contributions.
+\begin{itemize}
+\item We provide an end-to-end tuning algorithm for robust explicit MPC;
+\item We design a static and scalable error analysis algorithm for piecewise affine functions;
+\item Through a set of standard control benchmarks, we demonstrate that our tuning algorithm
+can achieve up to 20\% savings in memory while maintaining robustness.
+\end{itemize} 
 
