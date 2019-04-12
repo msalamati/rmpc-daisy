@@ -153,9 +153,9 @@ from minimal uniform to mixed precision (\%UvM) is only slightly less than the o
 %The second difference consists in the last two lines in Table\ref{tab:ipd}.
 For the aircraft example, when $\varepsilon_Q=0.0030$, the error due to selecting the wrong region (\maxUij) 
 exceeds the given value of $\Delta=0.1$ and our algorithm
-needs to design a new controller (corresponding to the \texttt{No} branch in~\autoref{fig:overview}). 
-The loop converges after 5 iterations (\texttt{Yes}
-branch of the diagram) with $\Delta=0.112$. In each iteration, the value
+needs to design a new controller (corresponding to the \texttt{else} branch in~\autoref{lst:alg}). 
+The loop converges after 5 iterations (\texttt{then}
+branch in our algorithm) with $\Delta=0.112$. In each iteration, the value
 for $\Delta$ is increased by $\varepsilon_{SAFE} = 10^{-3}$.
 Thus, the algorithm reduces memory demand
 at the expense of slightly more disturbance for the controller. When
