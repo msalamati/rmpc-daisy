@@ -1,6 +1,6 @@
 % !TEX root = main.tex
 \section{Introduction}
-\eva{General comment: should we add some more references to related work (and not only to MPC)?}
+%\eva{General comment: should we add some more references to related work (and not only to MPC)?}
 Model predictive control (MPC) is a technique to design control actions by solving finite-horizon open-loop
 optimal control problems at each sampling instant.
 The result of each optimization gives a sequence of optimal control actions, only the first of which is applied
@@ -72,8 +72,8 @@ and the first to consider mixed-precision in this context.
 We have implemented our algorithm on top of Matlab's multi-parametric toolbox 
 for robust explicit MPC~\cite{matlabMPT}
 and the Daisy tool for multi-precision tuning and fixed-point error analysis~\cite{Daisy}.
-We have applied our technique on a number of standard benchmark examples.
 
+We have applied our technique on a number of standard benchmark examples.
 Our algorithm finds mixed-precision implementations which save up to 20.9\%
 memory (on average, 12.6\%) in controller implementations over a minimal
 uniform-precision implementation (and an average saving of 46.8\% over a uniform
