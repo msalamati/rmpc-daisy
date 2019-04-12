@@ -1,7 +1,5 @@
 % !TEX root = main.tex
 \section{Introduction}
-\eva{General comment: it feels a bit long until the intro discusses the actual problem,
-but it reads nicely and motivates the problem well, so it's probably fine}
 \eva{General comment: should we add some more references to related work (and not only to MPC)?}
 Model predictive control (MPC) is a technique to design control actions by solving finite-horizon open-loop
 optimal control problems at each sampling instant.
@@ -13,6 +11,7 @@ The optimization problem in MPC uses a dynamic model of the process, encodes all
 optimizes a performance index. 
 MPC has shown to be successful in a wide variety of industrial applications, due to its 
 ability to systematically handle processes with many state and input variables as well as constraints on them. 
+\todo{any citations?}
 
 The main difference between MPC and conventional control is in the nature of the function that maps the measured outputs to control actions. 
 MPC computes such a function \emph{online}, whereas a conventional controller pre-computes the function offline.
@@ -36,21 +35,23 @@ or to certify a complex optimization routine.
 
 However, there are still bottlenecks in implementing explicit MPC on resource-constrained embedded micro-controllers.
 First, implementations of explicit MPCs can suffer from large memory usage, because the solution of the optimization
-problem can involve many (often hundreds) of regions.
+problem can involve many (often hundreds) of regions. \todo{citation for such example, e.g. the double integrator}
 Since the memory consumption grows linearly with the number of regions, 
-this can be a limited factor in using explicit MPC on resource-constrained micro-controllers.
+this can be a limiting factor in using explicit MPC on resource-constrained micro-controllers.
 Second, many low-end micro-controllers only support fixed-point arithmetic.
-Errors in the controller implementation are inversely proportional to the number of bits used for representing each variable. 
+Errors in the controller implementation are inversely proportional to the number of bits used for representing each variable~\cite{Anta10}. 
 An implementation of explicit MPC has to be \emph{robust} to 
-implementation errors to be able to enforce hard constraints on the states at run time.
+implementation errors to be able to enforce hard constraints on the states at run time~\cite{imperialrmpc}.
 
 In this paper, we consider the problem of implementing explicit MPC on low-end microcontrollers with fixed-point arithmetic
 in a \emph{memory-efficient} and \emph{robust} way.
-We propose an automatic controller and mixed-precision implementation co-design technique that computes a minimal set \todo{What is meant by minimal?} of mixed
-precision assignments for all variables while ensuring the resulting implementation error remains within the robustness margin.  
+We propose an automatic controller and mixed-precision implementation co-design
+technique that computes mixed-precision assignments which minimize bitwidths for all
+variables while ensuring the resulting implementation error remains within the
+robustness margin.
 
 
-Our proposed method iteratively solves a robust version of the MPC which explicitly considers fixed-point implementation errors
+Our proposed method iteratively solves a robust version of MPC which explicitly considers finite-precision implementation errors
 in the model; see~\autoref{fig:overview}.
 Initially, we estimate a bound $\Delta = \Delta_0$ on the implementation error and solve a
 min-max quadratic program for explicit robust MPC \cite{delaPea:2005}, where the system
@@ -64,22 +65,30 @@ If the error is at most $\Delta$, we are done: the implementation satisfies the 
 If not, we increase the error bound $\Delta$ and run the loop again to find a new robust controller and find its best mixed-precision
 implementation.
 
+To the best of our knowledge, our algorithm is the first to automatically and soundly
+synthesize a suitable fixed-point precision for explicit robust MPC controllers,
+and the first to consider mixed-precision in this context.
+
 We have implemented our algorithm on top of Matlab's multi-parametric toolbox 
 for robust explicit MPC~\cite{matlabMPT}
-and the Daisy tool for multi-precision tuning and fixed-point error analysis \cite{Daisy}.
+and the Daisy tool for multi-precision tuning and fixed-point error analysis~\cite{Daisy}.
 We have applied our technique on a number of standard benchmark examples.
-Our implementation finds that our mixed-precision implementation can save up to 20\% memory (on average, \RM{XXX}\%) in controller
-implementations over a uniform-precision implementation (and a saving of \RM{XXX}\% over a uniform 32-bit implementation), while
-maintaining the correctness of the controller.
-In absolute terms, the saving corresponds to \RM{YYY} KB over a uniform precision implementation on our largest benchmark.
-In each case, the analysis takes only a few minutes of computation.
-We also demonstrate the scalability of our mixed-precision tuning and error bounds analysis:
-we show that on explicit MPC controllers with thousands of regions, our tool finishes in a few minutes\todo{Hours?}.
 
-We summarize our contributions.
+Our algorithm finds mixed-precision implementations which save up to 20.9\%
+memory (on average, 12.6\%) in controller implementations over a minimal
+uniform-precision implementation (and an average saving of 46.8\% over a uniform
+32-bit implementation), while maintaining the correctness of the controller.
+
+For smaller examples, the analysis takes only a few minutes of computation.
+We also demonstrate the scalability of our mixed-precision tuning and error bounds analysis:
+we show that on explicit MPC controllers with thousands of regions, our tool finishes in a few hours.
+In absolute terms, the memory saving corresponds to 21KB over a uniform
+precision implementation on our largest benchmark.
+
+In summary, our contributions are:
 \begin{itemize}
-\item We provide an end-to-end tuning algorithm for robust explicit MPC;
 \item We design a static and scalable error analysis algorithm for piecewise affine functions;
+\item We provide an end-to-end tuning algorithm for robust explicit MPC;
 \item Through a set of standard control benchmarks, we demonstrate that our tuning algorithm
 can achieve up to 20\% savings in memory while maintaining robustness.
 \end{itemize} 
