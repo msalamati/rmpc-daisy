@@ -159,7 +159,8 @@ fail.
 We implemented our algorithm in a Python script which interfaces between Matlab
 and Daisy and which implements the high-level structure from~\autoref{lst:alg}.
 The interface parses the output from Matlab and encodes the matrices \texttt{F,
-G, H, K} and the error bounds in Daisy's input format.
-\eva{Can we say something about parallelization?}
+G, H, K} and the error bounds in Daisy's input format. The precision tuning for activation functions (line 12) and hyperplanes (line 13) can be efficiently done in parallel, because the analysis of a single region is completely independent from the others. Same holds for hyperplanes. 
+A relatively simple improvement to the current parallelization could be to run precision tuning for hyperplanes and active functions together, without waiting for the latter to terminate. Nevertheless, we suspect a minimal impact on performance, because usually the number of hyperplanes is an order of magnitude greater than regions. Thus, this is the main bottleneck of the algorithm. 
+%\eva{Can we say something about parallelization?}
 
 % We wrote a script Python to interface the design of the controller in MATLAB Toolbox with the precision tuning phase in Daisy. The script divides in two main components: (i) a parser to process the output from MATLAB suite and (ii) a procedure to encode the vectors F,G and H,K in expressions formatted for Daisy.
