@@ -2,6 +2,7 @@
 \section{Overview}
 \label{sec:example}
 \begin{figure}
+\centering
 	\tikzstyle{block} = [draw, rectangle, minimum height=4em, minimum width=6em]
 	\tikzstyle{block1} = [draw, rectangle, minimum height=2em, minimum width=6em]
 	\tikzstyle{block2} = [draw, rectangle, minimum height=1em, minimum width=4em]
@@ -9,7 +10,7 @@
 	\tikzstyle{input} = [coordinate]
 	\tikzstyle{output} = [coordinate]
 	\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
-	{\centering
+	{
 		
 		%\begin{center}
 		%\hspace*{\fill} 
@@ -27,7 +28,7 @@
 		%\node [scale=1] at (3,-.25)  {$u(x)=Kx+v$};
 		\node at (9,-.25) {$e$};
 		
-		\draw [draw,->, align=center] (RMPC) -- node [left] {high-precision\\ controller}(Uij);
+		\draw [draw,->, align=center] (RMPC) -- node [left] {High-precision controller}(Uij);
 		\draw [->] (Uij) -- node [left] {$e$}(decide);
 		\draw [->] (decide) -- node [left,pos=.3] {Yes} (done);
 		\draw [->] (decide) -- node[pos=0.99] {} 
@@ -41,7 +42,7 @@
 	%	\hspace{\fill} 
 	%\end{center}
 	%\end{adjustbox}
-	\caption{High-level description of the proposed memory-efficient robust MPC design.}
+	\caption{Overview of the proposed memory-efficient robust MPC control design.}
 	\label{fig:overview}
 \end{figure}
 
