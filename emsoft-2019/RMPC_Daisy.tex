@@ -74,24 +74,24 @@ The optimization \eqref{eq:multi_param_prog} can be solved using multi-parametri
 An efficient implementation of such computations is available in the multi-parametric toolbox of MATLAB~\cite{matlabMPT, matlabYALMIP}.
 Let us denote the set of states $x_0$ for which the optimization  \eqref{eq:multi_param_prog} is feasible by $\mathcal X_s$. Then $\mathcal X_s\subseteq \mathcal X$ and is the union of all regions $\mathcal{R}_{i}$:
 \begin{equation}
-\mathcal X_s = \bigcup_{i}(H_{i}\statevar<=K_{i}).
+\mathcal X_s = \bigcup_{i}(H_{i}\statevar\leq K_{i}).
 \end{equation}
 
 
-The actual implementation of the controller requires storing the matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. At each time step $k$, the current state $x_k$ is used to detect the right polyhedral region $i$ such that $H_i x_k\le K_i$. Then the control action $v_k = F_i x_k + G_i$ is computed and applied to the system.
-
-%Therefore, given the state vector $x$, to compute control input, one has to first determine to which polytope does the state vector belong.
+The implementation of the controller stores the matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. 
+At each time step $k$, the current state $x_k$ is used to detect the polyhedral region 
+such that $H_i x_k\le K_i$. Then the control action $u_k = F_i x_k + G_i$ is computed and applied to the system.
 Several algorithms are proposed in the literature \cite{Mnnigmann:2011,Jones:2006} to find the right polyhedral region $i$ to which the state $x_k$ belong. 
 The most straightforward technique is a linear search over all polyhedral regions (Fig.~\ref{lst:caseof}).
 
 \begin{figure}[t]
 \begin{lstlisting}[mathescape=true,basicstyle=\small\ttfamily,morekeywords={if, then, elseif, return}]
-if ($H_{1}\statevar \leq K_{1}$) then $v_{k}=F_1x_k+G_1$
-elseif ($H_{2}\statevar \leq K_{2}$) then $v_{k}=F_2x_k+G_2$
-elseif ($H_{3}\statevar \leq K_{3}$) then $v_{k}=F_3x_k+G_3$
+if ($H_{1}\statevar \leq K_{1}$) then $u_{k}=F_1x_k+G_1$
+elseif ($H_{2}\statevar \leq K_{2}$) then $u_{k}=F_2x_k+G_2$
+elseif ($H_{3}\statevar \leq K_{3}$) then $u_{k}=F_3x_k+G_3$
 ...
-elseif ($ H_{P}\statevar\leq K_{P}$) then $v_{k}=F_Px_k+G_P$
-return $v_k$
+elseif ($ H_{P}\statevar\leq K_{P}$) then $u_{k}=F_Px_k+G_P$
+return $u_k$
 \end{lstlisting}
 \caption{Structure of an explicit MPC controller}
 \label{lst:caseof}
