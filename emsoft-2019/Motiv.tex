@@ -1,13 +1,57 @@
 % !TEX root = main.tex
 \section{Overview}
 \label{sec:example}
+\begin{figure}
+	\tikzstyle{block} = [draw, rectangle, minimum height=4em, minimum width=6em]
+	\tikzstyle{block1} = [draw, rectangle, minimum height=2em, minimum width=6em]
+	\tikzstyle{block2} = [draw, rectangle, minimum height=1em, minimum width=4em]
+	\tikzstyle{block3} = [draw, rectangle, minimum height=3.2em, minimum width=4em]
+	\tikzstyle{input} = [coordinate]
+	\tikzstyle{output} = [coordinate]
+	\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+	{\centering
+		
+		%\begin{center}
+		%\hspace*{\fill} 
+		\begin{tikzpicture}[auto,node distance=1cm,>=latex']
+		\node [block,text width=3.8cm, pin={[pinstyle]above:$\Delta=\Delta_0$},
+		node distance=1cm, align=center, label={[anchor=south east, draw=black, inner sep=1pt]south east:MATLAB}] (RMPC) {Robust explicit MPC\\with disturbance set $\mathcal W_{\Delta}$};
+		%\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
+		\node [block3,below=1.3cm of RMPC,
+		node distance=1cm,text width=4.4cm,  label={[anchor=south east, draw=black, inner sep=1pt]south east:MATLAB}] (Uij) {Incorrect region selection error};
+		\node [draw, diamond, minimum height=3em, minimum width=3em, below =0.8cm of Uij, node distance=1cm] (decide) {$e\leq  \Delta$};
+		\node [block3, below=0.8cm of decide,node distance=1cm, label={[anchor=south east, draw=black, inner sep=1pt]south east:Daisy}] (done) {Mixed-precision implementation};
+		\node [block2, right=1.3cm of decide,
+		node distance=1cm] (delta) {Increase $\Delta$};
+		\node [block1,below = 0.8cm of done] (output) {Low-precision controller};
+		%\node [scale=1] at (3,-.25)  {$u(x)=Kx+v$};
+		\node at (9,-.25) {$e$};
+		
+		\draw [draw,->, align=center] (RMPC) -- node [left] {high-precision\\ controller}(Uij);
+		\draw [->] (Uij) -- node [left] {$e$}(decide);
+		\draw [->] (decide) -- node [left,pos=.3] {Yes} (done);
+		\draw [->] (decide) -- node[pos=0.99] {} 
+		node [] {No} (delta);
+		\draw [->] (delta) |- node [above] {} (RMPC);
+		\draw [->] (done) -- node [above] {} (output);
+		%\node [block2, scale=0.7] at (1.3,-.42) {MATLAB} ;
+		%\node [block2, scale=0.7] at (1.65,-2.95) {Daisy} ;
+		%\node [block2, scale=0.7] at (1.58,-7) {Daisy} ;
+		\end{tikzpicture}\par}
+	%	\hspace{\fill} 
+	%\end{center}
+	%\end{adjustbox}
+	\caption{High-level description of the proposed memory-efficient robust MPC design.}
+	\label{fig:overview}
+\end{figure}
+
 
 % Model Predictive Control (MPC) refers to the class of control strategies that design control actions by solving a finite horizon optimal control problem at each sampling instant. While each optimization gives a sequence of optimal control actions, only the first action is applied to the process. The same procedure is applied in the next time instance after receiving the updated value of the process state. MPC has shown to be successful in industrial applications since it is able to handle large number of states and control actions and automatically considers constraints in the optimization.
 % 
 % The optimization of each time instance uses a dynamic model of the process to predict the future states and find the optimal sequence of actions that satisfies all the constraints. The objective function of the optimization is usually linear or quadratic. The resulting optimization problem can be cast as a linear program (LP) or quadratic program (QP), respectively, if the dynamic model is linear. For hybrid models with linear dynamics in each mode, the optimization problem can be cast as a mixed integer linear or quadratic program (MILP/MIQP). 
 
 
-\begin{figure}[t]
+\begin{figure}[h]
 	\begin{tabular}{cc}
 	\includegraphics[width=2cm,height=3cm]{Figs/inv_pend.png}&	\includegraphics[width=6cm,height=4cm]{Figs/regs.jpg}\\
 	(a)&(b)
@@ -93,8 +137,28 @@ Unfortunately, $\Delta_0=0.01$ is not realizable, as the point location error is
 Therefore, we define $\Delta_1 := \Delta_0 + \varepsilon_{SAFE}$ with $\varepsilon_{SAFE}$ being a fixed threshold (we chose $\varepsilon_{SAFE} = 0.04$) and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 
 Solving the robust explicit MPC problem for this enlarged disturbance set gives the new controller,
 shown in Figure~\ref{fig:inverted_pendulum}(b).
-The controller has $14$ regions.
-\RM{give the control function. I think it will be good to explicitly write the polyhedra and the affine maps} 
+The controller has $14$ regions. Following demostrates one sample mapping, including the activation condition and its corresponding affine function
+\begin{equation*}
+\resizebox{.9\hsize}{!}{$
+\begin{bmatrix}
+-0.005  &0.999\\
+-0.998  &-0.049\\
+0.005  &-0.999\\
+0.998   &0.049
+\end{bmatrix}x_k\leq 
+\begin{bmatrix}
+0.416\\
+3.157\\
+0.617\\
+-0.0124
+\end{bmatrix}
+\Rightarrow
+u(x_k)=\begin{bmatrix}
+0.05&-9.67
+\end{bmatrix}x_k+4.02$}
+\end{equation*}
+where, output of robust EMPC at state $x_k$ is denoted by $u(x_k)$. Notice that all the rest of mappings have similar format.
+%\RM{give the control function. I think it will be good to explicitly write the polyhedra and the affine maps} 
 
 %\begin{equation}
 %\kappa(x_k)=
@@ -118,47 +182,7 @@ to the smallest uniform precision implementation that respects $\Delta_1$,
 and about $57\%$ less memory than an implementation that uniformly uses
 32 bits.
 
-\begin{figure}
-\tikzstyle{block} = [draw, rectangle, minimum height=4em, minimum width=6em]
-\tikzstyle{block1} = [draw, rectangle, minimum height=2em, minimum width=6em]
-\tikzstyle{block2} = [draw, rectangle, minimum height=1em, minimum width=4em]
-\tikzstyle{block3} = [draw, rectangle, minimum height=3.2em, minimum width=4em]
-\tikzstyle{sum} = [draw,  circle, node distance=1cm]
-\tikzstyle{input} = [coordinate]
-\tikzstyle{output} = [coordinate]
-\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
-
-\centering
-	\begin{tikzpicture}[auto,node distance=2cm,>=latex',scale=1]
-	\node [block,scale=1,text width=3.8cm, pin={[pinstyle]above:$\Delta=\Delta_0$},
-	node distance=1cm, align=center, label={[anchor=south east, draw=black, inner sep=1pt]south east:MATLAB}] (RMPC) {Robust explicit MPC\\with disturbance set $\mathcal W_{\Delta}$};
-	%\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
-	\node [block3, scale=1,below=1.3cm of RMPC,
-	node distance=3.8cm,text width=4.4cm,  label={[anchor=south east, draw=black, inner sep=1pt]south east:Daisy}] (Uij) {Point location error computation};
-	\node [draw, diamond, minimum height=3em, minimum width=3em, below =0.8cm of Uij, node distance=5cm] (decide) {$e\leq  \Delta$};
-	\node [block3, below=0.8cm of decide,node distance=3cm, label={[anchor=south east, draw=black, inner sep=1pt]south east:Daisy}] (done) {Mixed-precision implementation};
-	\node [block2, right=1.3cm of decide,
-	node distance=3cm] (delta) {Increase $\Delta$};
-	\node [block1,below = 0.8cm of done] (output) {Low-precision controller};
-	%\node [scale=1] at (3,-.25)  {$u(x)=Kx+v$};
-	\node at (9,-.25) {$e$};
 	
-	\draw [draw,->, align=center] (RMPC) -- node [left] {high-precision\\ controller}(Uij);
-	\draw [->] (Uij) -- node [left] {$e$}(decide);
-	\draw [->] (decide) -- node [left,pos=.3] {Yes} (done);
-	\draw [->] (decide) -- node[pos=0.99] {} 
-	node [] {No} (delta);
-	\draw [->] (delta) |- node [above] {} (RMPC);
-	\draw [->] (done) -- node [above] {} (output);
-	
-	%\node [block2, scale=0.7] at (1.3,-.42) {MATLAB} ;
-	%\node [block2, scale=0.7] at (1.65,-2.95) {Daisy} ;
-	%\node [block2, scale=0.7] at (1.58,-7) {Daisy} ;
-	\end{tikzpicture}
-	%\end{adjustbox}
-	\caption{High-level description of the proposed memory-efficient robust MPC design.}
-	\label{fig:overview}
-\end{figure}	
 	
 %	\tikzstyle{block} = [draw, rectangle, 
 %	minimum height=3em, minimum width=6em]
@@ -203,8 +227,3 @@ and about $57\%$ less memory than an implementation that uniformly uses
 %}
 %	\label{fig:overview}
 %\end{figure*}
-
-
-
-
-	
