@@ -85,7 +85,7 @@ After linearization and time discretization, the model is
 		\label{eq:pendul_ss}
 	\end{equation}
 where $\theta_k$, $\omega_k$, and $u_k$ denote respectively the angular position, angular speed, 
-and the input torque at time $kT_s$ with $T_s$ being an appropriate sample time.
+and the input torque at time $kT_s$ with $T_s$ being an appropriate sampling time.
 The disturbance $w_k\in\mathbb R^2$, bounded with a polyhedral set $w_k\in \mathcal W$, captures the modeling error due to 
 linearization and discretization. 
 The parameter $g=9.81 [m/s^2]$ is the gravitational acceleration, $m$ is the ball mass, $b$ is the rotational fraction coefficient, 
@@ -126,25 +126,40 @@ We start by selecting an initial bound $\Delta_0$ on the implementation error an
 \end{equation}
  
 For our example, we choose $\Delta_0=0.01$ and $\mathcal W = \{0\}$. 
-We use MATLAB to find a robust explicit MPC with disturbance set $\mathcal W_{\Delta_0}$. 
-\RM{the following setence is not understandable. This is the first time we introduce incorrect region selection.
-Who is Daisy?}
-\RM{A better version is to informally define incorrect region selection. Say that we run an algorithm for incorrect region
-selection to bound the possible error. 
-Break the sentence into two. Introduce Daisy as a mixed-precision tuning tool.}
+We use Matlab to find a robust explicit MPC with disturbance set $\mathcal W_{\Delta_0}$. 
+% \RM{the following setence is not understandable. This is the first time we introduce incorrect region selection.
+% Who is Daisy?}
+% \RM{A better version is to informally define incorrect region selection. Say that we run an algorithm for incorrect region
+% selection to bound the possible error. 
+% Break the sentence into two. Introduce Daisy as a mixed-precision tuning tool.}
 
-The output of robust  EMPC given by Matlab decomposes the control domain into a finite number of polyhedra together with an affine map for each domain. At each time step, the state vector $x_k$ is read (or estimated) and based on the domain that it belongs to, the output of controller is determined. However, due to error by fixed-point implementation, it is possible that the domain is selected incorrectly. This causes an error term which we refer to it as incorrect region selection error.
-Over the high-precision controller, we compute the error due to an incorrect region selection $e$. In case that $e<\Delta_0$, we would like to find the smallest number of bits required for implementing the controller such that we are still within the safe bound $\Delta_0$. To do so, we ask Daisy, which is a mixed-precision tuning tool, to provide us with a mixed-precision scheme such that the associated implementation error is at most $\Delta_0$, that is,
-at all points in the control domain, the difference between the infinite-precision controller function
-and its mixed-precision implementation is at most $\Delta_0$.
+The output of robust EMPC given by Matlab decomposes the control domain into a
+finite number of polyhedral domains together with an affine map for each domain. At each
+time step, the state vector $x_k$ is read (or estimated) and based on the domain
+that it belongs to, the corresponding control output is computed. 
+However, the polyhedral regions are implemented in finite precision so that
+it is possible that due to quantization errors the domain is selected incorrectly.
+We refer to the resulting error as incorrect region selection error.
+% However, due to error by fixed-point implementation, it is possible that the domain is selected
+% incorrectly. This causes an error term which we refer to it as incorrect region
+% selection error.
 
-Unfortunately, $\Delta_0=0.01$ is not realizable, as the region selection error is $0.019$ and hence $e>\Delta_0$. 
+In our example, we compute an incorrect region selection error $e = 0.019$, which is larger
+than $\Delta_0=0.01$. We therefore increase the disturbance bound by a fixed amount to
+$\Delta_1 = 0.05$ and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 
+%
+% Over the high-precision controller, we compute the error due to an incorrect region selection $e$. In case that $e<\Delta_0$, we would like to find the smallest number of bits required for implementing the controller such that we are still within the safe bound $\Delta_0$. To do so, we ask Daisy, which is a mixed-precision tuning tool, to provide us with a mixed-precision scheme such that the associated implementation error is at most $\Delta_0$, that is,
+% at all points in the control domain, the difference between the infinite-precision controller function
+% and its mixed-precision implementation is at most $\Delta_0$.
+%
+%Unfortunately, $\Delta_0=0.01$ is not realizable, as the region selection error is $0.019$ and hence $e>\Delta_0$. 
 %always greater than zero either due to selecting the wrong region in the affine controller function or due to the finite-precision computation of the control action.
 %\eva{Is this the error due to mixed-precision or due to wrong regions?}
-Therefore, we define $\Delta_1 := \Delta_0 + \varepsilon_{SAFE}$ with $\varepsilon_{SAFE}$ being a fixed threshold (we chose $\varepsilon_{SAFE} = 0.04$) and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 
-Solving the robust explicit MPC problem for this enlarged disturbance set gives the new controller,
-shown in Figure~\ref{fig:inverted_pendulum}(b).
-The controller has $14$ regions. Following demostrates one sample mapping, including the activation condition and its corresponding affine function
+% Therefore, we define $\Delta_1 := \Delta_0 + \varepsilon_{SAFE}$ with $\varepsilon_{SAFE}$ being a fixed threshold (we chose $\varepsilon_{SAFE} = 0.04$) and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 
+Solving the robust explicit MPC problem for this enlarged disturbance set gives the new controller
+with 14 regions, shown in~\autoref{fig:inverted_pendulum}(b).
+A sample region with the corresponding affine map is shown below:
+%Following demostrates one sample mapping, including the activation condition and its corresponding affine function
 \begin{equation*}
 \resizebox{.9\hsize}{!}{$
 \begin{bmatrix}
@@ -164,8 +179,11 @@ u(x_k)=\begin{bmatrix}
 0.05&-9.67
 \end{bmatrix}x_k+4.02$}
 \end{equation*}
-where, output of robust EMPC at state $x_k$ is denoted by $u(x_k)$. Notice that all the rest of mappings have similar format.
-%\RM{give the control function. I think it will be good to explicitly write the polyhedra and the affine maps} 
+where the output of robust EMPC at state $x_k$ is denoted by $u(x_k)$. 
+The remaining mappings have a similar structure.
+For this new controller, the incorrect region selection error is still
+approximately $e = 0.019$, which is now below the disturbance bound $\Delta_1$,
+so that we can continue with the precision assignment.
 
 %\begin{equation}
 %\kappa(x_k)=
@@ -177,13 +195,13 @@ where, output of robust EMPC at state $x_k$ is denoted by $u(x_k)$. Notice that 
 %\end{cases} 
 %\end{equation}
 
-Next, we ask Daisy to provide us with mixed-precision implementation for all the parameters and to compute a static bound on the
-implementation error. 
-The mixed-precision scheme given by Daisy results in an implementation with $6084$ bits in total 
+Next, we use the precision tuning tool Daisy to provide us with a mixed-precision 
+implementation for all the parameters which satisfies the error bound $0.031$,
+which is given by the remaining error budget $\Delta_1 - e = 0.05 - 0.019$.  
+The mixed-precision implementation returned by Daisy requires $6084$ bits in total 
 for the corresponding robust explicit MPC.
-Daisy also computes a static error bound of $0.03$.
-Since this error bound is less than our robustness margin $\Delta_1 = 0.05$, we terminate the loop
-and return this implementation.
+% Since this error bound is less than our robustness margin $\Delta_1 = 0.05$, we terminate the loop
+% and return this implementation.
 The mixed-precision implementation takes about $10\%$ less memory compared 
 to the smallest uniform precision implementation that respects $\Delta_1$,
 and about $57\%$ less memory than an implementation that uniformly uses
