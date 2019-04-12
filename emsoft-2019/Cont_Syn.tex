@@ -128,14 +128,20 @@ control actions given by \texttt{F} and \texttt{G}, and the remaining error
 budget as the error bound (line 12).
 Then we call Daisy with the expressions of the region bounds given by \texttt{H}
 and \texttt{K}, now with the error bound $\varepsilon_Q$ (line 13).
+
 In both cases, Daisy determines a quantization of the input matrices (Daisy also
 determines the fixed-point formats of the arithmetic operations, which we ignore here).
-Daisy either computes a minimal uniform fixed-point precision (word length),
-i.e. it searches for the smallest uniform precision which still satisfies the
-error bound, or it returns a mixed-precision assignment, where each value and
-intermediate operation can potentially have different word length.
+Daisy either computes a minimal uniform fixed-point precision (i.e. word length),
+or it returns a mixed-precision assignment, where each value and
+intermediate operation can potentially have a different word length.
+To determine the minimal uniform precision, Daisy performs a linear search.
+It starts from the smallest precision (1 bit) and checks whether it satisfies the
+error bound. If not, the precision is increased by 1 bit and the first precision
+that satisfies the error bound is returned.
+Minimal uniform precision is used as a starting point for mixed-precision tuning,
+which attempts to assign a lower precision to some variables. 
 In our experiments in~\autoref{sec:experiments}, we compare the two modes and show
-that mixed-precision leads to smaller memory footprints.
+that mixed precision leads to smaller memory footprints.
 
 Note that Daisy always returns a quantization (at least for our linear
 expressions). If the error bound given is very small (but larger than zero),
@@ -148,7 +154,7 @@ fail.
 
 %\eva{The precision tuning, which is the main contribution of the paper is not explained.}
 
-\paragraph{Implementation}
+\subsection{Implementation}
 
 We implemented our algorithm in a Python script which interfaces between Matlab
 and Daisy and which implements the high-level structure from~\autoref{lst:alg}.

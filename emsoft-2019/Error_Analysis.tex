@@ -5,39 +5,44 @@
 We first present our error analysis assuming given fixed-point word lengths,
 before explaining our optimization algorithm which determines suitable word
 lengths fully automatically in~\autoref{sec:Controller_Synthesis}.
-\eva{The `p' below is the fixed/uniform word length? If so, please explain here}
-\eva{Should we mention here the paper which does the LP-based analysis, i.e.
-contrast our approach?}
+While we do not employ the error analysis independently of controller and
+precision synthesis, we note that it is an alternative way of bounding errors to
+existing methods~\cite{imperialrmpc}.
 
-In the same way described in \cite{imperialrmpc}, the output of the controller can be affected by two main sources errors which an error
-analysis has to capture: 
+For simplicity of notation, we assume a uniform word length $p$ in this section,
+though our algorithm (and implementation) support mixed-precision as well.
+
+The output of an explicit MPC controller can be affected by two main sources
+errors, which an error analysis has to capture\cite{imperialrmpc}:
 \begin{itemize}
-  \item[(i)] \emph{incorrect region selection}: an incorrect control action can be chosen
+  \item[(i)] \emph{incorrect region selection}: 
     due to analog-digital conversion and quantization of $H_i$ and $K_i$,
-
+    the controller can choose an incorrect control action $u_j$ instead of $u_i$
+    
   \item[(ii)] \emph{approximate control output}: the control output is computed
     using quantized $F_i$ and $G_i$, accumulating errors.
 \end{itemize}
 
-We thus have to ensure that these errors remain below the error bound $\delta$
+We have to ensure that these errors remain below the error bound $\Delta$
 used to design the robust MPC controller:
 \begin{align}\label{eq:delta}
-  \max_{\forall i,j. \mathit{neighbour}(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}| + \max_{\forall i.\mathcal{R}_{i}\in\mathcal{R}} err(u_{i})_{p} \le \delta
+  \max_{\forall i,j. \mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}| + \max_{\forall i.\mathcal{R}_{i}\in\mathcal{R}} err(u_{i})_{p} \le \Delta
 \end{align}
-where $i,j$ are the indexes of two generic regions $\mathcal{R}_{i}$ and
-$\mathcal{R}_{j}$, \\ $\mathit{neighbour}(\mathcal{R}_{i},\mathcal{R}_{j})$ states that
-two regions share at least a point, $u_{i}$ is the
-control action for controller $i$, and $err(u_{i})_{p}$ is
-the approximation error for computing the activation function $u_{i}$ in fixed precision using p bits format.
-\paragraph{Incorrect Region Selection}
+where $i,j$ are the indexes of two distinct regions $\mathcal{R}_{i}$ and
+$\mathcal{R}_{j}$, \\ $\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})$
+states that two regions share at least a point, $u_{i}$ is the control action
+for controller $i$, and $err(u_{i})_{p}$ captures the approximation error for
+computing the control action $u_{i}$ in fixed precision $p$.
+
+\subsection{Incorrect Region Selection}
 
 The first part of the error in~\autoref{eq:delta} captures the error due to
-selection of the wrong control action, i.e. with infinite-precision arithmetic
+selecting of the wrong control action. That is, with infinite-precision arithmetic
 and in the absence of any uncertainty from hardware measurements we would choose
 control action $u_i$, but due to uncertainties we actually choose control action $u_j$:
 \begin{align} \label{eq:maximization}
-  &\max_{\forall i,j.\mathit{neighbour}(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}|= \\
-  &\max_{\forall i,j.\mathit{neighbour}(\mathcal{R}_{i},\mathcal{R}_{j})}|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|\nonumber
+  \max_{\forall i,j.\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}|&= \\
+  \max_{\forall i,j.\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})}&|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|\nonumber
 \end{align}
 
 %Because of the linearity of the function $u_{i}-u_{j}$, and because of the
@@ -47,27 +52,26 @@ control action $u_i$, but due to uncertainties we actually choose control action
 
 A naive computation of this error would consider all possible values of $x_k$.
 This would lead to a gross over-approximation, however, since the controller
-will choose a wrong region only in a relative narrow neighbourhood, or
+will choose a wrong region only in a relative narrow neighborhood, or
 \emph{tube}, around the boundary between two regions $R_i$ and $R_j$.
-In~\autoref{eq:maximization}, we thus constrain $x_k$ to be within an appropriate tube:
-\begin{equation}\label{eq:tube}
-(\mathit{border}_{i,j} \ge -\varepsilon) \land (\mathit{border}_{i,j} \le \varepsilon)
-\end{equation}
-where $\mathit{border}_{i,j}$ constrains $x_k$ to be on the border between two regions
-$R_i$ and $R_j$ and $\varepsilon$ captures the uncertainty in computing the
-correct region.
 
-\eva{The below, I believe, is somehow defining $border_{i,j}$, but I don't understand
-how. Please explicitly define $border_{i,j}$.}
+The border between two regions $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$ is defined by 
+their corresponding boundaries:
 \begin{equation}
-\mathit{border}_{i,j}=(H_{i}\statevar-K_{j})_{m} = (H_{j}\statevar-K_{j})_{n}
+\mathit{border}_{i,j} :=(H_i \statevar - K_i ) - (H_j \statevar - K_j)
 \end{equation}
-where $m$ and $n$ are the indexes of the matching border respectively in $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$.
+for appropriate matching borders $H_i, K_i$ and $H_j, K_j$.
 
-The width of the tube $\varepsilon$, i.e. the uncertainty in computing $x_k$ and
-thus the correct region, is due to two sources of errors: analog-to-digital
-conversion $\varepsilon_{A/D}$ and the quantization of region bounds
-$\mathcal{R}$ in memory $\varepsilon_{Q}$:
+In~\autoref{eq:maximization}, we thus constrain $\statevar$ to be within an appropriate tube:
+\begin{equation}\label{eq:tube}
+|\mathit{border}_{i,j}| \le \varepsilon
+\end{equation}
+where $\varepsilon$ captures the uncertainty in computing the
+correct region and thus the width of the tube.
+%
+The width of the tube $\varepsilon$ is due to two sources of errors:
+analog-to-digital conversion $\varepsilon_{A/D}$ and the quantization of region
+bounds in memory $\varepsilon_{Q}$:
 \begin{equation}\label{eq:epsilontot}
   \varepsilon=\varepsilon_{A/D}+\varepsilon_{Q}
 \end{equation}
@@ -77,48 +81,82 @@ and is given by:
 \begin{equation*}
 \varepsilon_{A/D}=\frac{V_{cc}}{2^{p}-1}
 \end{equation*}
-where $V_{cc}$ is the reference voltage of the converter (e.g. typically 5V), p is the number of bits available to quantize the analog signal, and $2^{p}$ is the resolution of the converter.
-
-\eva{which bits, who determines these?}
+where $V_{cc}$ is the reference voltage of the converter (e.g. typically 5V), $p$
+is the number of bits available to quantize the analog signal, and $2^{p}$ is
+the resolution of the converter.
 
 While $\varepsilon_{A/D}$ is intrinsic to the capabilities of the device,
-$\varepsilon_{Q}$ depends on the precision used to store the boundaries, and it is user defined at compile time. This
-second error can be tuned based on a trade-off between accuracy of the storage and
-memory storage required~\cite{memoryMPC}.
-%
-$\varepsilon_{Q}$ is given by:
+$\varepsilon_{Q}$ depends on the precision used to store the boundaries:
 \begin{equation}\label{eq:quantizationlines}
-  \varepsilon_{Q} > |(H-\hat{H}_{p})\qstatevar+(K-\hat{K}_{p})|
+  \varepsilon_{Q} = |(H_i - \hat{H}_i) \qstatevar + (K_i - \hat{K}_i)|
 \end{equation}
-\eva{Shouldn't this equation have some absolute values in it?}
-\eva{The equation above does not give any hint for how to compute it. I would prefer to add the inequality to \autoref{eq:epsilontot} and give an equality here that explicitly shows how to compute this. Then also rephrase the below}
+\eva{For which index is this evaluated, $i$, $j$ or both?}
+That is, $\varepsilon_{Q}$ bounds the distance between any hyperplane in infinite
+precision (H and K), and its counter-part quantized in $p$ bits precision
+($\hat{H}_{p}$ and $\hat{K}_{p}$).
+This second error can be tuned providing a trade-off between accuracy and
+memory storage required.
 
-The inequality guarantees that the distance between any hyperplane in infinite precision (H and K), and its counter-part quantized in p bits precision ($\hat{H}_{p}$ and $\hat{K}_{p}$) is bounded by $\varepsilon_{Q}$.
 
+\subsection{Approximate Control Output}
 
-\paragraph{Approximate Control Output}
-
-Computing $u_{i}$ itself introduces imprecision because $u_i$ needs to be evaluated 
-in finite precision arithmetic:
+Once a control action $u_i$ is chosen, computing $u_{i}$ itself introduces
+imprecision because $u_i$ needs to be evaluated in finite-precision arithmetic:
 \begin{equation}\label{eq:fperror}
-  err(u_{i})_{p}=|(\hat{F}_{p}-F)\statevar+(\hat{G}_{p}-G)|
+  err(u_{i})_{p} = | (F_i - \hat{F}_{i}) \statevar + ( G_i - \hat{G}_{i} ) |
 \end{equation}
-where $\hat{F}$ and $\hat{G}$ represent the rounded values (in p bits) for the infinite precision values $F$ and $G$.
+where $\hat{F}$ and $\hat{G}$ represent the quantized values (in $p$ bits) for
+the infinite precision values $F$ and $G$.
 
-In (\ref{eq:fperror}) the domain for \statevarmath are all the points in region $i$, together with all the values in the tube surrounding region $i$. 
-In this way we compute the error also for those points, that belong to a neighbor of $i$, but because of $\varepsilon$ they are erroneously located inside region $i$.
-
-\eva{This section so far says nothing about how we actually compute these errors (incl. with which tools). 
-This should come here}
-\paragraph{Implementation}
-%The designer of the controller fixes the value for $epsilon$ at compile time before starting the analysis. $\varepsilon_{Q}$ is also a user dependent parameter fixed at compile time. The value for $\varepsilon_{Q}$ depends on the total amount of memory we can dedicate to the storage of H and K on the target controller.
-
-The two main quantities we need to compute are: the incorrect region error and the memory demand, because the values for $\delta$ and $\varepsilon_{Q}$ are given in input to the analysis.
-
-\rocco{@Mahmoud below}
-The incorrect region error is computed in MATLAB multi-parametric toolbox. Due to the linearity of function $u_{i}-u_{j}$, and because we defined the tube as a convex region, we need to evaluate the function only at the corner points of the tube, and keep the result with the maximal magnitude.
-
-The approximation error and the precision tuning for both borders and active functions are computed in Daisy. $\varepsilon_{Q}$ is given in input to the analysis. After we compute the incorrect region in MATLAB we obtain the value for max error $err(u_{i})$ from (8). Then we give the errors and the vectors F,G and H,K in input to Daisy. We used Daisy as a verification tool: we provide in input the expression we want to quantize (e.g. $\mathcal{R}_{i}$) together with the error bound we can tolerate (e.g. $\varepsilon_{Q}$), and Daisy returns a precision configuration (uniform or mixed) such that the input error is satisfied. The way it finds the right configuration for uniform precision is the following: it starts by checking whether the input expression, quantized in unary uniform precision (1bit), introduces an error bounded by the input error. If this is not the case, Daisy increases the precision format by 1 bit and check whether the error now is satisfied. This unary increment runs inside a loop that terminates when the first valid format is matched. This uniform word-length is going to be the baseline for the mixed-precision tuning phase. The mixed-precision algorithm keeps a list of variables to quantize, and collects different candidate configurations that satisfy the input error. It returns the best configuration based on the evaluation of a quality function. 
+\autoref{eq:fperror} is evaluated for all \statevarmath that are inside the
+region $\mathcal{R}_i$, together with all the values in the tube surrounding
+region $\mathcal{R}_i$.
+In this way we compute the error also for those points that belong to a neighbor
+of $\mathcal{R}_i$, but because of finite-precision errors they are erroneously
+mapped to control action $u_i$.
 
 
-%Our analysis returns the total memory (in bits) required by the configuration detected in Daisy. The designer can then tune the epsilon value based on the memory consumption of the current configuration. 
+\subsection{Implementation}
+
+The incorrect region error (\autoref{eq:maximization}) is computed using
+Matlab's multi-parametric toolbox. Due to the linearity of function
+$u_{i}-u_{j}$, and because we defined the tube as a convex region, it suffices
+to evaluate the function only at the corner points of the tube, and keep the
+result with the maximal magnitude.
+\eva{This needs more details. Which function(s) and algorithm from Matlab are used?}
+\eva{How do you determine which regions are neighbors? resp. which borders are matching?}
+
+$\varepsilon_Q$ and $err(u_{i})_{p}$ are computed by Daisy. For this we encode
+the expressions in~\autoref{eq:quantizationlines} and \autoref{eq:fperror}
+respectively as straight-line arithmetic expressions and specify the constraints
+on the domain of $\statevar$ in the precondition.
+Daisy performs a dataflow analysis to determine the finite-precision roundoff
+errors. This error computation differs from the one employed by
+\citet{imperialrmpc} which phrases the roundoff error computation as a (relaxed)
+mixed integer programming problem.
+
+While our actual synthesis algorithm (\autoref{sec:Controller_Synthesis}) does
+not compute the errors $\varepsilon_Q$ and $err(u_{i})_{p}$ explicitly, the
+error verification is used internally by Daisy to determine a suitable precision
+$p$ and can also be called explicitly without the precision optimization.
+
+% The approximation error and the precision tuning for both borders and active
+% functions are computed in Daisy. $\varepsilon_{Q}$ is given in input to the
+% analysis. After we compute the incorrect region in MATLAB we obtain the value
+% for max error $err(u_{i})$ from (8). Then we give the errors and the vectors F,G
+% and H,K in input to Daisy. We used Daisy as a verification tool: we provide in
+% input the expression we want to quantize (e.g. $\mathcal{R}_{i}$) together with
+% the error bound we can tolerate (e.g. $\varepsilon_{Q}$), and Daisy returns a
+% precision configuration (uniform or mixed) such that the input error is
+% satisfied. The way it finds the right configuration for uniform precision is the
+% following: it starts by checking whether the input expression, quantized in
+% unary uniform precision (1bit), introduces an error bounded by the input error.
+% If this is not the case, Daisy increases the precision format by 1 bit and check
+% whether the error now is satisfied. This unary increment runs inside a loop that
+% terminates when the first valid format is matched. This uniform word-length is
+% going to be the baseline for the mixed-precision tuning phase. The
+% mixed-precision algorithm keeps a list of variables to quantize, and collects
+% different candidate configurations that satisfy the input error. It returns the
+% best configuration based on the evaluation of a quality function.
+
+
