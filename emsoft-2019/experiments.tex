@@ -128,9 +128,7 @@ memory savings by mixed-precision for storing H and K than for the inverted pend
 % We use Matlab's MPT toolbox~\cite{matlabMPT} to compute the
 % explicit MPC, while underlying computations rely on YALMIP(\cite{matlabYALMIP}).
 %We evaluate our algorithm with different choices of $\varepsilon_Q$ and $\Delta$.
-We use Matlab's MPT toolbox~\cite{matlabMPT} to compute the explicit MPC, while underlying computations rely on YALMIP(\cite{matlabYALMIP}). 
-\eva{What are the 'underlying computations'? Isn't this supposed to go into the
-implementation section of Section 5?}
+
 For the inverted pendulum MPT toolbox~\cite{matlabMPT} computes a controller
 consisting of $14$ regions with $58$ 2D hyperplanes in total for all choices of $\varepsilon_Q$ and $\Delta$. 
 For the aircraft model, Matlab computes a robust EMPC with
@@ -213,7 +211,7 @@ skiping the restrictions for designing robust EMPC with longer time horizons.
 % significant memory save.
 
 The benchmark in this experiment is the double integrator, a canonical example
-of a second order control system \todo{cite something?}. The state space description
+of a second order control system. The state space description
 for the discrete time version of the double integrator is given by:
 \begin{equation}
 x_{k+1}=

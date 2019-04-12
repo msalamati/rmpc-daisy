@@ -35,7 +35,7 @@ or to certify a complex optimization routine.
 
 However, there are still bottlenecks in implementing explicit MPC on resource-constrained embedded micro-controllers.
 First, implementations of explicit MPCs can suffer from large memory usage, because the solution of the optimization
-problem can involve many (often hundreds) of regions. \todo{citation for such example, e.g. the double integrator}
+problem can involve many (often hundreds) of regions~\cite{memoryMPC}.
 Since the memory consumption grows linearly with the number of regions, 
 this can be a limiting factor in using explicit MPC on resource-constrained micro-controllers.
 Second, many low-end micro-controllers only support fixed-point arithmetic.

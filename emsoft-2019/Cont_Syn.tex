@@ -161,6 +161,9 @@ and Daisy and which implements the high-level structure from~\autoref{lst:alg}.
 The interface parses the output from Matlab and encodes the matrices \texttt{F,
 G, H, K} and the error bounds in Daisy's input format. 
 
+We set up the problem with YALMIP~\cite{matlabYALMIP}, and use 
+Matlab's MPT toolbox~\cite{matlabMPT} to compute the robust explicit MPC.
+
 We run the precision tuning for control actions (line 12) and hyperplanes (line 13) in
 parallel, because the analysis of a single region or hyperplane is completely independent from
 the others. 
