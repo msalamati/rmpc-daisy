@@ -242,6 +242,36 @@ not compute the errors $\varepsilon_Q$ and $err(v_{i})_{p}$ explicitly, the
 error verification is used internally by Daisy to determine a suitable precision
 $p$ and can also be called explicitly without the precision optimization.
 
+\textcolor{red}{Sadegh: This is long comment on the content of this section. I cannot figure out how this line of reasoning is mapped to the implementation. We can discard my comment given that we are close to the deadline.}
+
+\Sadegh{
+I don't agree that we should add $\varepsilon_{A/D}$ and $\varepsilon_Q$ together. I understand that the implementation is done according to this, but I think we need to multiply $\varepsilon_{A/D}$ by the maximum norm of the coefficients $F_i$ in the controller. There are three approximations:
+\begin{itemize}
+\item using the quantized measured state $\hat x$ instead of the actual state $x$. We assume $\|x - \hat x\|\le \varepsilon_{A/D}$.
+\item using $\hat H_i,\hat K_i$ which are the quantized versions of $H_i,K_i$ with $p$ bits precision. This is related to the boundaries of the regions.
+\item using $\hat F_i,\hat G_i$ which are the quantized versions of $F_i,G_i$ with $p$ bits precision. This is related to the affine functions.
+\end{itemize}
+Let me define the sets $\mathcal H := \{H_i,K_i,i=1,2,\ldots, P\}$ and $\mathcal F:=\{F_i,G_i,i=1,2,\ldots, P\}$. Similarly, we define $\hat{\mathcal H}$ and $\hat{\mathcal F}$.
+The controller (which is a piecewise affine function) can be written as the parametric function $\kappa(\mathcal H,\mathcal F,x)$. Our main goal is to make sure that
+$$\|\kappa(\mathcal H,\mathcal F,x)-\kappa(\hat{\mathcal H},\hat{\mathcal F},\hat x)\|\le \Delta,\quad \forall x\in\mathcal X_{\mathsf s}.$$
+We use tirangle these inequality:
+\begin{align*}
+\|\kappa(\mathcal H,\mathcal F,x)-\kappa(\hat{\mathcal H},\hat{\mathcal F},\hat x)
+\|\le&\|\kappa(\mathcal H,\mathcal F,x)-\kappa(\hat{\mathcal H},\mathcal F,\hat x)\|\\
++&\|\kappa(\hat{\mathcal H},\mathcal F,\hat x)-\kappa(\hat{\mathcal H},\hat{\mathcal F},\hat x)\|.
+\end{align*}
+The second term is exactly what we have in section 4.2 (error in the evaluation of the affine function).
+The first term can be further decomposed as
+\begin{align*}
+\|\kappa(\mathcal H,&\mathcal F,x)-\kappa(\hat{\mathcal H},\mathcal F,\hat x)\|\\
+&\le \|\kappa(\mathcal H,\mathcal F,x)-\kappa(\mathcal H,\mathcal F,\hat x)\|+
+ \|\kappa(\mathcal H,\mathcal F,\hat x) - \kappa(\hat{\mathcal H},\mathcal F,\hat x)\|\\
+&\le \max_i\{\|F_i\|_2\}\|x-\hat x\| + \varepsilon_Q\\
+& \le \max_i\{\|F_i\|_2\}\varepsilon_{A/D}+ \varepsilon_Q.
+\end{align*}
+The error $\varepsilon_{A/D}$ shows itself in the output of the controller by being amplified with the Lipschitz constant of the function which is $\max_i\{\|F_i\|_2\}$. 
+As far as I can tell, $\varepsilon_{A/D}$ doesn't have anything to do with $\varepsilon_Q$. The computation of $\varepsilon_Q$ should be only with respect to the use of $\hat{\mathcal H}$ instead of $\mathcal H$ in the evaluation of constraints for the same value $\hat x$.
+}
 % The approximation error and the precision tuning for both borders and active
 % functions are computed in Daisy. $\varepsilon_{Q}$ is given in input to the
 % analysis. After we compute the incorrect region in MATLAB we obtain the value
