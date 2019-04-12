@@ -102,10 +102,11 @@ minutes.
 
 %\eva{Fix Table 1 caption. It's not the difference, but savings. Difference is absolute.}
 %\eva{Compute the actual averages for all F, G, H, K and not only approximations}
-For the inverted pendulum, minimal uniform precision saves on average $57.5\%$ of memory
+For the inverted pendulum, minimal uniform precision saves on average $52.6\%$ of memory
 compared to a uniform 32 bit baseline overall, i.e. for F, G, H and K together. 
 Mixed-precision further reduces the memory
-requirement by $10.4\%$ on average with respect to the minimal uniform baseline. 
+requirement by $10.5\%$ on average with respect to the minimal uniform baseline (and 57.5\% w.r.t to 
+uniform 32 bit baseline). 
 \autoref{tab:ipd} shows a more detailed breakdown of the memory requirements and savings
 between F and G and H and K.
 The memory requirements for the storage of hyperplanes H and K depends only on
@@ -113,9 +114,9 @@ the size of the tubes $\varepsilon_Q$ so that memory requirements remain constan
 for fixed $\varepsilon_Q$.
 
 %\eva{Compute actual and overall averages here too}
-For the aircraft example, minimal uniform precision saves on average $33.5\%$
+For the aircraft example, minimal uniform precision saves on average $19.3\%$
 overall w.r.t. a uniform 32 bit baseline, and mixed-precision saves an
-additional $17.6\%$ w.r.t. minimal uniform precision. We observe higher relative
+additional $17.7\%$ w.r.t. minimal uniform precision (33.6\% w.r.t to uniform 32 bit). We observe higher relative
 memory savings by mixed-precision for storing H and K than for the inverted pendulum example.
 
 % we save 20\% (in average) of memory when activation functions
@@ -270,10 +271,10 @@ memory consumption remains below 15GB.
 
 
 \autoref{tab:di} shows the results of this experiment.
-We observe that our analysis scales up to 1829 controllers and 14632 hyperplanes in a few hours.  The computed minimal uniform precision saves on average $49.8\%$ of memory
+We observe that our analysis scales up to 1829 controllers and 14632 hyperplanes in a few hours.  The computed minimal uniform precision saves on average $44.5\%$ of memory
 compared to a uniform $32$ bit baseline overall (for F, G, H and K together). 
 Moreover, mixed-precision reduces the memory requirement by an additional
-$9.6\%$ on average with respect to the minimal uniform baseline.
+$9.3\%$ on average with respect to the minimal uniform baseline (49.6\% w.r.t. uniform 32 bit).
 We further observe that relative savings remain largely constant for different 
 prediction horizons.
 % \autoref{tab:di} shows the stability of memory tuning in Daisy is
