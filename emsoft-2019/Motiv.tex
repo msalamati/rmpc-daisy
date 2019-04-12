@@ -98,7 +98,7 @@ Our overall goal is to
 disturbance $\Delta$ modeling the implementation error (both errors due to choosing a wrong region and the finite-precision computation of the control action);
 and at the same time
 %\eva{what about the modelling error that $\Delta$ bounded in the paragraph before?}
-(ii) to minimize the total number of bits that are required for storing the explicit controller.
+(ii) to minimize the total number of bits that are required to represent an explicit controller.
 
 % There are many control schemes that can guarantee convergence of the trajectories to the rest position (e.g., state feedback or linear quadratic regulator), but fail to ensure hard constraints on the states at all time instances. The main feature of MPC schemes is to automatically include these constraints in the design of control actions.
 %	One major challenge of implementing model predictive controllers over embedded systems is to solve the related optimization within each sampled time inerval. Since the system under consideration is LTI, one can use explicit MPC \cite{Bemporad:2002} that computes partitions over state space together with affine functions which are then used to compute the optimal control input over their corresponding partition. For the inverted-pendulum example, the computed controller contains $12$ partition presented in Fig.~\ref{fig:inverted_pendulum}~{(b)}, each with an affine function that gives the control action over that partition.
@@ -125,13 +125,19 @@ We start by selecting an initial bound $\Delta_0$ on the implementation error an
 \end{equation}
  
 For our example, we choose $\Delta_0=0.01$ and $\mathcal W = \{0\}$. 
-We use MATLAB to find a robust explicit MPC with disturbance set $\mathcal W_{\Delta_0}$. Over the computed controller, we compute the error due to an incorrect region selection $e$ and in case that $e<\Delta_0$, we ask Daisy
+We use MATLAB to find a robust explicit MPC with disturbance set $\mathcal W_{\Delta_0}$. 
+\RM{the following setence is not understandable. This is the first time we introduce incorrect region selection.
+Who is Daisy?}
+\RM{A better version is to informally define incorrect region selection. Say that we run an algorithm for incorrect region
+selection to bound the possible error. 
+Break the sentence into two. Introduce Daisy as a mixed-precision tuning tool.}
+Over the computed controller, we compute the error due to an incorrect region selection $e$ and in case that $e<\Delta_0$, we ask Daisy
 to provide a mixed-precision scheme such that the associated implementation error is at most $\Delta_0$, that is,
 at all points in the control domain, the difference between the infinite-precision controller function
 and its mixed-precision implementation is at most $\Delta_0$.
 
 
-Unfortunately, $\Delta_0=0.01$ is not realizable, as the point location error is $0.019$ and hence $e>\Delta_0$. 
+Unfortunately, $\Delta_0=0.01$ is not realizable, as the region selection error is $0.019$ and hence $e>\Delta_0$. 
 %always greater than zero either due to selecting the wrong region in the affine controller function or due to the finite-precision computation of the control action.
 %\eva{Is this the error due to mixed-precision or due to wrong regions?}
 Therefore, we define $\Delta_1 := \Delta_0 + \varepsilon_{SAFE}$ with $\varepsilon_{SAFE}$ being a fixed threshold (we chose $\varepsilon_{SAFE} = 0.04$) and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 

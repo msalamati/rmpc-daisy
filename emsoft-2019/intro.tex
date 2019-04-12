@@ -1,17 +1,17 @@
 % !TEX root = main.tex
 \section{Introduction}
 %\eva{General comment: should we add some more references to related work (and not only to MPC)?}
+
 Model predictive control (MPC) is a technique to design control actions by solving finite-horizon open-loop
-optimal control problems at each sampling instant.
+optimal control problems at each sampling instant \cite{RMD17}.
 The result of each optimization gives a sequence of optimal control actions, only the first of which is applied
 to the process.
 The same procedure is applied in the next time instant with a shifted time horizon and a new initial state, 
 after receiving the updated values of the process state.
 The optimization problem in MPC uses a dynamic model of the process, encodes all input and output (state) constraints, and 
 optimizes a performance index. 
-MPC has shown to be successful in a wide variety of industrial applications, due to its 
+MPC has shown to be successful in a wide variety of industrial applications \cite{QinBadgwell03}, due to its 
 ability to systematically handle processes with many state and input variables as well as constraints on them. 
-\todo{any citations?}
 
 The main difference between MPC and conventional control is in the nature of the function that maps the measured outputs to control actions. 
 MPC computes such a function \emph{online}, whereas a conventional controller pre-computes the function offline.
@@ -35,7 +35,7 @@ or to certify a complex optimization routine.
 
 However, there are still bottlenecks in implementing explicit MPC on resource-constrained embedded micro-controllers.
 First, implementations of explicit MPCs can suffer from large memory usage, because the solution of the optimization
-problem can involve many (often hundreds) of regions. \todo{citation for such example, e.g. the double integrator}
+problem can involve many (often hundreds) of regions.
 Since the memory consumption grows linearly with the number of regions, 
 this can be a limiting factor in using explicit MPC on resource-constrained micro-controllers.
 Second, many low-end micro-controllers only support fixed-point arithmetic.
@@ -51,12 +51,14 @@ variables while ensuring the resulting implementation error remains within the
 robustness margin.
 
 
-Our proposed method iteratively solves a robust version of MPC which explicitly considers finite-precision implementation errors
-in the model; see~\autoref{fig:overview}.
+Our proposed method iteratively solves a robust version of MPC 
+which explicitly considers finite-precision implementation errors as disturbances
+in the dynamics \cite{RamirezC06}; see~\autoref{fig:overview}.
 Initially, we estimate a bound $\Delta = \Delta_0$ on the implementation error and solve a
-min-max quadratic program for explicit robust MPC \cite{delaPea:2005}, where the system
+min-max quadratic program for explicit robust MPC \cite{delaPea:2005,RamirezC06}, where the system
 model has an explicit disturbance bounded by $\Delta$.
 The solution is represented as a piecewise affine map.
+\RM{need to add the step on incorrect region selection.}
 We use an automated mixed-precision tuning tool to find an approximate implementation of the piecewise affine
 map. 
 We statically compute the error of the implementation, taking into account errors
