@@ -79,10 +79,10 @@ bounds in memory $\varepsilon_{Q}$:
 Analog conversion happens just before the controller receives the sensor input from the plant
 and is given by:
 \begin{equation*}
-\varepsilon_{A/D}=\frac{V_{cc}}{2^{p}-1}
+\varepsilon_{A/D}=\frac{V_{cc}}{2^{r}-1}
 \end{equation*}
-where $V_{cc}$ is the reference voltage of the converter (e.g. typically 5V), $p$
-is the number of bits available to quantize the analog signal, and $2^{p}$ is
+where $V_{cc}$ is the reference voltage of the converter (e.g. typically 5V), $r$
+is the number of bits available to quantize the analog signal, and $2^{r}$ is
 the resolution of the converter.
 
 While $\varepsilon_{A/D}$ is intrinsic to the capabilities of the device,
@@ -101,7 +101,7 @@ memory storage required.
 \subsection{Approximate Control Output}
 
 Once a control action $u_i$ is chosen, computing $u_{i}$ itself introduces
-imprecision because $u_i$ needs to be evaluated in finite-precision arithmetic:
+imprecision, because, $u_i$ needs to be evaluated in finite-precision arithmetic:
 \begin{equation}\label{eq:fperror}
   err(u_{i})_{p} = | (F_i - \hat{F}_{i}) \statevar + ( G_i - \hat{G}_{i} ) |
 \end{equation}
@@ -118,13 +118,15 @@ mapped to control action $u_i$.
 
 \subsection{Implementation}
 
-The incorrect region error (\autoref{eq:maximization}) is computed using
-Matlab's multi-parametric toolbox. Due to the linearity of function
-$u_{i}-u_{j}$, and because we defined the tube as a convex region, it suffices
+%The incorrect region error (\autoref{eq:maximization}) is computed using Matlab's multi-parametric toolbox. 
+Due to the affinity of function
+$u_{i}-u_{j}$, and because we defined the tube as a convex region surrounding the corresponding hyperplane, it suffices
 to evaluate the function only at the corner points of the tube, and keep the
-result with the maximal magnitude.
+result with the maximal magnitude. To evaluate the point location error across the corner points, we need to first locate the corner points as well as all the regions which share those corner points. We start by computing the vertices for each region $R_i$ by converting the convex set of constraint inequalities for that region into the set of vertices at the intersections of those inequalities using existing tools such as $\mathit{lcon2vert}$ written for MATLAB (\cite{????}). The computed vertex $v_i$ will be associated with a $n-D$ hypercube with the edge length of $2 \varepsilon$. Each of the $2^n$ vertices of this hypercube is counted as a corner point. In order to find out which regions have the same vertex $v_i$, one approach is to compute and save the set of vertices for all the regions and then to find out the neighboring regions via exhaustive search with the saved set of vertices. Alternatively, for the vertex $v_i$, all the regions $R_j$s having $v_i$ as their vertex can be identified if at least $n$ of their hyperplanes cross $v_i$. We used both approaches; however, the later scales up better when we have millions of vertices. In brief, we go through these steps: (i) for each region, the set of vertices are computed; (ii) for the vertex $v_i$, the set of all regions $\mathcal R_{ij}$ having $v_i$ as their own vertex are found; (iii) for the vertex $v_i$, the set of corner points $v_{ik}$ are computed which form a hypercube centering at $v_i$; (iv) for every corner point $c_k=v_{ik}$ and for every pair $(\mathcal R_{ij1},\mathcal R_{ij_2})$, the corresponding corner error $|u_{j1}-u_{j2}|$ is computed; (v) finally, we pick the greatest corner error.
+
 \eva{This needs more details. Which function(s) and algorithm from Matlab are used?}
 \eva{How do you determine which regions are neighbors? resp. which borders are matching?}
+
 
 $\varepsilon_Q$ and $err(u_{i})_{p}$ are computed by Daisy. For this we encode
 the expressions in~\autoref{eq:quantizationlines} and \autoref{eq:fperror}
