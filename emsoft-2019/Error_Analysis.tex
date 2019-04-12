@@ -2,73 +2,100 @@
 \section{Error Analysis}
 \label{sec:Error_Analysis}
 
-We first present our error analysis assuming given fixed-point word lengths,
-before explaining our optimization algorithm which determines suitable word
-lengths fully automatically in~\autoref{sec:Controller_Synthesis}.
-While we do not employ the error analysis independently of controller and
+In this section, we present our error analysis assuming that a fixed-point word lengths is given.
+Then in the next section, we explain our optimization algorithm which determines suitable word
+lengths fully automatically.% in~\autoref{sec:Controller_Synthesis}.
+While we do not employ the error analysis independently of the controller and
 precision synthesis, we note that it is an alternative way of bounding errors to
 existing methods~\cite{imperialrmpc}.
+\Sadegh{Alternative in what sense? What is the major difference between our analysis and \cite{imperialrmpc}?}
 
-For simplicity of notation, we assume a uniform word length $p$ in this section,
-though our algorithm (and implementation) support mixed-precision as well.
+For simplicity of notation, we assume in this section a uniform word length $p$,
+but our algorithm (and implementation) is applied to mixed-precision to reduce the memory usage.
 
-The output of an explicit MPC controller can be affected by two main sources
-errors, which an error analysis has to capture\cite{imperialrmpc}:
+Consider the controller obtained from explicit MPC according to Theorem~\ref{thm:EMPC}.
+Define the affine control functions associated with each polyhedral region $\mathcal R_i$, $i\in\{1,2,\ldots, P\}$, as
+$$\inputm{i}:\mathcal R_i\rightarrow \mathcal U \quad \text{ with } \quad \inputm{i}(x) := Kx + F_i x + G_i.$$
+Implementation of the controller can be affected by two main sources of
+error:
+%which an error analysis has to capture \cite{imperialrmpc}:
 \begin{itemize}
-  \item[(i)] \emph{incorrect region selection}: 
-    due to analog-digital conversion and quantization of $H_i$ and $K_i$,
-    the controller can choose an incorrect control action $u_j$ instead of $u_i$
+  \item[(i)] \emph{incorrect region selection}:
+   instead of a correct affine function $\inputm{i}$, the implementation may choose an incorrect affine function $\inputm{j}$. This can happen either
+    due to an analog-to-digital conversion in the measured states or due to the quantization in matrices $H_i$ and $K_i$ of the region $\mathcal R_i$; and
     
-  \item[(ii)] \emph{approximate control output}: the control output is computed
-    using quantized $F_i$ and $G_i$, accumulating errors.
+  \item[(ii)] \emph{approximation in the computation of the affine function}: for any selected region $\mathcal R_i$, the affine function $\inputm{i}$ is evaluated using the quantized versions of $K$, $F_i$ and $G_i$.
 \end{itemize}
 
-We have to ensure that these errors remain below the error bound $\Delta$
-used to design the robust MPC controller:
-\begin{align}\label{eq:delta}
-  \max_{\forall i,j. \mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}| + \max_{\forall i.\mathcal{R}_{i}\in\mathcal{R}} err(u_{i})_{p} \le \Delta
+We have to ensure that the sum of these two errors remain below the bound $\Delta$
+used in the design of the robust explicit MPC:
+\begin{align}
+  \max\{\|\inputm{i}-\inputm{j}\|,\,&\forall i,j,\,\, i\neq j, \mathcal{R}_{i}\cap\mathcal{R}_{j}\neq\emptyset\} \nonumber\\
+  &+  \max\{err(\inputm{i})_{p},\, i=1,2,\ldots,P\} \le \Delta.
+  \label{eq:delta}
 \end{align}
-where $i,j$ are the indexes of two distinct regions $\mathcal{R}_{i}$ and
-$\mathcal{R}_{j}$, \\ $\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})$
-states that two regions share at least a point, $u_{i}$ is the control action
-for controller $i$, and $err(u_{i})_{p}$ captures the approximation error for
-computing the control action $u_{i}$ in fixed precision $p$.
+%where $i,j$ are the indexes of two distinct regions $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$, 
+The first term is the error of incorrect region selection. The maximum is taken over all neighboring regions $\mathcal R_i,\mathcal R_j$ recognisable by having non-empty intersection. The function norm $\|\inputm{i}-\inputm{j}\|$ is taken by maximizing over all possible values of the state $x_k$. 
+$err(\inputm{i})_{p}$ in
+the second term captures the approximation error in the computation of the affine function $\inputm{i}$ when a fixed precision $p$ is used.
+%$\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})$
+%states that two regions share at least a point, $\inputm{i}$ is the control action
+%for controller $i$, and $err(\inputm{i})_{p}$ captures the approximation error for
+%computing the control action $\inputm{i}$ in fixed precision $p$.
 
 \subsection{Incorrect Region Selection}
 
 The first part of the error in~\autoref{eq:delta} captures the error due to
-selecting of the wrong control action. That is, with infinite-precision arithmetic
-and in the absence of any uncertainty from hardware measurements we would choose
-control action $u_i$, but due to uncertainties we actually choose control action $u_j$:
-\begin{align} \label{eq:maximization}
-  \max_{\forall i,j.\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})}|u_{i}-u_{j}|&= \\
-  \max_{\forall i,j.\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})}&|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|\nonumber
-\end{align}
+selecting of the incorrect region.
+This would happen since the matrices $H_i,K_i$ are stored in the hardware with fixed-point formats. In order to quantify the error, we define the expanded regions
+\begin{equation*}
+\bar{\mathcal R}_i := \bigcup_{\hat H_i,\hat K_i} \left\{x\in\mathbb R^n\,|\,\hat H_i x\le \hat K_i, \|H_i-\hat H_i\|\le \epsilon_f,\|K_i-\hat K_i\|\le \epsilon_f\right\}
+\end{equation*}
+for $i\in\{1,2,\ldots, P\}$, where $\epsilon_f$ is the maximum error of using fixed-point format instead of the precise values. The norm is also applied element-wise to the entries of the matrices. Note that $\mathcal R_i\subset \bar{\mathcal R}_i$. In other words, $\bar{\mathcal R}_i$ is the expanded version of $\mathcal R_i$.
+Note that $\bar{\mathcal R}_i\cap \bar{\mathcal R}_j$ gives us the states where one of the two regions $\mathcal R_i, \mathcal R_i$ might be selected instead of the other one because of the fixed-precision implementation of the regions.   
+% $\bar{\mathcal R}_i$ is the expanded version of $\mathcal R_i$ that include all states in $\mathcal R_i$this definition expands the regions $\mathcal $
+ %That is, with infinite-precision arithmetic
+ Therefore, the first term in~\autoref{eq:delta} can be computed less conservatively by maximizing only over this intersection:
+ \begin{equation}
+ \label{eq:maximization}
+ \max\{\|F_ix+G_i-F_jx-G_j\|,\,x\in \bar{\mathcal R}_{i}\cap\bar{\mathcal R}_{j},\,\, i\neq j\}
+% \max_{\forall i,j.\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})}&|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|
+ \end{equation} 
+ 
+%and in the absence of any uncertainty from hardware measurements we would choose
+%control action $\inputm{i}$, but due to uncertainties we actually choose control action $\inputm{j}$:
+%\begin{align} \label{eq:maximization}
+ % \max_{\forall i,j.\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})}|\inputm{i}-\inputm{j}|&= \\
+ % \max_{\forall i,j.\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})}&|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|\nonumber
+%\end{align}
 
-%Because of the linearity of the function $u_{i}-u_{j}$, and because of the
+%Because of the linearity of the function $\inputm{i}-\inputm{j}$, and because of the
 %convexity of the regions $i$ and $j$, it is enough to evaluate function
 %(\ref{eq:maximization}) at the corner points of the \texttt{tube}, instead of
 %solving a maximization problem.
 
-A naive computation of this error would consider all possible values of $x_k$.
-This would lead to a gross over-approximation, however, since the controller
-will choose a wrong region only in a relative narrow neighborhood, or
-\emph{tube}, around the boundary between two regions $R_i$ and $R_j$.
+%A naive computation of this error would consider all possible values of $x_k$.
+%This would lead to a gross over-approximation, however, since the controller
+%will choose a wrong region only in a relative narrow neighborhood, or
+%\emph{tube}, around the boundary between two regions $R_i$ and $R_j$.
 
-The border between two regions $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$ is defined by 
-their corresponding boundaries:
-\begin{equation}
-\mathit{border}_{i,j} :=(H_i \statevar - K_i ) - (H_j \statevar - K_j)
-\end{equation}
-for appropriate matching borders $H_i, K_i$ and $H_j, K_j$.
+%The border between two regions $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$ is defined by 
+%their corresponding boundaries:
+%\begin{equation}
+%\mathit{border}_{i,j} :=(H_i \statevar - K_i ) - (H_j \statevar - K_j)
+%\end{equation}
+%for appropriate matching borders $H_i, K_i$ and $H_j, K_j$.
 
-In~\autoref{eq:maximization}, we thus constrain $\statevar$ to be within an appropriate tube:
-\begin{equation}\label{eq:tube}
-|\mathit{border}_{i,j}| \le \varepsilon
-\end{equation}
-where $\varepsilon$ captures the uncertainty in computing the
-correct region and thus the width of the tube.
+%In~\autoref{eq:maximization}, we thus constrain $\statevar$ to be within an appropriate tube:
+%\begin{equation}\label{eq:tube}
+%|\mathit{border}_{i,j}| \le \varepsilon
+%\end{equation}
+%where $\varepsilon$ captures the uncertainty in computing the
+%correct region and thus the width of the tube.
 %
+
+\begin{comment}
+We should also include the error in 
 The width of the tube $\varepsilon$ is due to two sources of errors:
 analog-to-digital conversion $\varepsilon_{A/D}$ and the quantization of region
 bounds in memory $\varepsilon_{Q}$:
@@ -96,14 +123,26 @@ precision (H and K), and its counter-part quantized in $p$ bits precision
 ($\hat{H}_{p}$ and $\hat{K}_{p}$).
 This second error can be tuned providing a trade-off between accuracy and
 memory storage required.
+\end{comment}
 
 
 \subsection{Approximate Control Output}
 
-Once a control action $u_i$ is chosen, computing $u_{i}$ itself introduces
-imprecision, because, $u_i$ needs to be evaluated in finite-precision arithmetic:
+We should also include the error due to
+analog-to-digital conversion $\varepsilon_{A/D}$.
+Analog to digital conversion happens just before the controller receives the measured state from sensor
+and is given by:
+\begin{equation*}
+\varepsilon_{A/D}=\frac{V_{cc}}{2^{r}-1}
+\end{equation*}
+where $V_{cc}$ is the reference voltage of the converter (e.g. typically 5V), $r$
+is the number of bits available to quantize the analog signal, and $2^{r}$ is
+the resolution of the converter. The associated error in the output of the controller is $\varepsilon_{A/D}\max_i\{\|K+F_i\|\}$.
+
+Once a quantized state $\hat x$ is given and a region $\mathcal R_i$ is chosen, computing $\inputm{i}$ itself introduces
+imprecision, because, $\inputm{i}$ needs to be evaluated in finite-precision arithmetic:
 \begin{equation}\label{eq:fperror}
-  err(u_{i})_{p} = | (F_i - \hat{F}_{i}) \statevar + ( G_i - \hat{G}_{i} ) |
+  err(\inputm{i})_{p} = | (F_i - \hat{F}_{i}) \statevar + ( G_i - \hat{G}_{i} ) |
 \end{equation}
 where $\hat{F}$ and $\hat{G}$ represent the quantized values (in $p$ bits) for
 the infinite precision values $F$ and $G$.
@@ -113,22 +152,21 @@ region $\mathcal{R}_i$, together with all the values in the tube surrounding
 region $\mathcal{R}_i$.
 In this way we compute the error also for those points that belong to a neighbor
 of $\mathcal{R}_i$, but because of finite-precision errors they are erroneously
-mapped to control action $u_i$.
-
+mapped to control action $\inputm{i}$.
 
 \subsection{Implementation}
 
 %The incorrect region error (\autoref{eq:maximization}) is computed using Matlab's multi-parametric toolbox. 
 Due to the affinity of function
-$u_{i}-u_{j}$, and because we defined the tube as a convex region surrounding the corresponding hyperplane, it suffices
+$\inputm{i}-\inputm{j}$, and because we defined the tube as a convex region surrounding the corresponding hyperplane, it suffices
 to evaluate the function only at the corner points of the tube, and keep the
-result with the maximal magnitude. To evaluate the point location error across the corner points, we need to first locate the corner points as well as all the regions which share those corner points. We start by computing the vertices for each region $R_i$ by converting the convex set of constraint inequalities for that region into the set of vertices at the intersections of those inequalities using existing tools such as $\mathit{lcon2vert}$ written for MATLAB (\cite{????}). The computed vertex $v_i$ will be associated with a $n-D$ hypercube with the edge length of $2 \varepsilon$. Each of the $2^n$ vertices of this hypercube is counted as a corner point. In order to find out which regions have the same vertex $v_i$, one approach is to compute and save the set of vertices for all the regions and then to find out the neighboring regions via exhaustive search with the saved set of vertices. Alternatively, for the vertex $v_i$, all the regions $R_j$s having $v_i$ as their vertex can be identified if at least $n$ of their hyperplanes cross $v_i$. We used both approaches; however, the later scales up better when we have millions of vertices. In brief, we go through these steps: (i) for each region, the set of vertices are computed; (ii) for the vertex $v_i$, the set of all regions $\mathcal R_{ij}$ having $v_i$ as their own vertex are found; (iii) for the vertex $v_i$, the set of corner points $v_{ik}$ are computed which form a hypercube centering at $v_i$; (iv) for every corner point $c_k=v_{ik}$ and for every pair $(\mathcal R_{ij1},\mathcal R_{ij_2})$, the corresponding corner error $|u_{j1}-u_{j2}|$ is computed; (v) finally, we pick the greatest corner error.
+result with the maximal magnitude. To evaluate the point location error across the corner points, we need to first locate the corner points as well as all the regions which share those corner points. We start by computing the vertices for each region $R_i$ by converting the convex set of constraint inequalities for that region into the set of vertices at the intersections of those inequalities using existing tools such as $\mathit{lcon2vert}$ written for MATLAB (\cite{????}). The computed vertex $v_i$ will be associated with a $n-D$ hypercube with the edge length of $2 \varepsilon$. Each of the $2^n$ vertices of this hypercube is counted as a corner point. In order to find out which regions have the same vertex $v_i$, one approach is to compute and save the set of vertices for all the regions and then to find out the neighboring regions via exhaustive search with the saved set of vertices. Alternatively, for the vertex $v_i$, all the regions $R_j$s having $v_i$ as their vertex can be identified if at least $n$ of their hyperplanes cross $v_i$. We used both approaches; however, the later scales up better when we have millions of vertices. In brief, we go through these steps: (i) for each region, the set of vertices are computed; (ii) for the vertex $v_i$, the set of all regions $\mathcal R_{ij}$ having $v_i$ as their own vertex are found; (iii) for the vertex $v_i$, the set of corner points $v_{ik}$ are computed which form a hypercube centering at $v_i$; (iv) for every corner point $c_k=v_{ik}$ and for every pair $(\mathcal R_{ij1},\mathcal R_{ij_2})$, the corresponding corner error $|\inputm{j1}-\inputm{j2}|$ is computed; (v) finally, we pick the greatest corner error.
 
 \eva{This needs more details. Which function(s) and algorithm from Matlab are used?}
 \eva{How do you determine which regions are neighbors? resp. which borders are matching?}
 
 
-$\varepsilon_Q$ and $err(u_{i})_{p}$ are computed by Daisy. For this we encode
+$\varepsilon_Q$ and $err(\inputm{i})_{p}$ are computed by Daisy. For this we encode
 the expressions in~\autoref{eq:quantizationlines} and \autoref{eq:fperror}
 respectively as straight-line arithmetic expressions and specify the constraints
 on the domain of $\statevar$ in the precondition.
@@ -138,14 +176,14 @@ errors. This error computation differs from the one employed by
 mixed integer programming problem.
 
 While our actual synthesis algorithm (\autoref{sec:Controller_Synthesis}) does
-not compute the errors $\varepsilon_Q$ and $err(u_{i})_{p}$ explicitly, the
+not compute the errors $\varepsilon_Q$ and $err(\inputm{i})_{p}$ explicitly, the
 error verification is used internally by Daisy to determine a suitable precision
 $p$ and can also be called explicitly without the precision optimization.
 
 % The approximation error and the precision tuning for both borders and active
 % functions are computed in Daisy. $\varepsilon_{Q}$ is given in input to the
 % analysis. After we compute the incorrect region in MATLAB we obtain the value
-% for max error $err(u_{i})$ from (8). Then we give the errors and the vectors F,G
+% for max error $err(\inputm{i})$ from (8). Then we give the errors and the vectors F,G
 % and H,K in input to Daisy. We used Daisy as a verification tool: we provide in
 % input the expression we want to quantize (e.g. $\mathcal{R}_{i}$) together with
 % the error bound we can tolerate (e.g. $\varepsilon_{Q}$), and Daisy returns a
