@@ -3,11 +3,12 @@
 
 Any digital controller can be implemented using a wide range of available
 platforms. Large-size manufacturers use industrial digital computers called
-\emph{programmable logic controller (PLC)} for such implementations. A PLC is
+\emph{programmable logic controllers (PLC)} for such implementations. A PLC is
 able to perform the computations required by a digital controller using
 floating-point arithmetic.  Low-end applications utilize microcontrollers with
 limited memory capacity and computational power to keep the costs of the
 implementation down.
+We target implementations for low-end microcontrollers.
 
 % most relevant work: considers both control and finite-precision
 \paragraph{Verification of Finite-precision Controller Implementations}
@@ -71,6 +72,10 @@ The main technique is to optimize the robust satisfaction of
 the formula~\cite{donze2010robust} (i.e., a quantitative measure of satisfaction).
 These works utilize MPC an an online method that requires solving at runtime often computationally 
 expensive optimization problems. In contrast, the explicit MPC used in our work performs controller synthesis at the design time.
+
+\citet{SahaM12} consider memory optimization for event-driven controllers
+using a scratchpad to selectively load control parameters based on the current state.
+Our work, in contrast, is a static mapping of controller parameters.
 
 %\Sadegh{adding a few references on explicit MPC.}
 
