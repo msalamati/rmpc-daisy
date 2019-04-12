@@ -2,17 +2,12 @@
 \section{Error Analysis}
 \label{sec:Error_Analysis}
 
-In this section, we present our error analysis assuming that a fixed-point word lengths is given.
+In this section, we present our error analysis assuming that a fixed word length $p$ is given.
 Then in the next section, we explain our optimization algorithm which determines suitable word
-lengths fully automatically.% in~\autoref{sec:Controller_Synthesis}.
-While we do not employ the error analysis independently of the controller and
-precision synthesis, we note that it is an alternative way of bounding errors to
-existing methods~\cite{imperialrmpc}, which phrase the roundoff error computation as a (relaxed)
-mixed integer programming problem.
-%\Sadegh{Alternative in what sense? What is the major difference between our analysis and \cite{imperialrmpc}?}
-
-For simplicity of notation, we assume in this section a uniform word length $p$,
-but our algorithm (and implementation) is applied to mixed-precision to reduce the memory usage.
+lengths for different variables fully automatically. % in~\autoref{sec:Controller_Synthesis}.
+%
+% For simplicity of notation, we assume in this section a uniform word length $p$,
+% but our algorithm (and implementation) is applied to mixed-precision to reduce the memory usage.
 
 Consider the controller obtained from explicit MPC according to Theorem~\ref{thm:EMPC}.
 Define the affine control functions associated with each polyhedral region $\mathcal R_i$, $i\in\{1,2,\ldots, P\}$, as
@@ -36,7 +31,9 @@ used in the design of the robust explicit MPC:
   \label{eq:delta}
 \end{align}
 %where $i,j$ are the indexes of two distinct regions $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$, 
-The first term is the error of incorrect region selection. The maximum is taken over all neighboring regions $\mathcal R_i,\mathcal R_j$ recognisable by having non-empty intersection. The function norm $\|v_{i}-v_{j}\|$ is taken by maximizing over all possible values of the state $x_k$. 
+The first term is the error of incorrect region selection. The maximum is taken over all neighboring regions 
+$\mathcal R_i,\mathcal R_j$ (two regions are neighboring if their intersection is non-empty).
+The function norm $\|v_{i}-v_{j}\|$ is taken by maximizing over all possible values of the state $x_k$. 
 $err(v_{i})_{p}$ in
 the second term captures the approximation error in the computation of the affine function $v_{i}$ when a fixed precision $p$ is used.
 %$\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})$
@@ -83,7 +80,7 @@ $\varepsilon_{Q}$ depends on the precision used to store the boundaries:
 where $\hat{x}$ is the finite-precision value of $x$.
 %\eva{For which index is this evaluated, $i$, $j$ or both?}
 That is, $\varepsilon_{Q}$ bounds the distance between any hyperplane in infinite
-precision (H and K), and its counter-part quantized in $p$ bits precision
+precision ($H$ and $K$ matrices), and its counter-part quantized by $p$ bits 
 ($\hat{H}_{p}$ and $\hat{K}_{p}$).
 This second error can be tuned providing a trade-off between accuracy and
 memory storage required.
@@ -196,8 +193,8 @@ mapped to control action $v_{i}$.
 
 The incorrect region error (\autoref{eq:maximization}) is computed with Matlab. 
 
-Due to the affinity of function
-$v_{i}-v_{j}$, and because we defined the tube as a convex region surrounding the corresponding hyperplane, it suffices
+Since $v_{i}-v_{j}$ is also affine, and because we defined the tube as a convex region 
+surrounding the corresponding hyperplane, it suffices
 to evaluate the function only at the corner points of the tube, and keep the
 result with the maximal magnitude. 
 To evaluate the incorrect region selection error across
@@ -206,7 +203,7 @@ regions which share those corner points.
 Each region $R_i$ is represented by a set of contraints. We first extract the
 set of vertices of $R_i$ using the open source Matlab library
 $\mathit{lcon2vert}$~\cite{lcon2vertMatlab}.
-For each computed vertex $v_i$, we compute a $n-D$
+For each computed vertex $v_i$, we compute a $n$-dimensional
 hypercube with the edge length of $2 \varepsilon$. 
 Each of the $2^n$ vertices of this hypercube is counted as a corner point, on which
 we evaluate $\|u_i - u_j\|$. 
@@ -230,8 +227,7 @@ having $v_i$ as their vertex can be identified if at least $n$ of their hyperpla
 % \eva{This needs more details. Which function(s) and algorithm from Matlab are used?}
 % \eva{How do you determine which regions are neighbors? resp. which borders are matching?}
 
-
-$\varepsilon_Q$ and $err(v_{i})_{p}$ are computed by Daisy. For this we encode
+The error terms $\varepsilon_Q$ and $err(v_{i})_{p}$ are computed by Daisy. For this we encode
 the expressions in~\autoref{eq:quantizationlines} and \autoref{eq:fperror}
 respectively as straight-line arithmetic expressions and specify the constraints
 on the domain of $\statevar$ in the precondition.

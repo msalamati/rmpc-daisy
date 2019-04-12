@@ -81,7 +81,7 @@ Let us denote the set of states $x_0$ for which the optimization  \eqref{eq:mult
 
 The implementation of the controller stores the matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. 
 At each time step $k$, the current state $x_k$ is used to detect the polyhedral region 
-such that $H_i x_k\le K_i$. Then the control action $u_k = F_i x_k + G_i$ is computed and applied to the system.
+such that $H_i x_k\le K_i$. Then the control action $v_k = F_i x_k + G_i$ is computed and applied to the system.
 Several algorithms are proposed in the literature \cite{Mnnigmann:2011,Jones:2006} to find the right polyhedral region $i$ to which the state $x_k$ belong. 
 The most straightforward technique is a linear search over all polyhedral regions (Fig.~\ref{lst:caseof}).
 

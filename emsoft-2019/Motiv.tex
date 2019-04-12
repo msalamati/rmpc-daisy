@@ -1,7 +1,5 @@
 % !TEX root = main.tex
-\section{Overview}
-\label{sec:example}
-\begin{figure}
+\begin{figure}[t]
 \centering
 	\tikzstyle{block} = [draw, rectangle, minimum height=4em, minimum width=6em]
 	\tikzstyle{block1} = [draw, rectangle, minimum height=2em, minimum width=6em]
@@ -46,13 +44,12 @@
 	\label{fig:overview}
 \end{figure}
 
-
-% Model Predictive Control (MPC) refers to the class of control strategies that design control actions by solving a finite horizon optimal control problem at each sampling instant. While each optimization gives a sequence of optimal control actions, only the first action is applied to the process. The same procedure is applied in the next time instance after receiving the updated value of the process state. MPC has shown to be successful in industrial applications since it is able to handle large number of states and control actions and automatically considers constraints in the optimization.
-% 
-% The optimization of each time instance uses a dynamic model of the process to predict the future states and find the optimal sequence of actions that satisfies all the constraints. The objective function of the optimization is usually linear or quadratic. The resulting optimization problem can be cast as a linear program (LP) or quadratic program (QP), respectively, if the dynamic model is linear. For hybrid models with linear dynamics in each mode, the optimization problem can be cast as a mixed integer linear or quadratic program (MILP/MIQP). 
+\section{Overview}
+\label{sec:example}
 
 
-\begin{figure}[h]
+
+\begin{figure}[t]
 	\begin{tabular}{cc}
 	\includegraphics[width=2cm,height=3cm]{Figs/inverted_pendulum.pdf}&	\includegraphics[width=6cm,height=4cm]{Figs/regs.jpg}\\
 	(a)&(b)
@@ -127,39 +124,26 @@ We start by selecting an initial bound $\Delta_0$ on the implementation error an
  
 For our example, we choose $\Delta_0=0.01$ and $\mathcal W = \{0\}$. 
 We use Matlab to find a robust explicit MPC with disturbance set $\mathcal W_{\Delta_0}$. 
-% \RM{the following setence is not understandable. This is the first time we introduce incorrect region selection.
-% Who is Daisy?}
-% \RM{A better version is to informally define incorrect region selection. Say that we run an algorithm for incorrect region
-% selection to bound the possible error. 
-% Break the sentence into two. Introduce Daisy as a mixed-precision tuning tool.}
-
+%
 The output of robust EMPC given by Matlab decomposes the control domain into a
-finite number of polyhedral domains together with an affine map for each domain. At each
-time step, the state vector $x_k$ is read (or estimated) and based on the domain
+finite number of polyhedral domains together with an affine map for each domain. 
+At each time step, the state vector $x_k$ is read (or estimated) and based on the domain
 that it belongs to, the corresponding control output is computed. 
 However, the polyhedral regions are implemented in finite precision so that
-it is possible that due to quantization errors the domain is selected incorrectly.
-We refer to the resulting error as incorrect region selection error.
+it is possible that due to quantization errors the domain is selected incorrectly, and therefore
+a different affine map is computed for the control.
+We refer to the resulting error as \emph{incorrect region selection} error.
 % However, due to error by fixed-point implementation, it is possible that the domain is selected
 % incorrectly. This causes an error term which we refer to it as incorrect region
 % selection error.
-
 In our example, we compute an incorrect region selection error $e = 0.019$, which is larger
 than $\Delta_0=0.01$. We therefore increase the disturbance bound by a fixed amount to
 $\Delta_1 = 0.05$ and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 
+
 %
-% Over the high-precision controller, we compute the error due to an incorrect region selection $e$. In case that $e<\Delta_0$, we would like to find the smallest number of bits required for implementing the controller such that we are still within the safe bound $\Delta_0$. To do so, we ask Daisy, which is a mixed-precision tuning tool, to provide us with a mixed-precision scheme such that the associated implementation error is at most $\Delta_0$, that is,
-% at all points in the control domain, the difference between the infinite-precision controller function
-% and its mixed-precision implementation is at most $\Delta_0$.
-%
-%Unfortunately, $\Delta_0=0.01$ is not realizable, as the region selection error is $0.019$ and hence $e>\Delta_0$. 
-%always greater than zero either due to selecting the wrong region in the affine controller function or due to the finite-precision computation of the control action.
-%\eva{Is this the error due to mixed-precision or due to wrong regions?}
-% Therefore, we define $\Delta_1 := \Delta_0 + \varepsilon_{SAFE}$ with $\varepsilon_{SAFE}$ being a fixed threshold (we chose $\varepsilon_{SAFE} = 0.04$) and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 
 Solving the robust explicit MPC problem for this enlarged disturbance set gives the new controller
 with 14 regions, shown in~\autoref{fig:inverted_pendulum}(b).
 A sample region with the corresponding affine map is shown below:
-%Following demostrates one sample mapping, including the activation condition and its corresponding affine function
 \begin{equation*}
 \resizebox{.9\hsize}{!}{$
 \begin{bmatrix}
@@ -181,7 +165,7 @@ u(x_k)=\begin{bmatrix}
 \end{equation*}
 where the output of robust EMPC at state $x_k$ is denoted by $u(x_k)$. 
 The remaining mappings have a similar structure.
-For this new controller, the incorrect region selection error is still
+For this new controller, the incorrect region selection error is 
 approximately $e = 0.019$, which is now below the disturbance bound $\Delta_1$,
 so that we can continue with the precision assignment.
 
@@ -195,14 +179,10 @@ so that we can continue with the precision assignment.
 %\end{cases} 
 %\end{equation}
 
-Next, we use the precision tuning tool Daisy to provide us with a mixed-precision 
-implementation for all the parameters which satisfies the error bound $0.031$,
-which is given by the remaining error budget $\Delta_1 - e = 0.05 - 0.019$.  
-The mixed-precision implementation returned by Daisy requires $6084$ bits in total 
-for the corresponding robust explicit MPC.
-% Since this error bound is less than our robustness margin $\Delta_1 = 0.05$, we terminate the loop
-% and return this implementation.
-The mixed-precision implementation takes about $10\%$ less memory compared 
+Next, we use the precision tuning tool Daisy \cite{Daisy} to provide a mixed-precision 
+implementation for all the parameters which satisfies the error bound $\Delta_1  - e = 0.05 - 0.019 = 0.031$.
+The mixed-precision implementation returned by Daisy requires $6084$ bits.
+Thus, the mixed-precision implementation takes about $10\%$ less memory compared 
 to the smallest uniform precision implementation that respects $\Delta_1$,
 and about $57\%$ less memory than an implementation that uniformly uses
 32 bits.
