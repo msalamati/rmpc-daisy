@@ -52,7 +52,7 @@ This would happen since the matrices $H_i,K_i$ are stored in the hardware with f
 % for $i\in\{1,2,\ldots, P\}$, where $\epsilon_f$ is the maximum error of using fixed-point format instead of the precise values. The norm is also applied element-wise to the entries of the matrices. 
 
 \begin{equation*}
-\hat{\mathcal B}_{ij} := \left\{x\in\mathbb R^n\,|\, \| H_i x - K_i\| \le \varepsilon \right\}
+\hat{\mathcal B}_{ij} := \left\{x\in\mathbb R^n\,|\, \| H_i x - K_i\| \le \varepsilon\,\, \text{ and }\,\, \| H_j x - K_j\| \le \varepsilon \right\},
 \end{equation*}
 where $\varepsilon$ captures the uncertainty in computing the correct region.
 %
@@ -75,7 +75,7 @@ the resolution of the converter.
 While $\varepsilon_{A/D}$ is intrinsic to the capabilities of the device,
 $\varepsilon_{Q}$ depends on the precision used to store the boundaries:
 \begin{equation}\label{eq:quantizationlines}
-  \varepsilon_{Q} = \|(H_i - \hat{H}_i) \hat{x} + (K_i - \hat{K}_i)\|
+  \varepsilon_{Q} \ge  \|(H_i - \hat{H}_i) \hat{x} + (K_i - \hat{K}_i)\|, \quad \forall \hat{x},\forall i,
 \end{equation}
 where $\hat{x}$ is the finite-precision value of $x$.
 %\eva{For which index is this evaluated, $i$, $j$ or both?}
@@ -93,7 +93,7 @@ memory storage required.
  the expanded borders:
  \begin{equation}
  \label{eq:maximization}
- \max\{\|F_ix+G_i-F_jx-G_j\|,\,x\in \bar{\mathcal B}_{ij}\}
+ \max_{x,i,j}\{\|F_ix+G_i-F_jx-G_j\|,\,x\in \bar{\mathcal B}_{ij}\}.
 % \max_{\forall i,j.\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})}&|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|
  \end{equation} 
  
@@ -150,7 +150,7 @@ the resolution of the converter.
 While $\varepsilon_{A/D}$ is intrinsic to the capabilities of the device,
 $\varepsilon_{Q}$ depends on the precision used to store the boundaries:
 \begin{equation}\label{eq:quantizationlines}
-  \varepsilon_{Q} = |(H_i - \hat{H}_i) \qstatevar + (K_i - \hat{K}_i)|
+  \varepsilon_{Q} \ge  |(H_i - \hat{H}_i) \qstatevar + (K_i - \hat{K}_i)|, \forall  \qstatevar
 \end{equation}
 \eva{For which index is this evaluated, $i$, $j$ or both?}
 That is, $\varepsilon_{Q}$ bounds the distance between any hyperplane in infinite
@@ -177,14 +177,14 @@ memory storage required.
 Once a quantized state $\hat x$ is given and a region $\mathcal R_i$ is chosen, computing $v_{i}$ itself introduces
 imprecision, because, $v_{i}$ needs to be evaluated in finite-precision arithmetic:
 \begin{equation}\label{eq:fperror}
-  err(v_{i})_{p} = | (F_i - \hat{F}_{i}) \statevar + ( G_i - \hat{G}_{i} ) |
+  err(v_{i})_{p} \ge  | (F_i - \hat{F}_{i}) \statevar + ( G_i - \hat{G}_{i} ) |,\quad \forall \statevar\in \mathcal{R}_i\cup\bar{\mathcal B}_{ij},\,\,\forall j,
 \end{equation}
 where $\hat{F}$ and $\hat{G}$ represent the quantized values (in $p$ bits) for
 the infinite precision values $F$ and $G$.
 
 \autoref{eq:fperror} is evaluated for all \statevarmath that are inside the
 region $\mathcal{R}_i$, together with all the values in the tube surrounding
-region $\mathcal{R}_i$.
+region $\mathcal{R}_i$ (union of $\bar{\mathcal B}_{ij}$ for all $j$).
 In this way we compute the error also for those points that belong to a neighbor
 of $\mathcal{R}_i$, but because of finite-precision errors they are erroneously
 mapped to control action $v_{i}$.
@@ -242,6 +242,7 @@ not compute the errors $\varepsilon_Q$ and $err(v_{i})_{p}$ explicitly, the
 error verification is used internally by Daisy to determine a suitable precision
 $p$ and can also be called explicitly without the precision optimization.
 
+\begin{comment}
 \textcolor{red}{Sadegh: This is long comment on the content of this section. I cannot figure out how this line of reasoning is mapped to the implementation. We can discard my comment given that we are close to the deadline.}
 
 \Sadegh{
@@ -272,6 +273,7 @@ The first term can be further decomposed as
 The error $\varepsilon_{A/D}$ shows itself in the output of the controller by being amplified with the Lipschitz constant of the function which is $\max_i\{\|F_i\|_2\}$. 
 As far as I can tell, $\varepsilon_{A/D}$ doesn't have anything to do with $\varepsilon_Q$. The computation of $\varepsilon_Q$ should be only with respect to the use of $\hat{\mathcal H}$ instead of $\mathcal H$ in the evaluation of constraints for the same value $\hat x$.
 }
+\end{comment}
 % The approximation error and the precision tuning for both borders and active
 % functions are computed in Daisy. $\varepsilon_{Q}$ is given in input to the
 % analysis. After we compute the incorrect region in MATLAB we obtain the value

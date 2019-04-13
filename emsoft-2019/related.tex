@@ -72,6 +72,7 @@ The main technique is to optimize the robust satisfaction of
 the formula~\cite{donze2010robust} (i.e., a quantitative measure of satisfaction).
 These works utilize MPC an an online method that requires solving at runtime often computationally 
 expensive optimization problems. In contrast, the explicit MPC used in our work performs controller synthesis at the design time.
+Synthesizing digital controllers with formal guarantees while having finite-precision implementation is studied in \cite{SSPBLSZ19} for stochastic systems.
 
 \citet{SahaM12} consider memory optimization for event-driven controllers
 using a scratchpad to selectively load control parameters based on the current state.
@@ -89,6 +90,6 @@ errors~\cite{Gaffar2004,Mallik2007}, which, however, do not provide guarantees.
 Several approaches~\cite{Lee2006,Osborne2007,Kinsman2009,Pang2011} use sound
 error analysis techniques and perform mixed-precision optimization~\cite{Lee2006,Pang2011},
 similar to the approach implemented in the tool Daisy used in this paper.
-An alternate way to bound errors in fixed point implementations of EMPC 
+An alternative way of bounding errors in fixed-point implementations of EMPC 
 through mixed integer programming is given by~\citet{imperialrmpc}. 
 
