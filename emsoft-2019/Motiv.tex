@@ -40,23 +40,13 @@
 	%	\hspace{\fill} 
 	%\end{center}
 	%\end{adjustbox}
-	\caption{Overview of the proposed memory-efficient robust MPC control design.}
+	\caption{Overview of the proposed memory-efficient robust EMPC control design.}
 	\label{fig:overview}
 \end{figure}
 
 \section{Overview}
 \label{sec:example}
 
-
-
-\begin{figure}[t]
-	\begin{tabular}{cc}
-	\includegraphics[width=2cm,height=3cm]{Figs/inverted_pendulum.pdf}&	\includegraphics[width=6cm,height=4cm]{Figs/regs.jpg}\\
-	(a)&(b)
-	\end{tabular}
-	\caption{(a) Inverted pendulum; (b) 2-D plot of polyhedral partitions for an explicit MPC applied to the inverted pendulum.}
-	\label{fig:inverted_pendulum}
-\end{figure}
 
 As a smaller example, consider the standard problem of designing a controller for an inverted pendulum depicted in~\autoref{fig:inverted_pendulum}~{(a)}.
 The goal of the controller is to keep the pendulum at the vertical position while satisfying hard constraints on the state variables and control inputs.
@@ -90,6 +80,22 @@ and $L$ is the length of the bar.
 Starting from an initial state $(\theta_0,\omega_0)$, the control goal is to converge to the equilibrium point 
 $\theta=0, \omega=0$.
 Additionally, we require the state constraints $\theta_k\in[-\pi,\pi]$ and $\omega_k\in[-\pi/8,\pi/8]$ to hold at all time instances.
+
+\begin{figure}[t]
+	\centering
+  \begin{subfigure}[b]{0.33\columnwidth}
+      \includegraphics[width=\textwidth]{Figs/inverted_pendulum.pdf}
+      \vspace{0.05cm}
+      \caption{}
+  \end{subfigure}
+  %~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+  \begin{subfigure}[b]{0.66\columnwidth}
+      \includegraphics[width=\textwidth]{Figs/regs.jpg}
+      \caption{}
+  \end{subfigure}
+	\caption{(a) Inverted pendulum; (b) 2D plot of polyhedral partitions for an EMPC applied to the inverted pendulum.}
+	\label{fig:inverted_pendulum}
+\end{figure}
 
 Our overall goal is to 
 (i) design a robust MPC controller that achieves the performance objectives including hard constraints in spite of an additional bounded
