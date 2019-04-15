@@ -10,13 +10,13 @@
  $\varepsilon$ = $\varepsilon_{A/D}$ + $\varepsilon_{Q}$
 
  while true:
-   F, G, H, K = design_robust_MPC(model, $\Delta$)
-   errorRegion = incorrect_region_error(F, G, H, K, $\varepsilon$)
+   $F$, $G$, $H$, $K$ = design_robust_MPC(model, $\Delta$)
+   errorRegion = incorrect_region_error($F$, $G$, $H$, $K$, $\varepsilon$)
    if $\Delta$ > errorRegion:
      errorAct = $\Delta$ - errorRegion
-     $\hat{\text{F}}$, $\hat{\text{G}}$ = precision_tuning(F, G, errorAct)
-     $\hat{\text{H}}$, $\hat{\text{K}}$ = precision_tuning(H, K, $\varepsilon_Q$)
-     return $\hat{\text{F}}$, $\hat{\text{G}}$, $\hat{\text{H}}$, $\hat{\text{K}}$
+     $\hat{F}$, $\hat{G}$ = precision_tuning($F$, $G$, errorAct)
+     $\hat{H}$, $\hat{K}$ = precision_tuning($H$, $K$, $\varepsilon_Q$)
+     return $\hat{F}$, $\hat{G}$, $\hat{H}$, $\hat{K}$
    else:
      $\Delta$ = errorRegion + $\varepsilon_{SAFE}$
 \end{lstlisting}
@@ -44,7 +44,7 @@ values.
 implementing robust MPC controllers with guaranteed error bounds.
 
 Given a state-space model of a plant (line 1), our algorithm returns four matrices
-$\hat{\text{F}}$, $\hat{\text{G}}$, $\hat{\text{H}}$, and $\hat{\text{K}}$,
+$\hat{F}$, $\hat{G}$, $\hat{H}$, and $\hat{K}$,
 which soundly implement a robust explicit MPC controller in mixed-precision
 fixed-point arithmetic.
 Our algorithm takes two additional inputs, $\Delta$ and $\varepsilon_Q$ (line 2, 3). 
@@ -68,15 +68,15 @@ requiring the user to provide $\varepsilon_Q$ as the input.
 
 We need to distribute the available `disturbance budget' among the two error
 sources: error due to selecting the wrong region, which is given by the
-quantization of $\hat{\text{H}}$ and $\hat{\text{K}}$, and the error due to
-quantization of the control action, given by $\hat{\text{F}}$, $\hat{\text{G}}$.
-The quantization of $\hat{\text{H}}$ and $\hat{\text{K}}$ is determined by
+quantization of $\hat{H}$ and $\hat{K}$, and the error due to
+quantization of the control action, given by $\hat{F}$, $\hat{G}$.
+The quantization of $\hat{H}$ and $\hat{K}$ is determined by
 $\varepsilon_Q$, thus by providing this input value, the user effectively
-chooses how much precision to allow for $\hat{\text{H}}$ and $\hat{\text{K}}$.
+chooses how much precision to allow for $\hat{H}$ and $\hat{K}$.
 Note that this precision comes at the expense of the precision of
-$\hat{\text{F}}$ and $\hat{\text{G}}$, i.e. the more accurately $\hat{\text{H}}$
-and $\hat{\text{K}}$ are represented, the more approximate $\hat{\text{F}}$ and
-$\hat{\text{G}}$ need to be and vice versa.
+$\hat{F}$ and $\hat{G}$, i.e. the more accurately $\hat{H}$
+and $\hat{K}$ are represented, the more approximate $\hat{F}$ and
+$\hat{G}$ need to be and vice versa.
 We note that one could straight-forwardly extend our algorithm to include an
 outer loop which would explore different values for $\varepsilon_Q$. For our
 experiments in~\autoref{sec:experiments}, we vary this value manually.
@@ -96,10 +96,10 @@ converter).
 The algorithm then calls Matlab's multi-parametric toolbox to design an explicit
 MPC controller for the given state-space model which is robust to the initial
 disturbance $\Delta$ (line 8). The result is a controller represented by four matrices
-\texttt{F, G, H, K} given in high precision.
+$F$, $G$, $H$, $K$ given in high precision.
 
 \emph{Assuming} that we can implement the polyhedral region partitioning (given by
-matrices \texttt{H, K}) with an implementation error of at most $\varepsilon_Q$,
+matrices $H$, $K$) with an implementation error of at most $\varepsilon_Q$,
 our algorithm proceeds to compute the error due to selecting the wrong region (line 9).
 This computation works as explained in~\autoref{sec:Error_Analysis}, \autoref{eq:maximization}.
 
@@ -124,10 +124,10 @@ design a new controller.
 If the region error is smaller than $\Delta$, we still have an error budget \texttt{errorAct} left
 over to implement the control actions in finite precision (line 11).
 For the precision assignment, we first call Daisy with the expressions for the
-control actions given by \texttt{F} and \texttt{G}, and the remaining error
+control actions given by $F$ and $G$, and the remaining error
 budget as the error bound (line 12).
-Then we call Daisy with the expressions of the region bounds given by \texttt{H}
-and \texttt{K}, now with the error bound $\varepsilon_Q$ (line 13).
+Then we call Daisy with the expressions of the region bounds given by $H$
+and $K$, now with the error bound $\varepsilon_Q$ (line 13).
 
 In both cases, Daisy determines a quantization of the input matrices (Daisy also
 determines the fixed-point formats of the arithmetic operations, which we ignore here).
@@ -158,8 +158,8 @@ fail.
 
 We implemented our algorithm in a Python script which interfaces between Matlab
 and Daisy and which implements the high-level structure from~\autoref{lst:alg}.
-The interface parses the output from Matlab and encodes the matrices \texttt{F,
-G, H, K} and the error bounds in Daisy's input format. 
+The interface parses the output from Matlab and encodes the matrices $F$,
+$G$, $H$, $K$ and the error bounds in Daisy's input format. 
 
 We set up the problem with YALMIP~\cite{matlabYALMIP}, and use 
 Matlab's MPT toolbox~\cite{matlabMPT} to compute the robust explicit MPC.
