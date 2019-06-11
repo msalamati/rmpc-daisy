@@ -2,12 +2,12 @@
 \section{Controller Synthesis}\label{sec:Controller_Synthesis}
 
 \begin{figure}
-\begin{lstlisting}[language=Python,numbers=left,numbersep=3pt,frame=lines,keepspaces=true,mathescape=true,basicstyle=\small\ttfamily]
+\begin{lstlisting}[language=Python,numbers=left,numbersep=3pt,frame=lines,keepspaces=true,mathescape=true,basicstyle=\small\ttfamily,escapeinside={<@}{@>}]
  model = input() 
  $\Delta$ = input()
  $\varepsilon_{Q}$ = input()
  assert ($\Delta$ >= 0 and $\varepsilon_{Q}$ > 0)
- $\varepsilon$ = $\varepsilon_{A/D}$ + $\varepsilon_{Q}$
+ $\varepsilon$ = $\varepsilon_{A/D}$ + $\varepsilon_{Q}$<@\Mahmoud{//the width of the uncertain area}@>
 
  while true:
    $F$, $G$, $H$, $K$ = design_robust_MPC(model, $\Delta$)
@@ -64,7 +64,7 @@ tuning tool requires an error bound which should be satisfied. I.e. either a
 precision $p$ is given, and we can compute an error bound, or the error bound is
 given and we can derive a precision $p$. We cannot do both at the same time; the
 problem would be underconstrained. We solve this chicken-and-egg issue by
-requiring the user to provide $\varepsilon_Q$ as the input.
+requiring the user to provide $\varepsilon_Q$ as the input. \Mahmoud{Typical values for $\varepsilon_Q$ can range from $10^{-4}$ up-to $10^{-2}$. Increasing the $\varepsilon_Q$ leads into more memore save over $H$ and $K$, requiring more precision for $F$ and $G$ (\autoref{tab:di}). Of course, too large values for $\varepsilon_Q$ can result in failure of RMPC design. However, this is usually not the case over reasonable choices for $\varepsilon_Q$.}
 
 We need to distribute the available `disturbance budget' among the two error
 sources: error due to selecting the wrong region, which is given by the

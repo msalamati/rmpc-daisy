@@ -14,19 +14,23 @@
 		%\hspace*{\fill} 
 		\begin{tikzpicture}[auto,node distance=1cm,>=latex']
 		\node [block,text width=3.8cm, pin={[pinstyle]above:$\Delta=\Delta_0$},
-		node distance=1cm, align=center, label={[anchor=south east, draw=black, inner sep=1pt]south east:MATLAB}] (RMPC) {Robust explicit MPC\\with disturbance set $\mathcal W_{\Delta}$};
+		node distance=1cm, align=center, label={[anchor=south east, draw=black, inner sep=1pt]south east:MATLAB}] (RMPC) {Robust explicit MPC\\with disturbance set \Mahmoud{$\mathcal W_{\Delta}$}};
+		\Mahmoud{\node [block1,below = 0.8cm of RMPC] (highprec) {High-precision controller (\autoref{eq:affine_map})};}
 		%\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
-		\node [block3,below=1.3cm of RMPC,
+		\node [block3,below=.8cm of highprec,
 		node distance=1cm,text width=4.4cm,  label={[anchor=south east, draw=black, inner sep=1pt]south east:MATLAB}] (Uij) {Incorrect region selection error};
 		\node [draw, diamond, minimum height=3em, minimum width=3em, below =0.8cm of Uij, node distance=1cm] (decide) {$e\leq  \Delta$};
 		\node [block3, below=0.8cm of decide,node distance=1cm, label={[anchor=south east, draw=black, inner sep=1pt]south east:Daisy}] (done) {Mixed-precision implementation};
 		\node [block2, right=1.3cm of decide,
-		node distance=1cm] (delta) {Increase $\Delta$};
-		\node [block1,below = 0.8cm of done] (output) {Low-precision controller};
+		node distance=1cm] (delta) {\Mahmoud{ $\Delta=e+\varepsilon_{SAFE}$}};
+		\node [block1,below = 0.8cm of done] (output) {Low-precision controller \Mahmoud{(\autoref{eq:affine_map})}};
 		%\node [scale=1] at (3,-.25)  {$u(x)=Kx+v$};
 		\node at (9,-.25) {$e$};
 		
-		\draw [draw,->, align=center] (RMPC) -- node [left] {High-precision controller}(Uij);
+		
+		\draw [draw,->, align=center] (RMPC) -- node [left] {}(highprec);
+		\draw [draw,->, align=center] (highprec) -- node [left] {}(Uij);
+		%\draw [draw,->, align=center] (RMPC) -- node [left] {High-precision controller}(Uij);
 		\draw [->] (Uij) -- node [left] {$e$}(decide);
 		\draw [->] (decide) -- node [left,pos=.3] {Yes} (done);
 		\draw [->] (decide) -- node[pos=0.99] {} 
@@ -143,7 +147,7 @@ We refer to the resulting error as \emph{incorrect region selection} error.
 % incorrectly. This causes an error term which we refer to it as incorrect region
 % selection error.
 In our example, we compute an incorrect region selection error $e = 0.019$, which is larger
-than $\Delta_0=0.01$. We therefore increase the disturbance bound by a fixed amount to
+than $\Delta_0=0.01$. We therefore increase the disturbance bound by a fixed amount \Mahmoud{$\varepsilon_{SAFAE}=0.031$} to
 $\Delta_1 = 0.05$ and enlarge the disturbance set as $\mathcal W_{\Delta_1}$. 
 
 %

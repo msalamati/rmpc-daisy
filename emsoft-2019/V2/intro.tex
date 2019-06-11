@@ -27,10 +27,9 @@ For example, for linear time invariant models with linear constraints and quadra
 problem for MPC can be modeled as a quadratic program, and EMPC techniques solve the optimization problem
 using multi-parametric programming techniques.
 The explicit solution is representable as a partition of the controller domain into a number of polyhedral regions,
-and an affine map for each region.
-The implementation of EMPC stores a lookup table of the affine maps and performs a number of affine computations
-online to find the appropriate region for the current state and to evaluate the control.  
-Explicit MPC thus expands the class of systems being controlled by MPC strategies, by taking out the need to compute fast online
+and an affine map for each region. 
+\Mahmoud{Given the current state, EMPC draws the corresponding affine mapping out of a stored lookup table and evaluates the control.}
+Explicit MPC thus expands the class of systems being controlled by MPC strategies, by taking out the need to \Mahmoud{online computations}
 or to certify a complex optimization routine.
 
 However, there are still bottlenecks in implementing EMPC on resource-constrained embedded micro-controllers.
@@ -52,7 +51,7 @@ robustness margin.
 
 
 Our proposed method iteratively solves a robust version of MPC 
-which considers finite-precision implementation errors as disturbances
+\Mahmoud{that} considers finite-precision implementation errors as disturbances
 in the dynamics \cite{RamirezC06}; see~\autoref{fig:overview}.
 Initially, we estimate a bound $\Delta = \Delta_0$ on the implementation error and solve a
 min-max quadratic program for explicit robust MPC \cite{delaPea:2005,RamirezC06}, where the system
@@ -80,7 +79,7 @@ for robust explicit MPC~\cite{matlabMPT}
 and the Daisy tool for multi-precision tuning and fixed-point error analysis~\cite{Daisy}.
 
 We have applied our technique on a number of standard benchmark examples.
-Our algorithm finds mixed-precision implementations which save up to 20.9\%
+Our algorithm finds mixed-precision implementations \Mahmoud{that} save up to 20.9\%
 memory (on average, 12.6\%) in controller implementations over a minimal
 uniform-precision implementation (and an average saving of 46.8\% over a uniform
 32-bit implementation), while maintaining the correctness of the controller.
