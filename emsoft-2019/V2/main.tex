@@ -5,6 +5,7 @@
 \usepackage{multirow}
 \usepackage{lscape}
 \usepackage{amsmath}
+\usepackage{amsthm}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows}
 \usepackage{graphicx}
@@ -37,6 +38,7 @@
 \newcommand{\regioni}[1]{$X_{{#1}}$}
 \newcommand{\regionimath}[1]{X_{{#1}}}
 \newcommand{\maxUij}{$max|U_{i}-U_{j}|$}
+\newtheorem{remark}{Remark}
 
 \usepackage{sansmath}
 \newcommand{\inputm}[1]{\mathsf u_{{#1}}}
@@ -196,9 +198,10 @@
 \input{related}
 \input{conclusion}
 %\newpage
-\input{response}
+
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{biblio}
-
+\newpage
+\input{response}
 \end{document}

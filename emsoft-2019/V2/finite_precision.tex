@@ -42,7 +42,7 @@ leads to over-approximations).
 
 % mixed-precision tuning
 To reduce memory usage and increase efficiency, we want to choose as short word
-lengths as possible. Mixed-precision tuning tools automatically determine possibly different
+lengths as possible, \Mahmoud{as this way memory footprint is minimized and run-time is not influenced.} Mixed-precision tuning tools automatically determine possibly different
 word lengths for different values~\cite{DaisyTuning,Lee2006}. Compared to uniform precision (or word length),
 mixed-precision often leads to improved resource usage, but due to the complexity of
 fixed-point arithmetic and the error analysis, is challenging to do manually.  

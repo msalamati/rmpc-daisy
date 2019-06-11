@@ -192,7 +192,7 @@ so that we can continue with the precision assignment.
 Next, we use the precision tuning tool Daisy \cite{Daisy} to provide a mixed-precision 
 implementation for all the parameters which satisfies the error bound $\Delta_1  - e = 0.05 - 0.019 = 0.031$.
 The mixed-precision implementation returned by Daisy requires $6084$ bits.
-Thus, the mixed-precision implementation takes about $10\%$ less memory compared 
+Thus, \Mahmoud{for this introductory example,} the mixed-precision implementation takes about $10\%$ less memory compared 
 to the smallest uniform precision implementation that respects $\Delta_1$,
 and about $57\%$ less memory than an implementation that uniformly uses
 32 bits.

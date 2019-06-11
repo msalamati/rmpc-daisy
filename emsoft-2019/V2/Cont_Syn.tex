@@ -64,7 +64,11 @@ tuning tool requires an error bound which should be satisfied. I.e. either a
 precision $p$ is given, and we can compute an error bound, or the error bound is
 given and we can derive a precision $p$. We cannot do both at the same time; the
 problem would be underconstrained. We solve this chicken-and-egg issue by
-requiring the user to provide $\varepsilon_Q$ as the input. \Mahmoud{Typical values for $\varepsilon_Q$ can range from $10^{-4}$ up-to $10^{-2}$. Increasing the $\varepsilon_Q$ leads into more memory save over $H$ and $K$, while requiring more precision for $F$ and $G$ (\autoref{tab:di}). Of course, too large values for $\varepsilon_Q$ can result in failure of RMPC design. However, this is usually not the case over reasonable choices for $\varepsilon_Q$.}
+requiring the user to provide $\varepsilon_Q$ as the input. 
+\Mahmoud{
+	\begin{remark}\label{rem:eps_Q}
+		Typical values for $\varepsilon_Q$ can range from $10^{-4}$ up-to $10^{-2}$. Increasing the $\varepsilon_Q$ leads into more memory save over $H$ and $K$, while requiring more precision for $F$ and $G$ (\autoref{tab:di}). Of course, too large values for $\varepsilon_Q$ can result in failure of RMPC design. However, this is usually not the case over reasonable choices for $\varepsilon_Q$.
+	\end{remark}}
 
 We need to distribute the available `disturbance budget' among the two error
 sources: error due to selecting the wrong region, which is given by the
