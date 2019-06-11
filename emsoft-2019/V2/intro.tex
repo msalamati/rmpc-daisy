@@ -76,7 +76,7 @@ and the first to consider mixed-precision in this context.
 
 We have implemented our algorithm on top of Matlab's multi-parametric toolbox 
 for robust explicit MPC~\cite{matlabMPT}
-and the Daisy tool for multi-precision tuning and fixed-point error analysis~\cite{Daisy}.
+and the Daisy tool for multi-precision tuning and fixed-point error analysis~\cite{Daisy}. \Mahmoud{It should be noticed that MATLAB and Daisy are solely used for offline computations. The output of our algorithm contains the information required for implementation of the verified controller over embedded systems.}
 
 We have applied our technique on a number of standard benchmark examples.
 Our algorithm finds mixed-precision implementations \Mahmoud{that} save up to 20.9\%
