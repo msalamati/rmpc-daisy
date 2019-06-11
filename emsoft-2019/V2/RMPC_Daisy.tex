@@ -1,0 +1,111 @@
+% !TEX root = main.tex
+\section{Background}
+In this section, we provide relevant background on robust explicit MPC,
+fixed-point arithmetic and error analysis.
+
+\subsection{Robust Explicit MPC}
+\def\reals{\mathbb{R}}
+We consider the class of linear time-invariant (LTI) systems characterized by the difference equation
+\begin{equation}
+\label{eq:DSS}
+x_{k+1}=Ax_k+Bu_k+Ew_k,\quad  k=0,1,2,\ldots
+\end{equation}
+where $x\in \reals^{n\times 1}$ is the state, $u\in \reals^{m\times 1}$ is the control input and $w\in \reals^{d\times 1}$ is the disturbance. Matrices $A\in \reals^{n\times n}$, $B\in \reals^{n\times m}$ and $E\in \reals^{n\times d}$  capture respectively the effects of current state, input and disturbance on the next state. We assume the disturbance $w$ belongs to a set $\mathcal{W}$ where $\mathcal{W}$ is a polyhedral set.
+In this paper, we focus on the robust formulation of MPC which at each time step
+minimizes the worst-case value of an objective function with respect to the
+disturbances over the control inputs. We assume the objective function is
+quadratic with respect to the states and inputs.
+We assume a linear translation on the input with the form
+$$u_k=\mu x_k+v_k$$
+and synthesize $v_k$ instead of $u_k$. This choice reduces the 
+conservativeness of the optimization and enlarges the set of feasible input
+trajectories. The matrix $\mu$ is selected such that some desired property is satisfied under suitable assumptions on the system, e.g., stability if the pair $(A,B)$ is stabilizable.
+
+%\eva{I don't understand the above sentence. Maybe split into several sentences? Where does $u_k$ come from (the sentence right now says you assume $u_k$)?}
+%The modifed state evolution of the system will be $x_{k+1}=\bar Ax_k+Bv_k+Ew_k$ with $\bar A := A +BK$.
+% and $v_k=\kappa(x_k)$ denotes the output of model predictive controller.  
+The constrained optimization at each time step is of the form
+\begin{align}
+\label{eq:RMPC_prob}
+J^{\ast}(x_0)=&\min_{v_0,\cdots,v_{N-1}} \max_{w_0,\cdots,w_{N-1}} \sum_{i=0}^{N-1}(x_i^TQx_i+u_i^TRu_i) + x_N^TQ_Fx_N\nonumber\\
+\text{s.t.} \quad &x_{i+1}=Ax_i+Bu_i + E w_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
+\quad &u_i=\mu x_i+v_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
+&u_i\in\mathcal{U},x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W},\,\,\forall i\in\{0,1,\cdots,N\},
+%&x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W},\quad\forall i\in\{0,1,\cdots,N\},
+\end{align}
+%\Sadegh{The role of disturbance is missing in the inequalities. We should say, we want to satisfy the inequalities for all possible values of the disturbance.}
+%
+where $\mathcal U$ and $\mathcal X$ are polyhedral sets denoting the feasible
+sets of inputs and states. Positive definite matrices $Q\in\reals^{n\times n}$ and
+$Q_F\in\reals^{n\times n}$ indicate weights on the states. $R\in\reals^{m\times m}$ is
+positive semidefinite and indicates a weight on the input in the objective function. $N$ denotes the length of the prediction horizon.
+%\eva{What are $Q, Q_F, R$ and where do they come from?}
+
+\begin{theorem}[\cite{delaPea:2005}]
+\label{thm:EMPC}
+The optimization \eqref{eq:RMPC_prob} can be translated into a multi-parametric quadratic problem which admits a closed-form solution. Furthermore, for the case that $R>0$, the controller is $u_k = \mu x_k + \kappa(x_k)$ with $\kappa(\cdot)$ being a continuous piecewise affine (PWA) function over polyhedral regions:
+\begin{equation}
+\label{eq:affine_map}
+\kappa(x_k)=
+\begin{cases}
+F_1x_k+G_1 & \text{if $x_k\in \mathcal{R}_1$}\\
+F_2x_k+G_2 & \text{if $x_k\in \mathcal{R}_2$}\\
+\vdots\\
+F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
+\end{cases} 
+\end{equation}
+where $\mathcal{R}_i$ is a polyhedral region determined by a set of linear inequalities $\mathcal R_i = \{x\in\mathcal X\,|\,H_ix\leq K_i\}$. 
+\end{theorem}
+The essential idea behind this theorem is to utilize the closed form $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$ and transform the optimization \eqref{eq:RMPC_prob} into the following quadratic program:
+%\begin{align}
+%	&\min_{U_N}U_N^TZU_N+x_0^TVU_N+x_0^TYx_0\nonumber\\
+%	&s.t.\quad JU_N\leq s+Dx_0
+%\end{align} 
+\begin{align}
+\label{eq:multi_param_prog}
+J^{\ast}(x_0)=\min_{z,\gamma}& \left[x_0^TYx_0+\frac{1}{2}z^THz+\gamma\right]\\
+\text{s.t.} \quad &G_mz+g_m\gamma\leq W_m+S_mx_0,\nonumber\\
+&G_cz\leq W_c+S_cx_0\nonumber
+\end{align}
+where $z\in \reals^{mN}$ and $\gamma\in\reals$ are decision variables, and $Y$, $H$, $G_m$, $G_c$, $S_m$, $S_c$, $W_m$, $W_c$, and $g_m$ 
+are matrices of proper sizes that can be easily obtained from the original optimization \eqref{eq:RMPC_prob}  (see \cite{delaPea:2005}).
+
+%\Sadegh{Adding a remark and saying that the approach works as long as the solution of formulated optimization has a piecewise affine form?} 
+
+The optimization \eqref{eq:multi_param_prog} can be solved using multi-parametric techniques to compute the explicit form of $\kappa(\cdot)$.
+An efficient implementation of such computations is available in the multi-parametric toolbox of Matlab~\cite{matlabMPT, matlabYALMIP}.
+Let us denote the set of states $x_0$ for which the optimization  \eqref{eq:multi_param_prog} is feasible by $\mathcal X_s$. Then $\mathcal X_s\subseteq \mathcal X$ and is the union of all regions $\mathcal{R}_{i}$:
+\begin{equation}
+\mathcal X_s = \bigcup_{i}(H_{i}\statevar\leq K_{i}).
+\end{equation}
+
+
+The implementation of the controller stores the matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. 
+At each time step $k$, the current state $x_k$ is used to detect the polyhedral region 
+such that $H_i x_k\le K_i$. Then the control action $v_k = F_i x_k + G_i$ is computed and applied to the system.
+Several algorithms are proposed in the literature \cite{Mnnigmann:2011,Jones:2006} to find the right polyhedral region $i$ to which the state $x_k$ belong. 
+The most straightforward technique is a linear search over all polyhedral regions (Fig.~\ref{lst:caseof}).
+
+\begin{figure}[t]
+\begin{lstlisting}[mathescape=true,basicstyle=\small\ttfamily,morekeywords={if, then, elseif, return}]
+if ($H_{1}\statevar \leq K_{1}$) then $v_{k}=F_1x_k+G_1$
+elseif ($H_{2}\statevar \leq K_{2}$) then $v_{k}=F_2x_k+G_2$
+elseif ($H_{3}\statevar \leq K_{3}$) then $v_{k}=F_3x_k+G_3$
+...
+elseif ($ H_{P}\statevar\leq K_{P}$) then $v_{k}=F_Px_k+G_P$
+return $v_k$
+\end{lstlisting}
+\caption{Structure of an explicit MPC controller}
+\label{lst:caseof}
+\end{figure}
+%Once the polytope was determined, computing for $F_ix+G_i$ requires even less effort as it only involves summation and multiplication.  
+
+To keep the implementation cost down, low-end microcontrollers usually have
+limited memory and computational power. Therefore, the implementation of the above
+explicit MPC on microcontrollers will bring some issues since all regions'
+matrices ($H_i$s and $K_i$s) and activation functions ($F_i$s and $G_i$s) have
+to be stored on the microcontroller. Our paper presents an
+approach for minimizing the memory usage of the implementation while satisfying
+the hard constraints on the states.
+%\section{Finite Precision Implementation}
+%\Sadegh{To be included by Rocco}

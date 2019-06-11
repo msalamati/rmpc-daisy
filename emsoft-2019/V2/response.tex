@@ -1,0 +1,21 @@
+\Mahmoud{\section{Response}	
+We thank the reviewers for the detailed and useful feedback on our submission! We plan to improve our paper while taking into account the minor comments. Our response to your specific questions are summarized as follows.\\	
+\textbf{Execution time for EMPCs(REVIEWER 4)}\\
+The total time to evaluate the PWA function for a given $x_k$ in \autoref{eq:affine_map} consists of two steps:
+\begin{itemize}
+\item Selecting the region $\mathcal R_i$ such that $x_k\in \mathcal R_i$.
+\item To evaluate the corresponding affine map $F_i x_k +G_i$. 
+\end{itemize}
+Evaluating the affine map is straightforward and requires less computations compared to the region selection step. Direct implementation of region selection (\autoref{lst:caseof}) is simple, but inefficient. More efficiency can be achieved by leveraging binary search tree structures (e.g. \cite{Mnnigmann:2011}). In general, explicit MPC is well-known for its high-speed implementation over embedded systems with low computational power. \cite{Johansen:2007} shows that explicit MPCs with hundreds of regions can be implemented on application specific integrated circuit (ASIC) with about $20000$ gates, leading to computation times in the order of $1\mu s$. In \cite{Bemporad:2006}, it is shown that for typical problems evaluating the explicit MPC takes significantly shorter time in comparison to solving on-line QP. \\
+\textbf{Termination of algorithm for robust EMPC design (\autoref{lst:alg}) (REVIEWER 4)}\\
+From theoretical point of view, the numerical error does not necessarily converge as each new designed controller may differ from the previous ones. Therefore, it is not easy to give an upper bound over the number of times that the robust MPC design needs to be repeated. However, one can use results on continuity of $argmin$ function in 
+\begin{align*}
+\label{eq:argmin}
+&u_0(x_0,\Delta),\cdots,u_{N-1}(x_0,\Delta)=\\
+&argmin \max_{w_0,\cdots,w_{N-1}} \sum_{i=0}^{N-1}(x_i^TQx_i+u_i^TRu_i) + x_N^TQ_Fx_N\nonumber\\
+&\text{s.t.} \quad x_{i+1}=Ax_i+Bu_i + E w_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
+%\quad &u_i=\mu x_i+v_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
+&u_i\in\mathcal{U},x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W}_{\Delta},\,\,\forall i\in\{0,1,\cdots,N\},
+\end{align*}
+ assuming its unique solution to every $\Delta$ and compute the Lipschitz constant for it over variations of $\Delta$. The computed Lipschitz constant will be only dependent on the dynamics of the system depicted in \autoref{eq:DSS} and hence can be used to evaluate the maximum error over incorrect region selection. From experimental point of view, using a reasonable $\varepsilon_{SAFE}$, our observations show that numerical error always has converged after only a few iterations.
+}

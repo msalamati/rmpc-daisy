@@ -1,0 +1,95 @@
+% !TEX root = main.tex
+\section{Related Work}
+
+Any digital controller can be implemented using a wide range of available
+platforms. Large-size manufacturers use industrial digital computers called
+\emph{programmable logic controllers (PLC)} for such implementations. A PLC is
+able to perform the computations required by a digital controller using
+floating-point arithmetic.  Low-end applications utilize microcontrollers with
+limited memory capacity and computational power to keep the costs of the
+implementation down.
+We target implementations for low-end microcontrollers.
+
+% most relevant work: considers both control and finite-precision
+\paragraph{Verification of Finite-precision Controller Implementations}
+% A digital controller is implemented as an input-output relation or as a state-space representation.
+% A controller specifies a unique input-output behaviour but has uncountably many state-space representations that are mathematically equivalent.  However, the actual finite-precision implementations of these equivalent representations will result in different errors. See~\cite{ParkPSL17} for an analysis of the finite-precision error in the implementations of different state-space representations and \cite{Anta10} for a software tool that can check system stability under finite-precision implementation errors.
+
+While control design algorithms often consider disturbance or noise, they
+usually assume an ideal infinite-precision implementation of the controller.
+Several works have explicitly considered the effects of finite-precision
+implementations on controller robustness.
+
+Given a precision by the user, \citet{imperialrmpc} present an algorithm which
+iteratively designs a robust MPC controller. Similar to our loop, each iteration
+bounds the implementation error due to fixed-point arithmetic and if it exceeds
+the initial disturbance used for the design, repeats the process with an
+adjusted disturbance. This approach does not optimize for the precision and
+bounds implementation errors by reduction to an approximate LP problem. The
+authors further note that the iterations may diverge, i.e. a controller may not
+be found. Since our algorithm optimizes and adjust precision dynamically it will
+eventually find an implementation.
+
+\citet{Anta10} take an existing controller and its implementation, derive safe
+bounds from the controller under which stability is guaranteed and verify that
+the implementation in fixed-point arithmetic satisfies this error bound.
+Similarly, \citet{ParkPSL17} takes an existing floating-point controller
+implementation, reconstructs the controller and verifies that roundoff errors
+due to finite precision remain below a user-given error bound. The LCV tool~\cite{Park2019}
+additionally checks that the generated code is equivalent (within an error bound)
+to a Simulink block diagram model.
+
+Unlike previous work which assumed a given implementation precision, the
+approach presented in this paper synthesizes both the controller and the
+fixed-point implementation \emph{at the same time} and thus provides
+a fully automated approach.
+
+\citet{Abate2017} design safe feedback controllers with counterexample guided
+inductive synthesis (CEGIS). Safety verification needs to consider quantization
+errors in the controller and in the plant model as the algorithm is based on
+bounded model checking (BMC) and tracks roundoff errors with interval
+arithmetic. While this algorithm generates the controller and its
+implementation, due to limitations in BMC it only considers uniform fixed-point
+word length in steps of 8.
+% \eva{I guess it also does not consider robustness? Not sure how this is related.}
+% \Sadegh{Eva, You explanation is good. I think the way we look at the problem is different from \cite{Abate2017}: \cite{Abate2017} assumes a fixed precision is given and tries to design the controller with the specific precision such that the safety constraints are satisfied, so no discussion on robustness or memory usage. In our case we don't fix a precision. We find a controller together with a mixed precision that satisfies the constraints and respects the memory budget.}
+
+\citet{memoryMPC} propose to use universal numbers (unums) instead of
+traditional floating-point or fixed-point arithmetic for implementing robust
+controllers, but without an error analysis. While unums can reduce memory
+footprint w.r.t. a floating-point implementation, their comparison against
+fixed-point arithmetic in terms of memory and performance is unclear.
+
+% control-only
+\paragraph{Controller Synthesis}
+The problem of controller synthesis under safety requirements on the states has
+been investigated mostly for Model Predictive Control (MPC)~\cite{camacho2013model} (also called receding horizon control).
+Researchers have investigated designing MPC controllers for satisfying safety requirements expressed as temporal logic formulas 
+\cite{FMPS18,KaramanSF08,raman2014model,WongpiromsarnTM12,pant2017smooth,kim2017dynamic}.
+%,LiNSXL17, SadighK16,
+%\Sadegh{We can reduce the references.}
+The main technique is to optimize the robust satisfaction of 
+the formula~\cite{donze2010robust} (i.e., a quantitative measure of satisfaction).
+These works utilize MPC an an online method that requires solving at runtime often computationally 
+expensive optimization problems. In contrast, the explicit MPC used in our work performs controller synthesis at the design time.
+Synthesizing digital controllers with formal guarantees while having finite-precision implementation is studied in \cite{SSPBLSZ19} for stochastic systems.
+
+\citet{SahaM12} consider memory optimization for event-driven controllers
+using a scratchpad to selectively load control parameters based on the current state.
+Our work, in contrast, is a static mapping of controller parameters.
+
+%\Sadegh{adding a few references on explicit MPC.}
+
+% finite-precision only
+\paragraph{Finite-Precision Optimization}
+General-purpose techniques for synthesizing fixed-point implementations of 
+arithmetic expressions have been developed in the space of embedded systems,
+where resource efficiency is generally important.
+Some work has used dynamic analyses for estimating
+errors~\cite{Gaffar2004,Mallik2007}, which, however, do not provide guarantees.
+Several approaches~\cite{Lee2006,Osborne2007,Kinsman2009,Pang2011} use sound
+error analysis techniques and perform mixed-precision optimization~\cite{Lee2006,Pang2011},
+similar to the approach implemented in the tool Daisy used in this paper.
+An alternative way of bounding errors in fixed-point implementations of EMPC 
+through mixed integer programming is given by~\citet{imperialrmpc}. 
+
