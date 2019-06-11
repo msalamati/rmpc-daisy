@@ -18,7 +18,7 @@ MPC computes such a function \emph{online}, whereas a conventional controller pr
 The online computations required in MPC limits its applicability to slow processes and fast computation platforms: 
 the sampling time has to be large enough and the platform fast enough to allow enough time for solving the optimization problem
 and obtaining the optimal action for the next time instance. 
-Moreover, the optimization solver needs to be certified when using MPC in safety critical applications.
+Moreover, the optimization solver needs to be certified when using MPC in safety critical applications \Mahmoud{\cite{Alessio2009}}.
 
 One way to tackle these problems is through \emph{explicit MPC} (EMPC) \cite{Bemporad:2002,Alessio2009}, which formulates the optimization
 problem but computes offline a symbolic representation of the solution as a function of the state.
@@ -30,10 +30,10 @@ The explicit solution is representable as a partition of the controller domain i
 and an affine map for each region. 
 \Mahmoud{Given the current state, EMPC draws the corresponding affine mapping out of a stored lookup table and evaluates the control.}
 Explicit MPC thus expands the class of systems being controlled by MPC strategies, by taking out the need to \Mahmoud{online computations}
-or to certify a complex optimization routine.
+or to certify a complex optimization routine \Mahmoud{\cite{memoryMPC}}.
 
 However, there are still bottlenecks in implementing EMPC on resource-constrained embedded micro-controllers.
-First, implementations of EMPCs can suffer from large memory usage, because the solution of the optimization
+First, implementations of EMPCs \Mahmoud{over industrial micro-controllers with limited memory} can suffer from large memory usage, because the solution of the optimization
 problem can involve many (often hundreds) of regions~\cite{memoryMPC}.
 Since the memory consumption grows linearly with the number of regions, 
 this can be a limiting factor in using EMPC on resource-constrained micro-controllers.
@@ -68,7 +68,7 @@ as well as a static bound on the error in computing the affine map.
 If the error is at most $\Delta$, we know that the implementation satisfies the robustness margin in the model and
 we use an automated mixed-precision tuning tool to find an optimal bitwidth allocation that keeps the implementation below the error bound.
 If not, we increase the error bound $\Delta$ and run the loop again to find a new robust controller and find its best mixed-precision
-implementation.
+implementation. \Mahmoud{While our formulation is general enough to take the effect of measurement/process noise into account, this is not subject of study of the current paper.}
 
 To the best of our knowledge, our algorithm is the first to automatically and soundly
 synthesize a suitable fixed-point precision for explicit robust MPC controllers,
