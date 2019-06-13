@@ -68,7 +68,7 @@ as well as a static bound on the error in computing the affine map.
 If the error is at most $\Delta$, we know that the implementation satisfies the robustness margin in the model and
 we use an automated mixed-precision tuning tool to find an optimal bitwidth allocation that keeps the implementation below the error bound.
 If not, we increase the error bound $\Delta$ and run the loop again to find a new robust controller and find its best mixed-precision
-implementation. \Mahmoud{While our formulation is general enough to take the effect of measurement/process noise into account, this is not subject of study of the current paper.}
+implementation. %\Mahmoud{While our formulation is general enough to take the effect of measurement/process noise into account, this is not subject of study of the current paper.}
 
 To the best of our knowledge, our algorithm is the first to automatically and soundly
 synthesize a suitable fixed-point precision for explicit robust MPC controllers,
@@ -76,10 +76,10 @@ and the first to consider mixed-precision in this context.
 
 We have implemented our algorithm on top of Matlab's multi-parametric toolbox 
 for robust explicit MPC~\cite{matlabMPT}
-and the Daisy tool for multi-precision tuning and fixed-point error analysis~\cite{Daisy}. \Mahmoud{It should be noticed that MATLAB and Daisy are solely used for offline computations. The output of our algorithm contains the information required for implementation of the verified controller over embedded systems.}
+and the Daisy tool for multi-precision tuning and fixed-point error analysis~\cite{Daisy}. %\Mahmoud{It should be noticed that MATLAB and Daisy are solely used for offline computations. The output of our algorithm contains the information required for implementation of the verified controller over embedded systems.}
 
-We have applied our technique on a number of standard benchmark examples.
-Our algorithm finds mixed-precision implementations \Mahmoud{that} save up to 20.9\%
+We have applied our technique on a number of standard benchmark examples. \Mahmoud{Taking all these benchmarks into account,}
+our algorithm finds mixed-precision implementations \Mahmoud{that} save up to 20.9\%
 memory (on average, 12.6\%) in controller implementations over a minimal
 uniform-precision implementation (and an average saving of 46.8\% over a uniform
 32-bit implementation), while maintaining the correctness of the controller.
@@ -88,11 +88,11 @@ For smaller examples, the analysis takes only a few minutes of computation.
 We also demonstrate the scalability of our mixed-precision tuning and error bounds analysis:
 we show that on explicit MPC controllers with thousands of regions, our tool finishes in a few hours.
 In absolute terms, the memory saving corresponds to 21KB over a uniform
-precision implementation on our largest benchmark. \Mahmoud{It should be noticed that these savings are not affecting the run-time. Synthesis of the controller and the corresponding precisions are all performed offline.}
+precision implementation on our largest benchmark. %\Mahmoud{It should be noticed that these savings are not affecting the run-time. Synthesis of the controller and the corresponding precisions are all performed offline.}
 
 In summary, our contributions are:
 \begin{itemize}
-\item We provide an end-to-end automatic tuning algorithm for robust explicit MPC that ensures
+\item We provide an end-to-end automatic tuning algorithm for robust explicit MPC that ensures \Mahmoud{that}
 hard constraints on the state are met despite numerical errors;
 \item We design a static and scalable error analysis algorithm for piecewise affine functions to bound
 errors in controller implementations; and
