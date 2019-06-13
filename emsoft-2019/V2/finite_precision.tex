@@ -24,7 +24,7 @@ Finite precision unavoidably introduces roundoff errors, which can accumulate
 during the course of a computation.
 A sound static roundoff error analysis computes a guaranteed upper bound on the
 error of the result by tracking worst-case errors at every operation. Given a
-word length for each value, several tools automatically determine the number of
+word length for each value, several tools\Eva{, including the tool Daisy which we use,} automatically determine the number of
 integer bits needed and compute roundoff errors using a dataflow analysis~\cite{Daisy,Gappa}.
 They track real-valued ranges at every intermediate operation. These ranges
 determine the fixed-point formats and thus also the individual worst-case roundoff errors,
@@ -46,7 +46,7 @@ lengths as possible, \Mahmoud{as this way memory footprint is minimized and run-
 word lengths for different values~\cite{DaisyTuning,Lee2006}. Compared to uniform precision (or word length),
 mixed-precision often leads to improved resource usage, but due to the complexity of
 fixed-point arithmetic and the error analysis, is challenging to do manually.  
-Automated mixed-precision tuning tools usually perform a search: they repeatedly
+Automated mixed-precision tuning tools\Eva{, including Daisy,} usually perform a search: they repeatedly
 select a candidate mixed-precision assignment (i.e. different word lengths for
 different values) and check whether the assignment satisfies a given error
 bound. The candidate assignments are chosen based on a heuristic which guides
