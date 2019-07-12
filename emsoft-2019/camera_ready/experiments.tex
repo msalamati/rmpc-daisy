@@ -1,0 +1,282 @@
+%!TEX root = main.tex
+\section{Experimental Results}\label{sec:experiments}
+\input{table_pendulum_aircraft}
+\input{table_integrator}
+
+We evaluate a prototype implementation of the algorithm in~\autoref{lst:alg}
+on three examples. For the first two, we apply the complete pipeline (design and memory optimization)
+which returns an end-to-end robust controller. With the third example, we evaluate
+the scalability of our approach when the number of regions and hyperplanes are in
+the order of tens of thousands.
+
+% This section reports experiments with the prototype described
+% in~\autoref{lst:alg} applied to three different benchmarks: in the former two,
+% we evaluate the complete pipeline (design and memory optimization) to produce in
+% output a complete controller. In the last experiment, we want to show the
+% scalability of our approach when the number of regions and hyperplanes are in
+% the order of tens of thousands.
+
+% For the design of controllers, we rely on MATLAB MPC toolbox. The outputs of the
+% suite are vectors F, G and H, K for activation functions and hyperplanes
+% equations. We encode both of them in Daisy for finite-precision optimization.
+The design of end-to-end robust controllers has been performed on a laptop with Intel i7-6700HQ CPU at
+2.60GHz, with 16GB of RAM. The evaluation of the last benchmark runs on a
+cluster with 48 Intel Xeon v2 @ 3.00GHz cores with 1TB of RAM, of which our analysis
+only used 15GB.
+%Note that the memory consumption of our analysis never exceed 15GB of memory.
+
+\subsection{End-to-End Robust Controller}
+%\eva{Use the same symbol for Delta and Eps as used in the technical section.}
+
+We evaluate our complete pipeline on two benchmarks. 
+The first one is the inverted pendulum problem depicted in Section \ref{sec:example}, where we set
+$m=0.344$ kg, $b=0.48$ N s/m, $L=1.703$ m and $T_s=0.1$ s. The gain $\mu$ is
+selected such the $\bar A$ has poles at $-0.1$ and $-0.5$. Moreover, we select
+$N=2$, $R=1$ and $Q=Q_F=100\mathbf{\it I}$, where $\mathbf{ \it I}$ denotes the
+identity matrix of proper size. 
+
+Our second benchmark is a well-known 4D example for aircraft
+controller design~\cite{Kapasouris:1998}.
+The control inputs for the aircraft 4-D model are the elevator and flaperon angles,
+and the attack and pitch angles are the output states that need to be regulated.
+The open-loop system is unstable as it has a pole with positive real part. Both
+control inputs are constrained between $\pm25$ degrees. The outputs are
+only constrained during the first prediction horizon. You also specify scale
+factors for outputs. Using the gain $\mu$, the poles of $\bar A$ are placed at
+$-5$, $-3$, $-1$ and $-2$. The robust MPC problem is solved for $N=2$,
+$R=\mathbf{\it I}$ and $Q=Q_F=5\mathbf{\it I}$. Note that for both of the
+examples, matrices $R$, $Q$ and $Q_F$ are selected such that convergence to the
+origin is given more weight compared to the control effort as long as
+constraints are satisfied.
+
+
+%the feasible domain $X$ is bounded in the range $X_{0} \in
+%(-3.23, 3.23)$ and $X_{1}\in (-1.46, 1.46)$. MATLAB designs a controller with 14
+%regions and 58 hyperplanes for each combination of delta and $\varepsilon$.
+%% delta spans the interval from 0.05 to 0.3, while $\varepsilon$ from 0.0006 to 0.0050.  % it's in the table
+%For the aircraft problem, the domain of X is bounded in the range $X_{0} \in
+%(-10000, 10000)$, $X_{1}\in (-734, 734)$, $X_{2}\in (-10000, 10000)$ and
+%$X_{3}\in (-790, 790)$. MATLAB returns a controller with 27 regions and 217
+%hyperplanes, except when delta=0.30 and $\varepsilon$=0.001 where the controller
+%has 26 regions and 208 hyperplanes. In general, when the disturbance value
+%increases, the state domain X shrinks to be robust against a greater
+%disturbance, or the number of regions reduces.
+
+We do not compare against the existing technique of~\citet{imperialrmpc} which aims to reduce memory
+usage in explicit MPC control, as it requires the user to provide a (uniform)
+fixed-precision up front. Instead, we let Daisy find the minimum uniform
+precision needed. Additionally, we compare against a uniform 32-bit precision
+baseline, which in the absence of special user insight would be a reasonable safe choice.
+
+\autoref{tab:ipd} shows the total number of bits required to implement each
+controller using different precision options: uniform 32 bit precision
+(`Uni32'), minimal uniform precision (`Uni', chosen precision in parentheses)
+and mixed precision (`Mix'). We split the memory requirement into the bits
+required for storing $F$, $G$, $H$ and $K$. We show the results for each benchmark
+for ten different combinations of $\Delta$ and $\varepsilon_Q$, varying one while
+keeping the other fixed.
+For the pendulum, the execution time of the whole analysis is 10 minutes no matter the
+initial values for $\Delta$ and $\varepsilon_Q$, while for the aircraft it is 36
+minutes. 
+
+
+%\rocco{maybe table for execution times}
+% In \autoref{tab:ipd} we report the evaluation of our approach on both the
+% inverted pendulum problem described in the motivation section, and a well-known
+% 4D example for aircraft controller design. (Describe aircraft). For each
+% benchmark, we report the results for ten different combinations of delta and
+% $\varepsilon$. We divided them in two halves: in the  first, we fix the value
+% for delta and we try different $\varepsilon$ combinations, while in the second
+% halve we do the opposite.
+
+% \eva{In the following, I'd discuss the two examples together and structure the 
+% discussion as follows:
+% \begin{itemize}
+% 	\item give the constant info (number of regions etc.) for both benchmarks
+% 	\item explain the variation of delta and eps (ideally with a motivation for why this is interesting)
+% 	\item discuss the improvements we get (i.e. first discuss the metric we care about most)
+% 	\item discuss other interesting details
+% \end{itemize}
+% Discussing the two examples together let's us compare their results easier, i.e.
+% point out differences or commonalities.}
+
+%\eva{Fix Table 1 caption. It's not the difference, but savings. Difference is absolute.}
+%\eva{Compute the actual averages for all F, G, H, K and not only approximations}
+For the inverted pendulum, minimal uniform precision saves on average $52.6\%$ of memory
+compared to a uniform 32 bit baseline overall, i.e. for $F$, $G$, $H$ and $K$ together. 
+Mixed-precision further reduces the memory
+requirement by $10.5\%$ on average with respect to the minimal uniform baseline (and 57.5\% w.r.t to 
+uniform 32 bit baseline). 
+\autoref{tab:ipd} shows a more detailed breakdown of the memory requirements and savings
+between $F$, $G$, $H$ and $K$.
+The memory requirements for the storage of hyperplanes $H$ and $K$ depends only on
+the size of the tubes $\varepsilon_Q$ so that memory requirements remain constant
+for fixed $\varepsilon_Q$.
+
+%\eva{Compute actual and overall averages here too}
+For the aircraft example, minimal uniform precision saves on average $19.3\%$
+overall w.r.t. a uniform 32 bit baseline, and mixed-precision saves an
+additional $17.7\%$ w.r.t. minimal uniform precision (33.6\% w.r.t to uniform 32 bit). We observe higher relative
+memory savings by mixed-precision for storing $H$ and $K$ than for the inverted pendulum example.
+
+% we save 20\% (in average) of memory when activation functions
+% are in minimal uniform precision, and an additional 7\% (in average) when we use
+% mixed precision. For the storage of hyperplanes equations, we save more than
+% 19\% of memory (in average) from uniform precision in 32bits to minimal uniform
+% precision, and an additional 19\% (in average) from uniform to mixed precision.
+
+% We use Matlab's MPT toolbox~\cite{matlabMPT} to compute the
+% explicit MPC, while underlying computations rely on YALMIP(\cite{matlabYALMIP}).
+%We evaluate our algorithm with different choices of $\varepsilon_Q$ and $\Delta$.
+
+For the inverted pendulum MPT toolbox~\cite{matlabMPT} computes a controller
+consisting of $14$ regions with $58$ 2D hyperplanes in total for all choices of $\varepsilon_Q$ and $\Delta$. 
+For the aircraft model, Matlab computes a robust EMPC with
+$27$ regions and $217$ 4D hyperplanes for most values of $\varepsilon_Q$ and $\Delta$. 
+The only exception is when $\Delta=0.30$
+and $\varepsilon_Q=0.001$ for which we get $26$ regions having $208$ hyperplanes.
+In general, we expect that increasing $\Delta$ results in shrinking of feasible
+set size.
+
+%We noticed the following common behavior in the two benchmarks: 
+As expected, when $\Delta$ decreases, the control actions ($F$, $G$) need to be implemented
+more precisely and require more memory, because the space for approximation error
+is reduced. Similarly, when the value of $\varepsilon_Q$ increases, the memory
+requirements for $H$ and $K$ can be relaxed.
+
+%We note two differences among these two benchmarks.
+We note that for the aircraft example,
+the precision for $F$ and $G$ is almost double with respect to the pendulum. This is
+because the magnitude of $F$ and $G$ is on the order of $10^{3}$ while for the
+pendulum it is on the order of several units. Note, however, that for $F$ and $G$ the memory gain
+from minimal uniform to mixed precision (\%UvM) is only slightly less than the one for the pendulum.
+
+
+%The second difference consists in the last two lines in Table\ref{tab:ipd}.
+For the aircraft example, when $\varepsilon_Q=0.0030$, the error due to selecting the wrong region (\maxUij) 
+exceeds the given value of $\Delta=0.1$ and our algorithm
+needs to design a new controller (corresponding to the \texttt{else} branch in~\autoref{lst:alg}). 
+The loop converges after 5 iterations (\texttt{then}
+branch in our algorithm) with $\Delta=0.112$. In each iteration, the value
+for $\Delta$ is increased by $\varepsilon_{SAFE} = 10^{-3}$.
+Thus, the algorithm reduces memory demand
+at the expense of slightly more disturbance for the controller. When
+$\varepsilon_Q=0.0050$ the analysis converges after 4 iterations.
+For the other values of $\Delta$ and $\varepsilon$ and for the pendulum example,
+the loop in~\autoref{lst:alg} is executed only once.
+
+% \eva{It is still not clear to me whether we need this discussion or the columns `max' and `$err(u_i)$'
+% in the table. These are internal computations and it seems that they do not really show anything
+% surprising/different than the number of bits show?}
+% The first halves of both pendulum and aircraft sections in \autoref{tab:ipd},
+% show how $\Delta$ does not affect the maximal error among regions \maxUij. We
+% verify that a variation for $\Delta$ (typically in the order of $\pm$ 0.1)
+% results in a minimal alteration to the domain of regions X (in the order of $\pm
+% 10^{-10}$), not enough to produce a sensitive variation to \maxUij. Then, when
+% \maxUij\space is constant the error bound for computations $err(u_{i})$
+% decreases together with $\Delta$. The memory required for the storage of F and G
+% depends on $err(u_{i})$: the smaller the value for $err(u_{i})$, the more
+% precise has to be the arithmetic for activation functions.
+
+% In the second halves in \autoref{tab:ipd}, we fix the value for $\Delta$ and we
+% try different $\varepsilon_Q$. When we increase the safe space between two regions
+% by $\varepsilon_Q$, the value for \maxUij is computed for new corner points. It
+% happens because of the continuity of PWA activation functions: when
+% \statevarmath is on the border between two generic regions $i$, $j$ the value
+% for \maxUij is close to zero. The more $\varepsilon_Q$ moves \statevarmath far
+% from the border, the more \maxUij increases. When \maxUij is almost equal to
+% $\Delta$, the space for $err(u_{i})$ is minimized, and the controller requires
+% high precision for computations (see last lines for pendulum and aircraft in
+% Table\ref{tab:ipd}). On the other hand, when $\varepsilon_Q$ increases, the
+% analysis can reduce the memory requirements for the storage of borders (see
+% columns Uni and Mix in the second halves of both benchmarks).
+
+
+
+
+\subsection{Scalability}
+%\Mahmoud{
+The goal of the experiment in this section is to show that our algorithm works
+well even for the case that the controller consists of thousands of regions.
+%Using the algorithm described in Section \ref{???}, the minimum number of bits for storing the controller is computed such that $\delta$ and $\varepsilon$ are respected. 
+This experiment is different from the end-to-end case in the sense that
+designing robust EMPC for the error bound $\Delta$ is replaced with designing
+EMPC that might not account for $\Delta$. Given an EMPC, one can perform
+robustness analysis to come up with an input error bound $\Delta$ under which
+the performance specifications are satisfied. From the implementation point of
+view, this helps us to generate controllers with thousands of regions,
+skiping the restrictions for designing robust EMPC with longer time horizons. 
+% At this point, our algorithm takes $\Delta$ (along with a properly selected
+% $\varepsilon_Q$) and produces the optimum mixed precision that results in
+% significant memory save.
+
+The benchmark in this experiment is the double integrator, a canonical example
+of a second order control system. The state space description
+for the discrete time version of the double integrator is given by:
+\begin{equation}
+x_{k+1}=
+\begin{bmatrix}
+1 & T_s\\
+0& 1	
+\end{bmatrix}
+x_k+
+\begin{bmatrix}
+0\\
+T_s
+\end{bmatrix}u_k
+\label{eq:int2_ss}
+\end{equation}
+where, $T_s=0.1$ is the sample time. The state and input constraints are
+\begin{align*}
+	\begin{bmatrix}
+		-5\\-5
+	\end{bmatrix}\leq&
+	x_k\leq
+	\begin{bmatrix}
+	5\\5
+	\end{bmatrix}, \quad
+	-1\leq u_k \leq 1
+\end{align*}%}
+%\eva{More details about this + citation}
+
+
+For this example, $\Delta$ and $\varepsilon_Q$ are fixed to $0.1$ and $0.001$,
+respectively. By changing the time horizon $N$, we evaluate the scalability
+of our approach for controllers with very large number of regions, as 
+increasing $N$ generally results in a higher number of regions for the output controller. To
+compute the explicit model predictive controllers for different time horizons,
+we use Matlab's MPC toolbox. %\todo{is this the same as before? If so, add a 'again'}
+ 
+%For this example, we fix the values for $\delta$ to $0.1$ and $\varepsilon$ to $0.001$,
+%but we consider also the prediction horizon $N$, as an input parameter for the
+%analysis. At design time, the prediction horizon of the controller m models how
+%many future iterations of the feed-forward system are considered in the
+%optimization problem (infinite horizon would correspond to the optimal
+%controller). Note that in this example, the number of regions is highly
+%correlated with the prediction horizon m of the controller: the number of regions
+%increases with larger m, and thus also increases the execution time of our analysis.
+%Even if this is a general behavior, it is not the rule.
+%\eva{What does the above sentence mean?}
+
+The design of the controller in Matlab takes a few minutes, then controllers and
+hyperplanes are encoded in Daisy for finite-precision assignment. On average, the
+analysis of a single controller or hyperplane in Daisy requires less than two
+minutes and less than 500MB of memory. The finite-precision assignment is trivially parallelizable, 
+because any controller or hyperplane can be analyzed independently.
+We thus run this analysis on a cluster with 48 cores, and note that the 
+memory consumption remains below 15GB. 
+%\eva{There should be an explanation why this is not providing end-to-end robustness}
+
+
+\autoref{tab:di} shows the results of this experiment.
+We observe that our analysis scales up to 1829 controllers and 14632 hyperplanes in a few hours.  The computed minimal uniform precision saves on average $44.5\%$ of memory
+compared to a uniform $32$ bit baseline overall (for $F$, $G$, $H$ and $K$ together). 
+Moreover, mixed-precision reduces the memory requirement by an additional
+$9.3\%$ on average with respect to the minimal uniform baseline (49.6\% w.r.t. uniform 32 bit).
+We further observe that relative savings remain largely constant for different 
+prediction horizons.
+% \autoref{tab:di} shows the stability of memory tuning in Daisy is
+% constant with respect to the number of controllers or hyperplanes. This is true
+% for both F, G and H, K. Indeed, the memory gain from uniform in 32bits and
+% minimal uniform (\%32vU) is constant among different input values m. The same
+% holds for (\%UvM).
