@@ -54,7 +54,7 @@ F_2x_k+G_2 & \text{if $x_k\in \mathcal{R}_2$}\\
 F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
 \end{cases} 
 \end{equation}
-where $\mathcal{R}_i$ is a polyhedral region determined by a set of linear inequalities $\mathcal R_i = \{x\in\mathcal X\,|\,H_ix\leq K_i\}$. 
+where $\mathcal{R}_i$ is a polyhedral region determined by a set of linear inequalities $\mathcal R_i = \{x\in\mathcal X\,|\,H_ix\leq K_i\}$. \footnote{\Mahmoudd{we omit the proof as it is not among this paper's contributions. Further details can be found in \cite{delaPea:2005}.}}
 \end{theorem}
 The essential idea behind this theorem is to utilize the closed form $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$ and transform the optimization \eqref{eq:RMPC_prob} into the following quadratic program:
 %\begin{align}
@@ -85,7 +85,7 @@ At each time step $k$, the current state $x_k$ is used to detect the polyhedral 
 such that $H_i x_k\le K_i$. Then the control action $v_k = F_i x_k + G_i$ is computed and applied to the system.
 Several algorithms are proposed in the literature \cite{Mnnigmann:2011,Jones:2006} to find the right polyhedral region $i$ to which the state $x_k$ belong. 
 The most straightforward technique is a linear search over all polyhedral regions (Fig.~\ref{lst:caseof}).
-\Mahmoud{
+\Mahmoudd{
 \begin{remark}
 	The total time to evaluate the PWA function for a given $x_k$ in \autoref{eq:affine_map} consists of two steps:
 	\begin{itemize}
