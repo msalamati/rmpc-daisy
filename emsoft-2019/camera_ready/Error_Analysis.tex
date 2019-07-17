@@ -95,7 +95,10 @@ memory storage required.
  \label{eq:maximization}
  \max_{x,i,j}\{\|F_ix+G_i-F_jx-G_j\|,\,x\in \bar{\mathcal B}_{ij}\}.
 % \max_{\forall i,j.\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})}&|F_{i}\statevar+G_{i} - (F_{j}\statevar+G_{j})|
- \end{equation} 
+ \end{equation}\Mahmoud{ 
+ \begin{remark}
+ 	Our formulation is general enough to take the effect of measurement/process noise into account. More specifically, $\Delta$ in $\mathcal{W}_{\Delta}$ can in general give upper-bound over the sum of uncertainties with different sources. However, this is not subject of study of the current paper. Moreover, to cover nonlinear systems, one approach is to linearize them around an appropriately selected equilibrium point of the system and to model the differences as a bounded disturbance as in \autoref{eq:RMPC_prob}. Taking the upper bound over nonlinearities into account will result in enlarging $\Delta$ which characterizes $\mathcal{W}_{\Delta}$. For reasonable values of $\Delta$, in principle RMPC design should work successfully. Further, it should be noticed that the rest of analysis (over MATLAB and Daisy) do not rely on the LTI property of the under study system and could be adjusted for other families of controllers. However, such analysis are beyond the scope of this paper as (perturbed) LTI systems are considered as an important class of dynamical systems.
+ 	\end{remark}}
  
 %and in the absence of any uncertainty from hardware measurements we would choose
 %control action $v_{i}$, but due to uncertainties we actually choose control action $v_{j}$:
@@ -241,7 +244,9 @@ While our actual synthesis algorithm (\autoref{sec:Controller_Synthesis}) does
 not compute the errors $\varepsilon_Q$ and $err(v_{i})_{p}$ explicitly, the
 error verification is used internally by Daisy to determine a suitable precision
 $p$ and can also be called explicitly without the precision optimization.
-
+\Mahmoud{\begin{remark}
+	MATLAB and Daisy are solely used for offline computations. The output of our algorithm contains (almost) all the information required for implementation of the verified controller over embedded systems. Therefore, the same savings can be expected when the controller is implemented on an actual embedded system.
+\end{remark}}
 \begin{comment}
 \textcolor{red}{Sadegh: This is long comment on the content of this section. I cannot figure out how this line of reasoning is mapped to the implementation. We can discard my comment given that we are close to the deadline.}
 

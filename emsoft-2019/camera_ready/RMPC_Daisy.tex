@@ -85,7 +85,16 @@ At each time step $k$, the current state $x_k$ is used to detect the polyhedral 
 such that $H_i x_k\le K_i$. Then the control action $v_k = F_i x_k + G_i$ is computed and applied to the system.
 Several algorithms are proposed in the literature \cite{Mnnigmann:2011,Jones:2006} to find the right polyhedral region $i$ to which the state $x_k$ belong. 
 The most straightforward technique is a linear search over all polyhedral regions (Fig.~\ref{lst:caseof}).
-
+\Mahmoud{
+\begin{remark}
+	The total time to evaluate the PWA function for a given $x_k$ in \autoref{eq:affine_map} consists of two steps:
+	\begin{itemize}
+		\item Selecting the region $\mathcal R_i$ such that $x_k\in \mathcal R_i$.
+		\item To evaluate the corresponding affine map $F_i x_k +G_i$. 
+	\end{itemize}
+	Evaluating the affine map is straightforward and requires less computational effort compared to the region selection step. Direct implementation of region selection (\autoref{lst:caseof}) is simple, but inefficient. More efficiency can be achieved by leveraging binary search tree structures (e.g. \cite{Mnnigmann:2011}). In general, explicit MPC is well-known for its high-speed implementation over embedded systems with low computational power. \cite{Johansen:2007} shows that explicit MPCs with hundreds of regions can be implemented on application specific integrated circuit (ASIC) with about $20000$ gates, leading to computation times in the order of $1\mu s$. In \cite{Bemporad:2006}, it is shown that for typical problems evaluating the explicit MPC takes significantly shorter time in comparison to solving on-line QP.
+\end{remark}
+}
 \begin{figure}[t]
 \begin{lstlisting}[mathescape=true,basicstyle=\small\ttfamily,morekeywords={if, then, elseif, return}]
 if ($H_{1}\statevar \leq K_{1}$) then $v_{k}=F_1x_k+G_1$
