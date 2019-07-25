@@ -18,22 +18,22 @@ MPC computes such a function \emph{online}, whereas a conventional controller pr
 The online computations required in MPC limits its applicability to slow processes and fast computation platforms: 
 the sampling time has to be large enough and the platform fast enough to allow enough time for solving the optimization problem
 and obtaining the optimal action for the next time instance. 
-Moreover, the optimization solver needs to be certified when using MPC in safety critical applications \Mahmoud{\cite{Alessio2009}}.
+Moreover, the optimization solver needs to be certified when using MPC in safety critical applications~\cite{Alessio2009}.
 
 One way to tackle these problems is through \emph{explicit MPC} (EMPC) \cite{Bemporad:2002,Alessio2009}, which formulates the optimization
 problem but computes offline a symbolic representation of the solution as a function of the state.
 At run-time, the solution is evaluated on the current state as in conventional control.
 For example, for linear time invariant models with linear constraints and quadratic costs, the optimization
 problem for MPC can be modeled as a quadratic program, and EMPC techniques solve the optimization problem
-using multi-parametric programming techniques.
+using multi-parametric programming.
 The explicit solution is representable as a partition of the controller domain into a number of polyhedral regions,
 and an affine map for each region. 
-\Mahmoud{Given the current state, EMPC draws the corresponding affine mapping out of a stored lookup table and evaluates the control.}
-Explicit MPC thus expands the class of systems being controlled by MPC strategies, by taking out the need to \Mahmoud{perform massive online computations}
-or to certify a complex optimization routine \Mahmoud{\cite{memoryMPC}}.
+Given the current state, EMPC draws the corresponding affine mapping out of a stored lookup table and evaluates the control.
+Explicit MPC thus expands the class of systems being controlled by MPC strategies, by taking out the need to perform massive online computations
+or to certify a complex optimization routine \cite{memoryMPC}.
 
 However, there are still bottlenecks in implementing EMPC on resource-constrained embedded micro-controllers.
-First, implementations of EMPCs \Mahmoud{over industrial micro-controllers with limited memory} can suffer from large memory usage, because the solution of the optimization
+First, implementations of EMPCs on industrial micro-controllers with limited memory can suffer from large memory usage, because the solution of the optimization
 problem can involve many (often hundreds) of regions~\cite{memoryMPC}.
 Since the memory consumption grows linearly with the number of regions, 
 this can be a limiting factor in using EMPC on resource-constrained micro-controllers.
@@ -51,7 +51,7 @@ robustness margin.
 
 
 Our proposed method iteratively solves a robust version of MPC 
-\Mahmoud{that} considers finite-precision implementation errors as disturbances
+that considers finite-precision implementation errors as disturbances
 in the dynamics \cite{RamirezC06}; see~\autoref{fig:overview}.
 Initially, we estimate a bound $\Delta = \Delta_0$ on the implementation error and solve a
 min-max quadratic program for explicit robust MPC \cite{delaPea:2005,RamirezC06}, where the system
@@ -78,8 +78,8 @@ We have implemented our algorithm on top of Matlab's multi-parametric toolbox
 for robust explicit MPC~\cite{matlabMPT}
 and the Daisy tool for multi-precision tuning and fixed-point error analysis~\cite{Daisy}. %\Mahmoud{It should be noticed that MATLAB and Daisy are solely used for offline computations. The output of our algorithm contains the information required for implementation of the verified controller over embedded systems.}
 
-We have applied our technique on a number of standard benchmark examples. \Mahmoud{Taking all these benchmarks into account,}
-our algorithm finds mixed-precision implementations \Mahmoud{that} save up to 20.9\%
+We have applied our technique on a number of standard benchmark examples. Taking all these benchmarks into account,
+our algorithm finds mixed-precision implementations that save up to 20.9\%
 memory (on average, 12.6\%) in controller implementations over a minimal
 uniform-precision implementation (and an average saving of 46.8\% over a uniform
 32-bit implementation), while maintaining the correctness of the controller.
@@ -89,11 +89,11 @@ We also demonstrate the scalability of our mixed-precision tuning and error boun
 we show that on explicit MPC controllers with thousands of regions, our tool finishes in a few hours.
 In absolute terms, the memory saving corresponds to 21KB over a uniform
 precision implementation on our largest benchmark. %\Mahmoud{It should be noticed that these savings are not affecting the run-time. Synthesis of the controller and the corresponding precisions are all performed offline.}
-\Mahmoudd{It should be noticed that EMPC is a class of controllers which is mainly appropriate for implementation over processors with limited computational power and memory. Typical memory of these processors is in the order of tens of kilobytes (e.g. $32$ KB) and hence $21$ KB is considered as a significant saving. Also, memory savings are not affecting the run-time as synthesizing of the controller and the corresponding mixed precision computations are all performed offline.}\\
+\Mahmoudd{We note that EMPC is a class of controllers that is mainly appropriate for implementation over processors with limited computational power and memory. Typical memory of these processors is in the order of tens of kilobytes (e.g. $32$ KB) and hence $21$ KB is considered as a significant saving. Also, the memory savings do not affect the run-time since  the controller synthesis and the corresponding mixed precision computations are all performed offline.}\\
 In summary, our contributions are:
 \begin{itemize}
-\item We provide an end-to-end automatic tuning algorithm for robust explicit MPC that ensures \Mahmoud{that}
-hard constraints on the state are met despite numerical errors;
+\item We provide an end-to-end automatic tuning algorithm for robust explicit MPC that ensures satisfaction of
+hard constraints on the state despite numerical errors;
 \item We design a static and scalable error analysis algorithm for piecewise affine functions to bound
 errors in controller implementations; and
 \item Through a set of standard control benchmarks, we demonstrate that our tuning algorithm

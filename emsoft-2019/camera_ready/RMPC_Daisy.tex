@@ -10,7 +10,7 @@ We consider the class of linear time-invariant (LTI) systems characterized by th
 \label{eq:DSS}
 x_{k+1}=Ax_k+Bu_k+Ew_k,\quad  k=0,1,2,\ldots
 \end{equation}
-where $x\in \reals^{n\times 1}$ is the state, $u\in \reals^{m\times 1}$ is the control input and $w\in \reals^{d\times 1}$ is the disturbance. Matrices $A\in \reals^{n\times n}$, $B\in \reals^{n\times m}$ and $E\in \reals^{n\times d}$  capture respectively the effects of current state, input and disturbance on the next state. We assume the disturbance $w$ belongs to a set $\Mahmoud{\mathcal{W}_{\Delta}}$ where $\Mahmoud{\mathcal{W}_{\Delta}}$ is a polyhedral set \Mahmoud{defined by \autoref{eq:W_delta}}.
+where $x\in \reals^{n\times 1}$ is the state, $u\in \reals^{m\times 1}$ is the control input and $w\in \reals^{d\times 1}$ is the disturbance. Matrices $A\in \reals^{n\times n}$, $B\in \reals^{n\times m}$ and $E\in \reals^{n\times d}$  capture respectively the effects of current state, input and disturbance on the next state. We assume the disturbance $w$ belongs to a set $\mathcal{W}_{\Delta}$ where $\mathcal{W}_{\Delta}$ is a polyhedral set defined in \autoref{eq:W_delta}.
 In this paper, we focus on the robust formulation of MPC which at each time step
 minimizes the worst-case value of an objective function with respect to the
 disturbances over the control inputs. We assume the objective function is
@@ -30,7 +30,7 @@ The constrained optimization at each time step is of the form
 J^{\ast}(x_0)=&\min_{v_0,\cdots,v_{N-1}} \max_{w_0,\cdots,w_{N-1}} \sum_{i=0}^{N-1}(x_i^TQx_i+u_i^TRu_i) + x_N^TQ_Fx_N\nonumber\\
 \text{s.t.} \quad &x_{i+1}=Ax_i+Bu_i + E w_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
 \quad &u_i=\mu x_i+v_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
-&u_i\in\mathcal{U},x_i\in\mathcal{X},\quad \forall w_i\in\Mahmoud{\mathcal{W}_{\Delta}},\,\,\forall i\in\{0,1,\cdots,N\},
+&u_i\in\mathcal{U},x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W}_{\Delta},\,\,\forall i\in\{0,1,\cdots,N\},
 %&x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W},\quad\forall i\in\{0,1,\cdots,N\},
 \end{align}
 %\Sadegh{The role of disturbance is missing in the inequalities. We should say, we want to satisfy the inequalities for all possible values of the disturbance.}
@@ -54,9 +54,10 @@ F_2x_k+G_2 & \text{if $x_k\in \mathcal{R}_2$}\\
 F_Px_k+G_P & \text{if $x_k\in \mathcal{R}_P$}
 \end{cases} 
 \end{equation}
-where $\mathcal{R}_i$ is a polyhedral region determined by a set of linear inequalities $\mathcal R_i = \{x\in\mathcal X\,|\,H_ix\leq K_i\}$. \footnote{\Mahmoudd{we omit the proof as it is not among this paper's contributions. Further details can be found in \cite{delaPea:2005}.}}
+where $\mathcal{R}_i$ is a polyhedral region determined by a set of linear inequalities $\mathcal R_i = \{x\in\mathcal X\,|\,H_ix\leq K_i\}$.
 \end{theorem}
-The essential idea behind this theorem is to utilize the closed form $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$ and transform the optimization \eqref{eq:RMPC_prob} into the following quadratic program:
+
+The proof of this theorem can be found in \cite{delaPea:2005}. The essential idea behind the theorem is to utilize the closed form $x_i=A^ix_0+\sum_{l=0}^{i-1}A^{i-l-1}Bu_l$ and transform the optimization \eqref{eq:RMPC_prob} into the following quadratic program:
 %\begin{align}
 %	&\min_{U_N}U_N^TZU_N+x_0^TVU_N+x_0^TYx_0\nonumber\\
 %	&s.t.\quad JU_N\leq s+Dx_0
@@ -80,21 +81,24 @@ Let us denote the set of states $x_0$ for which the optimization  \eqref{eq:mult
 \end{equation}
 
 
-The implementation of the controller stores the matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. 
+The implementation of the controller stores matrices $F_i,G_i,H_i,K_i$ for all $i\in\{1,2,\ldots,P\}$. 
 At each time step $k$, the current state $x_k$ is used to detect the polyhedral region 
 such that $H_i x_k\le K_i$. Then the control action $v_k = F_i x_k + G_i$ is computed and applied to the system.
 Several algorithms are proposed in the literature \cite{Mnnigmann:2011,Jones:2006} to find the right polyhedral region $i$ to which the state $x_k$ belong. 
 The most straightforward technique is a linear search over all polyhedral regions (Fig.~\ref{lst:caseof}).
 \Mahmoudd{
 \begin{remark}
-	The total time to evaluate the PWA function for a given $x_k$ in \autoref{eq:affine_map} consists of two steps:
-	\begin{itemize}
-		\item Selecting the region $\mathcal R_i$ such that $x_k\in \mathcal R_i$.
-		\item To evaluate the corresponding affine map $F_i x_k +G_i$. 
-	\end{itemize}
-	Evaluating the affine map is straightforward and requires less computational effort compared to the region selection step. Direct implementation of region selection (\autoref{lst:caseof}) is simple, but inefficient. More efficiency can be achieved by leveraging binary search tree structures (e.g. \cite{Mnnigmann:2011}). In general, explicit MPC is well-known for its high-speed implementation over embedded systems with low computational power. \cite{Johansen:2007} shows that explicit MPCs with hundreds of regions can be implemented on application specific integrated circuit (ASIC) with about $20000$ gates, leading to computation times in the order of $1\mu s$. In \cite{Bemporad:2006}, it is shown that for typical problems evaluating the explicit MPC takes significantly shorter time in comparison to solving on-line QP.
-\end{remark}
-}
+	The total time to evaluate the PWA function in \autoref{eq:affine_map} for a given $x_k$ consists of two steps: (a) selecting the region $\mathcal R_i$ such that $x_k\in \mathcal R_i$ and (b) evaluating the corresponding affine map $F_i x_k +G_i$.
+	Evaluating the affine map is straightforward and requires less computational effort compared to the region selection step. Direct implementation of region selection (\autoref{lst:caseof}) is simple, but inefficient. More efficiency can be achieved by leveraging binary search tree structures (e.g. \cite{Mnnigmann:2011}).\\
+	In general, explicit MPC is well-known for its high-speed implementation over embedded systems with low computational power. The authors in \cite{Johansen:2007} show that explicit MPCs with hundreds of regions can be implemented on application specific integrated circuits (ASIC) with about $20000$ gates, leading to computation times in the order of $1\mu s$. It is shown in \cite{Bemporad:2006} that for typical problems evaluating the explicit MPC takes significantly shorter time in comparison to solving on-line quadratic programs.
+\end{remark}}
+
+\Mahmoudd{ 
+ \begin{remark}
+ It should be noticed that EMPC is a class of controllers specifically proposed for linear time invariant (LTI) systems. To cover nonlinear systems, one approach is to linearize them around an appropriately selected equilibrium point of the system and to model the differences as a bounded disturbance as in \autoref{eq:RMPC_prob}. Taking the upper bound over nonlinearities into account will result in enlarging $\Delta$ which characterizes $\mathcal{W}_{\Delta}$. For reasonable values of $\Delta$, in principle RMPC design should work successfully. Further, it should be noticed that the rest of analysis in the sequel (over MATLAB and Daisy) do not rely on the LTI property of the system under study and could be adjusted for other families of controllers.
+ %However, such analysis are beyond the scope of this paper as (perturbed) LTI systems are considered as an important class of dynamical systems.
+\end{remark}}
+
 \begin{figure}[t]
 \begin{lstlisting}[mathescape=true,basicstyle=\small\ttfamily,morekeywords={if, then, elseif, return}]
 if ($H_{1}\statevar \leq K_{1}$) then $v_{k}=F_1x_k+G_1$

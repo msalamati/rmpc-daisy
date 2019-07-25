@@ -7,7 +7,7 @@
  $\Delta$ = input()
  $\varepsilon_{Q}$ = input()
  assert ($\Delta$ >= 0 and $\varepsilon_{Q}$ > 0)
- $\varepsilon$ = $\varepsilon_{A/D}$ + $\varepsilon_{Q}$<@\Mahmoud{//width of the tube}@>
+ $\varepsilon$ = $\varepsilon_{A/D}$ + $\varepsilon_{Q}$<@$\quad$//\,\,width of the tube@>
 
  while true:
    $F$, $G$, $H$, $K$ = design_robust_MPC(model, $\Delta$)
@@ -91,7 +91,7 @@ experiments in~\autoref{sec:experiments}, we vary this value manually.
 % The latter has to be strictly greater than zero, otherwise we could rely on infinite precision for storage of borders. Usually, the value for $\varepsilon_{Q}$ is in the order of 0.001.
 
 Unlike the initial $\Delta$, $\varepsilon_Q$ needs to be strictly positive (line 4)
-for mixed-precision tuning tools to work correctly. \Mahmoudd{Typical values for $\varepsilon_Q$ can range from $10^{-4}$ up-to $10^{-2}$. Increasing the $\varepsilon_Q$ leads into more memory save over $H$ and $K$, while requiring more precision for $F$ and $G$. Of course, too large values for $\varepsilon_Q$ can result in failure of RMPC design. However, this is usually not the case over reasonable choices for $\varepsilon_Q$.}
+for mixed-precision tuning tools to work correctly. \Mahmoudd{Typical values for $\varepsilon_Q$ can range from $10^{-4}$ up to $10^{-2}$. Increasing $\varepsilon_Q$ leads into more memory save over $H$ and $K$ while requiring more precision for $F$ and $G$. Of course, too large values for $\varepsilon_Q$ can result in failure of the RMPC design. However, this is usually not the case over reasonable choices for $\varepsilon_Q$.}
 Line 5 computes the width of the tubes $\varepsilon$ as shown in~\autoref{eq:epsilontot},
 which will be used to bound the error due to selecting the wrong region
 ($\varepsilon_{A/D}$ is a constant parameter dependent on the specifics of the
@@ -131,19 +131,8 @@ For the precision assignment, we first call Daisy with the expressions for the
 control actions given by $F$ and $G$, and the remaining error
 budget as the error bound (line 12).
 Then we call Daisy with the expressions of the region bounds given by $H$
-and $K$, now with the error bound $\varepsilon_Q$ (line 13).\Mahmoudd{
-\begin{remark}
-From a theoretical point of view, the error due to wrong region selection does not necessarily converge as each new designed controller may differ from the previous ones. Therefore, it is not easy to give an upper bound over the number of times that the robust MPC design needs to be repeated. However, by rewriting \autoref{eq:RMPC_prob}, we have
-\begin{align*}
-\label{eq:argmin}
-&u_0(x_0,\Delta),\cdots,u_{N-1}(x_0,\Delta)=\\
-&argmin \max_{w_0,\cdots,w_{N-1}} \sum_{i=0}^{N-1}(x_i^TQx_i+u_i^TRu_i) + x_N^TQ_Fx_N\nonumber\\
-&\text{s.t.} \quad x_{i+1}=Ax_i+Bu_i + E w_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
-%\quad &u_i=\mu x_i+v_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
-&u_i\in\mathcal{U},x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W}_{\Delta},\,\,\forall i\in\{0,1,\cdots,N\},
-\end{align*}
-one can use results on continuity of $argmin$ function, assuming its unique solution to every $\Delta$, to  compute the Lipschitz constant for it over variations of $\Delta$. The computed Lipschitz constant will be only dependent on the dynamics of the system depicted in \autoref{eq:DSS} and hence can be used to evaluate the maximum error over incorrect region selection. This Lipschitz constant can be quite large, leading into a very conservative bound on maximum number of iterations before convergence. However, from an experimental point of view, using a reasonable $\varepsilon_{SAFE}$, our observations show that convergence always happened after only a few iterations.
-\end{remark}}
+and $K$, now with the error bound $\varepsilon_Q$ (line 13).
+
 In both cases, Daisy determines a quantization of the input matrices (Daisy also
 determines the fixed-point formats of the arithmetic operations, which we ignore here).
 Daisy either computes a minimal uniform fixed-point precision (i.e. word length),
@@ -161,11 +150,33 @@ that mixed precision leads to smaller memory footprints.
 Note that Daisy always returns a quantization (at least for our linear
 expressions). If the error bound given is very small (but larger than zero),
 Daisy will return a fixed-point precision with a large number bits, but will not
-fail.\\
-\Mahmoudd{In \cite{Alessio2009} it is shown that the upper bound over the number of regions $P$ is $2^q$, where $q$ denotes the total number of constraints in \autoref{eq:RMPC_prob}. In theory one cannot find an upper bound for the maximum number of hyperplanes enclosing a region. To compute the incorrect region selection error, assuming that each partition at most has $\bar n_f$ faces, in the worst case $i\times\bar n_f\times 2^q$ affine computations would be enough, where $i$ denotes the number of times that RMPC design is repeated for updated $\Delta$s. In our experiments, computation of incorrect region selection takes only a few minutes for our largest tested benchmarks. %\underline{\textbf{Rocco: What about complexity of Daisy's computations in terms of number of regions $P$ and $n$?}} 		
+fail.
+
+\smallskip
+\noindent
+\Mahmoudd{
+\textbf{Termination of the algorithm.}
+From a theoretical point of view, the error due to a wrong region selection does not necessarily converge since each new designed controller may differ from the previous ones. Therefore, it is not easy to give an upper bound over the number of times that the robust MPC design needs to be repeated. However, by rewriting \autoref{eq:RMPC_prob}, we have
+\begin{align*}
+\nu_0(x_0, \Delta),\ldots&,\nu_{N-1}(x_0,\Delta)=\\
+argmin & \max_{w_0,\cdots,w_{N-1}} \sum_{i=0}^{N-1}(x_i^TQx_i+u_i^TRu_i) + x_N^TQ_Fx_N\nonumber\\
+\quad  \text{s.t.} \quad & x_{i+1}=Ax_i+Bu_i + E w_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
+\quad \quad & u_i=\mu x_i+v_i, \quad\forall i\in\{0,1,\cdots,N-1\}\nonumber\\
+\quad \quad & u_i\in\mathcal{U},x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W}_{\Delta},\,\,\forall i\in\{0,1,\cdots,N\}.
+%&x_i\in\mathcal{X},\quad \forall w_i\in\mathcal{W},\quad\forall i\in\{0,1,\cdots,N\},
+\end{align*}
+Assuming the optimization has a unique solution for every $\Delta$, 
+one may use the results on continuity of the $argmin$ function to compute an upper bound on the Lipschitz constant of the optimal input $\nu = \kappa(x)$ in Equation~\eqref{eq:affine_map} that holds for all $\Delta$. The computed bound will only depend on the dynamics of the system depicted in \autoref{eq:DSS} and hence can be used to evaluate the maximum error over incorrect region selection. This bound can be quite large, leading to a very conservative bound on the maximum number of iterations before convergence. From an experimental point of view, our observations show that using a reasonable $\varepsilon_{SAFE}$, convergence always reached after only a few iterations.}
+
+\smallskip
+\noindent
+\Mahmoudd{
+\textbf{Computational complexity.} It is shown in \cite{Alessio2009} that the number of regions $P$ in Equation~\eqref{eq:affine_map} is upper bounded by $2^q$, where $q$ is the total number of constraints in \autoref{eq:RMPC_prob}.
+%In theory, one cannot find an upper bound for the maximum number of hyperplanes enclosing a region.
+Assuming that each region has at most $\bar n_f$ hyperplanes, computation of the incorrect region selection error requires at most $i\times\bar n_f\times 2^q$ affine computations, where $i$ denotes the number of times the RMPC design updates $\Delta$ before convergence. In our experiments, the computation of the incorrect region selection error takes only a few minutes for our largest tested benchmarks. %\underline{\textbf{Rocco: What about complexity of Daisy's computations in terms of number of regions $P$ and $n$?}} 		
 \\
-The complexity of precision tuning is linear with respect to the number of regions and hyperplanes. So, $P+\bar n_f\times P$ is an upper bound for the number of problems we need to encode in Daisy.
-In each encoding, the uniform-precision detection takes linear number of steps before convergence. It starts from 1-bit and increases the precision one by one until the first valid configuration. The complexity of mixed-precision tuning, with delta-debugging, is $n\times log(n)$ in average, and bounded by $n^2$ in the worst case, with n number of variables.}
+The complexity of the precision tuning is linear with respect to the number of regions and hyperplanes. So, $(P+\bar n_f\times P)$ is an upper bound for the number of problems we need to encode in Daisy.
+In each encoding, the uniform-precision detection takes linear number of steps before convergence. It starts from 1-bit and increases the precision one by one until the first valid configuration. The complexity of mixed-precision tuning with delta-debugging is $n\times log(n)$ in average, and bounded by $n^2$ in the worst case, with $n$ being the number of variables.}
 
 
 % In case the conditional in line 9 succeeds, the precision tuning phase starts. The way we do the precision tuning is the following: we provide in input to Daisy a numerical error-bound together with an expression to quantize (e.g. an activation function). Daisy returns in output both the minimal-uniform precision, and the mixed-precision configuration, such that the quantization of the expression in the given precision configuration introduces an error that is bounded by the input error.
