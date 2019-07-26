@@ -25,11 +25,10 @@ error:
 
 We have to ensure that the sum of these two errors remain below the bound $\Delta$
 used in the design of the robust explicit MPC:
-\begin{align}
-  \max\{\|v_{i}-v_{j}\|,\,&\forall i,j,\,\, i\neq j, \mathcal{R}_{i}\cap\mathcal{R}_{j}\neq\emptyset\} \nonumber\\
-  &+  \max\{err(v_{i})_{p},\, i=1,2,\ldots,P\} \le \Delta.
+\begin{equation}
+  \max\{\|v_{i}-v_{j}\|,\,\forall i,j,\,\, i\neq j, \mathcal{R}_{i}\cap\mathcal{R}_{j}\neq\emptyset\} +  \max\{err(v_{i})_{p},\, i=1,2,\ldots,P\} \le \Delta.
   \label{eq:delta}
-\end{align}
+\end{equation}
 %where $i,j$ are the indexes of two distinct regions $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$, 
 The first term is the error of incorrect region selection. The maximum is taken over all neighboring regions 
 $\mathcal R_i,\mathcal R_j$ (two regions are neighboring if their intersection is non-empty).

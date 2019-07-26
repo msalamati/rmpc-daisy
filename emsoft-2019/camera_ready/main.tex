@@ -1,7 +1,14 @@
 %
 % The first command in your LaTeX source must be the \documentclass command.
 %\documentclass[sigconf,review,anonymous,dvipsnames]{acmart}
-\documentclass[sigconf]{acmart}
+\documentclass[acmsmall]{acmart}
+
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+	\providecommand\BibTeX{{%
+			\normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
 
 \usepackage{listings}
 \usepackage{multirow}
@@ -19,6 +26,7 @@
 \usepackage{adjustbox}
 \usepackage{subcaption}
 %\usepackage{showframe}
+\usepackage[justification=centering]{caption}
 
 \renewcommand{\dblfloatpagefraction}{0.5} % allow float page
 \def\sectionautorefname{Section}
@@ -91,7 +99,7 @@
 
 %
 % The "title" command has an optional parameter, allowing the author to define a "short title" to be used in page headers.
-\title{Memory-Efficient Mixed-Precision Implementations\\for Robust Explicit Model Predictive Control}
+\title{Memory-Efficient Mixed-Precision Implementations \\for Robust Explicit Model Predictive Control}
 
 %
 % The "author" command and its associated commands are used to define the authors and their affiliations.
@@ -201,6 +209,18 @@
 %
 % Keywords. The author(s) should pick words that accurately describe the work being
 % presented. Separate the keywords with commas.
+\begin{CCSXML}
+	<ccs2012>
+	<concept>
+	<concept_id>10010520.10010553.10010562.10010564</concept_id>
+	<concept_desc>Computer systems organization~Embedded software</concept_desc>
+	<concept_significance>100</concept_significance>
+	</concept>
+	</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[100]{Computer systems organization~Embedded software}
+
 \keywords{model-predictive control, robustness, fixed-point arithmetic}
 
 
@@ -221,6 +241,6 @@
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{biblio}
-\newpage
+%\newpage
 %\input{response}
 \end{document}

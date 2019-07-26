@@ -1,6 +1,6 @@
 % !TEX root = main.tex
 \begin{figure}[t]
-\centering
+%\centering
 	\tikzstyle{block} = [draw, rectangle, minimum height=4em, minimum width=6em]
 	\tikzstyle{block1} = [draw, rectangle, minimum height=2em, minimum width=6em]
 	\tikzstyle{block2} = [draw, rectangle, minimum height=1em, minimum width=4em]
@@ -8,14 +8,15 @@
 	\tikzstyle{input} = [coordinate]
 	\tikzstyle{output} = [coordinate]
 	\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+	%\begin{center}
 	{
 		
-		%\begin{center}
+		%\centering
 		%\hspace*{\fill} 
 		\begin{tikzpicture}[auto,node distance=1cm,>=latex']
 		\node [block,text width=3.8cm, pin={[pinstyle]above:$\Delta=\Delta_0$},
 		node distance=1cm, align=center, label={[anchor=south east, draw=black, inner sep=1pt]south east:MATLAB}] (RMPC) {Robust explicit MPC\\with disturbance set $\mathcal W_{\Delta}$};
-		\node [block1,below = 0.8cm of RMPC] (highprec) {\Mahmoud{High-precision controller (\autoref{eq:affine_map})}};
+		\node [block1,below = 0.8cm of RMPC] (highprec) {High-precision controller (\autoref{eq:affine_map})};
 		%\node[] (partitions) at (2.5,.5){\includegraphics[width=.08\textwidth]{Figs/regs.jpg}};
 		\node [block3,below=.8cm of highprec,
 		node distance=1cm,text width=4.4cm,  label={[anchor=south east, draw=black, inner sep=1pt]south east:MATLAB}] (Uij) {Incorrect region selection error};
@@ -23,9 +24,9 @@
 		\node [block3, below=0.8cm of decide,node distance=1cm, label={[anchor=south east, draw=black, inner sep=1pt]south east:Daisy}] (done) {Mixed-precision implementation};
 		\node [block2, right=1.3cm of decide,
 		node distance=1cm] (delta) {$\Delta=e+\varepsilon_{SAFE}$};
-		\node [block1,below = 0.8cm of done] (output) {Low-precision controller \Mahmoud{(\autoref{eq:affine_map})}};
+		\node [block1,below = 0.8cm of done] (output) {Low-precision controller (\autoref{eq:affine_map})};
 		%\node [scale=1] at (3,-.25)  {$u(x)=Kx+v$};
-		\node at (9,-.25) {$e$};
+		%\node at (9,-.25) {$e$};
 		
 		
 		\draw [draw,->, align=center] (RMPC) -- node [left] {}(highprec);
@@ -155,7 +156,7 @@ Solving the robust explicit MPC problem for this enlarged disturbance set gives 
 with 14 regions, shown in~\autoref{fig:inverted_pendulum}(b).
 A sample region with the corresponding affine map is shown below:
 \begin{equation*}
-\resizebox{.9\hsize}{!}{$
+%\resizebox{.9\hsize}{!}{$
 \begin{bmatrix}
 -0.005  &0.999\\
 -0.998  &-0.049\\
@@ -171,7 +172,7 @@ A sample region with the corresponding affine map is shown below:
 \Rightarrow
 u(x_k)=\begin{bmatrix}
 0.05&-9.67
-\end{bmatrix}x_k+4.02$}
+\end{bmatrix}x_k+4.02%$}
 \end{equation*}
 where the output of robust EMPC at state $x_k$ is denoted by $u(x_k)$. 
 The remaining mappings have a similar structure.

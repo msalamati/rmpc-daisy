@@ -100,7 +100,9 @@ The most straightforward technique is a linear search over all polyhedral region
 \end{remark}}
 
 \begin{figure}[t]
-\begin{lstlisting}[mathescape=true,basicstyle=\small\ttfamily,morekeywords={if, then, elseif, return}]
+%\begin{center}
+%\begin{tabular}{c}
+\begin{lstlisting}[mathescape=true,frame=lines,basicstyle=\small\ttfamily,morekeywords={if, then, elseif, return}]
 if ($H_{1}\statevar \leq K_{1}$) then $v_{k}=F_1x_k+G_1$
 elseif ($H_{2}\statevar \leq K_{2}$) then $v_{k}=F_2x_k+G_2$
 elseif ($H_{3}\statevar \leq K_{3}$) then $v_{k}=F_3x_k+G_3$
@@ -108,6 +110,8 @@ elseif ($H_{3}\statevar \leq K_{3}$) then $v_{k}=F_3x_k+G_3$
 elseif ($ H_{P}\statevar\leq K_{P}$) then $v_{k}=F_Px_k+G_P$
 return $v_k$
 \end{lstlisting}
+%\end{tabular}
+%\end{center}
 \caption{Structure of an explicit MPC controller}
 \label{lst:caseof}
 \end{figure}
