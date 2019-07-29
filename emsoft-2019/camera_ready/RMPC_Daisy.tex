@@ -86,18 +86,34 @@ At each time step $k$, the current state $x_k$ is used to detect the polyhedral 
 such that $H_i x_k\le K_i$. Then the control action $v_k = F_i x_k + G_i$ is computed and applied to the system.
 Several algorithms are proposed in the literature \cite{Mnnigmann:2011,Jones:2006} to find the right polyhedral region $i$ to which the state $x_k$ belong. 
 The most straightforward technique is a linear search over all polyhedral regions (Fig.~\ref{lst:caseof}).
-\Mahmoudd{
-\begin{remark}
-	The total time to evaluate the PWA function in \autoref{eq:affine_map} for a given $x_k$ consists of two steps: (a) selecting the region $\mathcal R_i$ such that $x_k\in \mathcal R_i$ and (b) evaluating the corresponding affine map $F_i x_k +G_i$.
-	Evaluating the affine map is straightforward and requires less computational effort compared to the region selection step. Direct implementation of region selection (\autoref{lst:caseof}) is simple, but inefficient. More efficiency can be achieved by leveraging binary search tree structures (e.g. \cite{Mnnigmann:2011}).\\
-	In general, explicit MPC is well-known for its high-speed implementation over embedded systems with low computational power. The authors in \cite{Johansen:2007} show that explicit MPCs with hundreds of regions can be implemented on application specific integrated circuits (ASIC) with about $20000$ gates, leading to computation times in the order of $1\mu s$. It is shown in \cite{Bemporad:2006} that for typical problems evaluating the explicit MPC takes significantly shorter time in comparison to solving on-line quadratic programs.
-\end{remark}}
+More efficiency can be achieved by using binary search tree structures (e.g., \cite{Mnnigmann:2011}).
 
-\Mahmoudd{ 
- \begin{remark}
- It should be noticed that EMPC is a class of controllers specifically proposed for linear time invariant (LTI) systems. To cover nonlinear systems, one approach is to linearize them around an appropriately selected equilibrium point of the system and to model the differences as a bounded disturbance as in \autoref{eq:RMPC_prob}. Taking the upper bound over nonlinearities into account will result in enlarging $\Delta$ which characterizes $\mathcal{W}_{\Delta}$. For reasonable values of $\Delta$, in principle RMPC design should work successfully. Further, it should be noticed that the rest of analysis in the sequel (over MATLAB and Daisy) do not rely on the LTI property of the system under study and could be adjusted for other families of controllers.
- %However, such analysis are beyond the scope of this paper as (perturbed) LTI systems are considered as an important class of dynamical systems.
-\end{remark}}
+% The total time to evaluate the PWA function in \autoref{eq:affine_map} for a given $x_k$ consists of two steps: 
+% (a) selecting the region $\mathcal R_i$ such that $x_k\in \mathcal R_i$ and 
+% (b) evaluating the corresponding affine map $F_i x_k +G_i$.
+% Evaluating the affine map is straightforward and requires less computational effort compared to the region selection step. 
+% Direct implementation of region selection (\autoref{lst:caseof}) is simple, but inefficient. 
+
+To keep the implementation cost down, low-end microcontrollers usually have limited computational power and memory. 
+In general, explicit MPC is well-known for its high-speed implementation in embedded systems with low computational power. 
+Johansen et al.~\cite{Johansen:2007} show that explicit MPCs with hundreds of regions can be implemented on application specific integrated circuits (ASIC) 
+with about $20000$ gates, leading to computation times in the order of $1\mu s$. 
+It is shown in \cite{Bemporad:2006} that for typical problems evaluating the explicit MPC takes significantly less
+time in comparison to solving on-line quadratic programs.
+In this paper, we present an approach for minimizing the memory usage of the implementation while satisfying
+the hard constraints on the states, thus ensuring the controllers can be implemented in low-memory microcontrollers.
+
+While we focus on linear time invariant systems, EMPC is also applicable to nonlinear systems by linearization
+around an appropriately selected equilibrium point and modeling the error in the linearization as a disturbance.
+% 
+% It should be noticed that EMPC is a class of controllers specifically proposed for linear time invariant (LTI) systems. 
+% To cover nonlinear systems, one approach is to linearize them around an appropriately selected equilibrium point of the system and 
+% to model the differences as a bounded disturbance as in \autoref{eq:RMPC_prob}. 
+% This results in enlarging $\Delta$ which characterizes $\mathcal{W}_{\Delta}$. 
+% For reasonable values of $\Delta$, in principle RMPC design should work successfully. 
+Note that the rest of our analysis in the sequel (over MATLAB and Daisy) do not 
+rely on the LTI property of the system under study and could be adjusted for other families of controllers
+as long as they are presented as piecewise affine functions.
 
 \begin{figure}[t]
 %\begin{center}
@@ -117,12 +133,3 @@ return $v_k$
 \end{figure}
 %Once the polytope was determined, computing for $F_ix+G_i$ requires even less effort as it only involves summation and multiplication.  
 
-To keep the implementation cost down, low-end microcontrollers usually have
-limited memory and computational power. Therefore, the implementation of the above
-explicit MPC on microcontrollers will bring some issues since all regions'
-matrices ($H_i$s and $K_i$s) and activation functions ($F_i$s and $G_i$s) have
-to be stored on the microcontroller. Our paper presents an
-approach for minimizing the memory usage of the implementation while satisfying
-the hard constraints on the states.
-%\section{Finite Precision Implementation}
-%\Sadegh{To be included by Rocco}

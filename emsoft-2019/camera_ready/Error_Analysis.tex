@@ -26,15 +26,15 @@ error:
 We have to ensure that the sum of these two errors remain below the bound $\Delta$
 used in the design of the robust explicit MPC:
 \begin{equation}
-  \max\{\|v_{i}-v_{j}\|,\,\forall i,j,\,\, i\neq j, \mathcal{R}_{i}\cap\mathcal{R}_{j}\neq\emptyset\} +  \max\{err(v_{i})_{p},\, i=1,2,\ldots,P\} \le \Delta.
+  \max\{\|v_{i}-v_{j}\|,\,\forall i,j,\,\, i\neq j, \mathcal{R}_{i}\cap\mathcal{R}_{j}\neq\emptyset\} +  \max\{\mathit{err}(v_{i})_{p},\, i=1,2,\ldots,P\} \le \Delta.
   \label{eq:delta}
 \end{equation}
 %where $i,j$ are the indexes of two distinct regions $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$, 
 The first term is the error of incorrect region selection. The maximum is taken over all neighboring regions 
 $\mathcal R_i,\mathcal R_j$ (two regions are neighboring if their intersection is non-empty).
-The function norm $\|v_{i}-v_{j}\|$ is taken by maximizing over all possible values of the state $x_k$. 
-$err(v_{i})_{p}$ in
-the second term captures the approximation error in the computation of the affine function $v_{i}$ when a fixed precision $p$ is used.
+The function norm $\|v_{i}-v_{j}\|$ is taken by maximizing over all possible values of the state $x_k$ \RM{in $\mathcal{R}_i \cap \mathcal{R}_j$? Or all states?}. 
+The term $\mathit{err}(v_{i})_{p}$ in
+the second part captures the approximation error in the computation of the affine function $v_{i}$ when a fixed precision $p$ is used.
 %$\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})$
 %states that two regions share at least a point, $v_{i}$ is the control action
 %for controller $i$, and $err(v_{i})_{p}$ captures the approximation error for
@@ -244,10 +244,14 @@ errors.
 While our actual synthesis algorithm (\autoref{sec:Controller_Synthesis}) does
 not compute the errors $\varepsilon_Q$ and $err(v_{i})_{p}$ explicitly, the
 error verification is used internally by Daisy to determine a suitable precision
-$p$ and can also be called explicitly without the precision optimization. \Mahmoudd{To encourage reproducible research, our implementation is made available online.\footnote{\url{https://github.com/rospoly/rmpc-daisy}}}
-\Mahmoudd{\begin{remark}
-	Note that we use MATLAB and Daisy solely for offline computations. The output of our algorithm contains (almost) all the information required for implementation of the verified controller over embedded systems. Therefore, the same savings can be expected when the controller is implemented on an actual embedded system.
-\end{remark}}
+$p$ and can also be called explicitly without the precision optimization. 
+
+Note that we use MATLAB and Daisy solely for offline computations during the compilation of the controller.
+At runtime, there is no additional cost.
+% The output of our algorithm contains (almost) all the information required for implementation of the verified controller over embedded systems. 
+% Therefore, the same savings can be expected when the controller is implemented on an actual embedded system.
+
+\RM{what about the following commented-out comment of Sadegh?}
 \begin{comment}
 \textcolor{red}{Sadegh: This is long comment on the content of this section. I cannot figure out how this line of reasoning is mapped to the implementation. We can discard my comment given that we are close to the deadline.}
 

@@ -4,7 +4,10 @@
 \input{table_integrator}
 
 We evaluate a prototype implementation of the algorithm in~\autoref{lst:alg}
-on three examples. For the first two, we apply the complete pipeline (design and memory optimization)
+on three examples.\footnote{
+ Our implementation is available online at \url{https://github.com/rospoly/rmpc-daisy}.
+}
+For the first two, we apply the complete pipeline (design and memory optimization)
 which returns an end-to-end robust controller. With the third example, we evaluate
 the scalability of our approach when the number of regions and hyperplanes are in
 the order of tens of thousands.

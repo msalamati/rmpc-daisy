@@ -1,14 +1,14 @@
 %!TEX root = main.tex
 \subsection{Finite-Precision Implementation}
 
-The controller has to be stored and evaluated on a microcontroller in
-finite precision, since infinite-precision real values cannot be stored on
-today's digital computers.
+We now discuss finite-precision issues in the implementation of a controller.
+% The controller has to be stored and evaluated on a microcontroller in finite precision.
+%  since infinite-precision real values cannot be stored on today's digital computers.
 The standard choice for low-power platforms is fixed-point arithmetic. Unlike
 floating-point arithmetic~\cite{ieee75408}, fixed-point arithmetic can be implemented efficiently
 without complex hardware support using only integer operations. It requires,
 however, more compilation effort to determine certain operations statically at
-compile time (that the floating-point hardware unit performs dynamically).
+compile time that the floating-point hardware unit performs dynamically.
  
 % general blob about fixed-point arithmetic
 The main task at compile time is to select the fixed-point format for each input and intermediate value
@@ -20,7 +20,7 @@ avoid overflow. The remaining bits of the total word length represent the
 fractional part of a number; more fractional bits provide more precision. 
 
 % introduces roundoff errors, these can be tracked with a dataflow analysis
-Finite precision unavoidably introduces roundoff errors, which can accumulate
+Finite precision introduces roundoff errors, which can accumulate
 during the course of a computation.
 A sound static roundoff error analysis computes a guaranteed upper bound on the
 error of the result by tracking worst-case errors at every operation. Given a
@@ -30,7 +30,7 @@ They track real-valued ranges at every intermediate operation. These ranges
 determine the fixed-point formats and thus also the individual worst-case roundoff errors,
 which the analyses track separately from the ranges. To ensure guaranteed
 error bounds, both the ranges and errors are computed using interval~\cite{intervals} or
-affine arithmetic~\cite{affineArithmetic} which compute sound enclosures. 
+affine arithmetic~\cite{affineArithmetic}, which compute sound enclosures. 
 Affine arithmetic tracks linear correlations between variables, so for linear expressions
 the computed ranges are as tight as possible (nonlinear arithmetic
 leads to over-approximations).
@@ -53,8 +53,8 @@ bound. The candidate assignments are chosen based on a heuristic which guides
 the search towards promising candidates, e.g. using delta-debugging~\cite{DaisyTuning} or
 simulated annealing~\cite{Lee2006}.
 
-In this work, we use the tool Daisy which implements roundoff error
-analysis~\cite{Daisy} and mixed-precision tuning~\cite{DaisyTuning} for fixed-point arithmetic, and is
-available as open-source. Fixed-point arithmetic implementations can choose different
-rounding modes; here we consider truncation, which is more efficient than
-rounding.
+In this work, we use the open-source tool Daisy which implements roundoff error
+analysis~\cite{Daisy} and mixed-precision tuning~\cite{DaisyTuning} for fixed-point arithmetic.
+% and is available as open-source. 
+Fixed-point arithmetic implementations can choose different
+rounding modes; here we consider truncation, which is more efficient than rounding.
