@@ -180,6 +180,10 @@ This bound can be quite large, leading to a very conservative bound on the maxim
 From an experimental point of view, our observations show that for our range of parameters $\varepsilon_{\mathit{SAFE}}$, convergence was
 always reached after only a few iterations.
 
+\begin{comment}
+\RM{I took out the following section because it was too hacky. The complexity should be given in terms of the original
+problem input, but we keep inventing new parameters. Also, $n$ below in the complexity of mixed precision tuning doesn't make
+sense. In case we bring this back, it should be fixed.}
 \smallskip
 \noindent
 \textbf{Computational complexity.} 
@@ -196,12 +200,8 @@ starts from 1-bit and increases the precision one by one until the first valid c
 The complexity of mixed-precision tuning with delta-debugging is $n\times log(n)$ in average, 
 and bounded by $n^2$ in the worst case, where $n$ is the number of variables. \RM{how is $n$ related to the other parameters?}
 
+\end{comment}
 
-% In case the conditional in line 9 succeeds, the precision tuning phase starts. The way we do the precision tuning is the following: we provide in input to Daisy a numerical error-bound together with an expression to quantize (e.g. an activation function). Daisy returns in output both the minimal-uniform precision, and the mixed-precision configuration, such that the quantization of the expression in the given precision configuration introduces an error that is bounded by the input error.
-
-% In line 10 we compute the error bound for approximate control output error. This is going to be the maximal error we tolerate for activation functions. The precision tuning at line 11 receives in input the approximation control error together with the coefficients F and G. In Line 12 we give to Daisy the error $\varepsilon$ for borders, together with the hyperplanes coefficients H and K.
-
-%\eva{The precision tuning, which is the main contribution of the paper is not explained.}
 
 \subsection{Implementation}
 
