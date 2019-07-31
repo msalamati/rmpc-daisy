@@ -93,12 +93,12 @@ experiments in~\autoref{sec:experiments}, we vary this value manually.
 Unlike the initial $\Delta$, the parameter $\varepsilon_Q$ needs to be strictly positive (line 4)
 for mixed-precision tuning tools to work correctly. 
 Typical values for $\varepsilon_Q$ can range from $10^{-4}$ up to $10^{-2}$. 
-\RM{repetition:}
-Increasing $\varepsilon_Q$ leads to more memory savings over $H$ and $K$ while requiring more precision for $F$ and $G$. 
-\RM{end}
-Of course, a large value for $\varepsilon_Q$ can result in failure of the RMPC design. 
-\RM{imprecise:}However, this is usually not the case over reasonable choices for $\varepsilon_Q$.
-\RM{omit?}
+%\RM{repetition:}
+%Increasing $\varepsilon_Q$ leads to more memory savings over $H$ and $K$ while requiring more precision for $F$ and $G$. 
+%\RM{end}
+%Of course, a large value for $\varepsilon_Q$ can result in failure of the RMPC design. 
+%\RM{imprecise:}However, this is usually not the case over reasonable choices for $\varepsilon_Q$.
+%\RM{omit?}
 Line 5 computes the width of the tubes $\varepsilon$ as shown in~\autoref{eq:epsilontot},
 which will be used to bound the error due to selecting the wrong region
 ($\varepsilon_{A/D}$ is a constant parameter dependent on the specifics of the
@@ -190,8 +190,9 @@ most $i\times N\times 2^q$ affine computations, where $i$ denotes the number of 
 In our experiments, the computation of the incorrect region selection error takes only a few minutes for our largest tested benchmarks. 
 The complexity of the precision tuning is linear with respect to the number of regions and hyperplanes. 
 So, $(P+ N\times P)$ is an upper bound for the number of problems we need to encode in Daisy.
-In each encoding, the uniform-precision detection takes linear number of steps \RM{in what parameter?} before convergence. 
-It starts from 1-bit and increases the precision one by one until the first valid configuration. 
+In each encoding, the uniform-precision detection %takes linear number of steps \RM{in what parameter?} before convergence. 
+%It 
+starts from 1-bit and increases the precision one by one until the first valid configuration. 
 The complexity of mixed-precision tuning with delta-debugging is $n\times log(n)$ in average, 
 and bounded by $n^2$ in the worst case, where $n$ is the number of variables. \RM{how is $n$ related to the other parameters?}
 

@@ -196,8 +196,8 @@ so that we can continue with the precision assignment.
 %\end{equation}
 
 We can implement the controller using uniform $32$ bit integers, or by selecting a uniform bitwidth.
-These take, respectively, $XX$ and $YY$ bits.
-\RM{how many bits do we need for the uniform prec impl? how many bits for 32 bits?} 
+These take, respectively, $13824$ and $6744$ bits.
+%\RM{how many bits do we need for the uniform prec impl? how many bits for 32 bits?} 
 But we can do better.
 We use the precision tuning tool Daisy \cite{Daisy} to provide a mixed-precision 
 implementation for all the parameters which satisfies the error bound $\Delta_1  - e = 0.05 - 0.019 = 0.031$.

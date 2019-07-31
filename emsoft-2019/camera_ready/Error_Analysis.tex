@@ -32,7 +32,9 @@ used in the design of the robust explicit MPC:
 %where $i,j$ are the indexes of two distinct regions $\mathcal{R}_{i}$ and $\mathcal{R}_{j}$, 
 The first term is the error of incorrect region selection. The maximum is taken over all neighboring regions 
 $\mathcal R_i,\mathcal R_j$ (two regions are neighboring if their intersection is non-empty).
-The function norm $\|v_{i}-v_{j}\|$ is taken by maximizing over all possible values of the state $x_k$ \RM{in $\mathcal{R}_i \cap \mathcal{R}_j$? Or all states?}. 
+The function norm $\|v_{i}-v_{j}\|$ is taken by maximizing over all possible values of the state $x_k$ %\RM{
+in $\mathcal{R}_i \cap \mathcal{R}_j$.%}
+
 The term $\mathit{err}(v_{i})_{p}$ in
 the second part captures the approximation error in the computation of the affine function $v_{i}$ when a fixed precision $p$ is used.
 %$\mathit{neighbor}(\mathcal{R}_{i},\mathcal{R}_{j})$
