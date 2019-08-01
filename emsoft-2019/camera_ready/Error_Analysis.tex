@@ -108,13 +108,15 @@ memory storage required.
  	%
  	The width of the tube $\varepsilon$ is due to two sources of errors:
  	\Mahmoud{\begin{itemize}
- 		\item analog-to-digital conversion $\varepsilon_{A/D}$: using the quantized output of the analog-to-digital converter $\hat x$ instead of the actual state $x$. We assume $\|x - \hat x\|\le \varepsilon_{A/D}$.
- 		\item quantization of region
- 		bounds in memory $\varepsilon_{Q}$: using $\hat H_i,\hat K_i$ which are the quantized versions of $H_i,K_i$ with $p$ bits precision. This is related to the boundaries of the regions.
+ 		\item analog-to-digital conversion $\varepsilon_{A/D}$: 
+		the error introduced by using the quantized output of the analog-to-digital converter $\hat x$ instead of the actual state $x$. 
+		We assume $\|x - \hat x\|\le \varepsilon_{A/D}$.
+ 		\item quantization of region bounds in memory $\varepsilon_{Q}$: the error introduced by 
+		using the quantized versions $\hat H_i$, $\hat K_i$ of $H_i$, $K_i$ with $p$ bits of precision. 
+		This is related to the boundaries of the regions.
  		%\item using $\hat F_i,\hat G_i$ which are the quantized versions of $F_i,G_i$ with $p$ bits precision. This is related to the affine functions.
  	\end{itemize}
- 	Note that the error resulted from using the quantized versions of $F_i,G_i$ is discussed in \autoref{subsec:app_cont_err}.
- 	 %We denote to controllers $\kappa(\mathcal H,x)$ and $\kappa(\mathcal{\hat H},\hat)$ to distinguish between the case that fixed point representation is used or not.
+ 	Note that the error resulting from using the quantized versions of $F_i,G_i$ will be discussed in \autoref{subsec:app_cont_err}.
  	We define the fixed point realization of the controller in \autoref{eq:affine_map} as:
  	 	\begin{equation}
  	 	\label{eq:affine_map_hat}
@@ -126,13 +128,17 @@ memory storage required.
  	 	\hat F_P x_k+\hat G_P & \text{if $ \hat x_k\in \mathcal{\hat R}_P$}
  	 	\end{cases} 
  	 	\end{equation}
- 	 	where $\mathcal{\hat R}_i$ is a polyhedral region determined by a set of linear inequalities $\mathcal{\hat R}_i= \{ \hat x\in\mathcal X\,|\, \hat H_i\hat x\leq \hat K_i\}$. Let us also define the sets $\mathcal H := \{H_i,K_i,i=1,2,\ldots, P\}$ and $\mathcal F:=\{F_i,G_i,i=1,2,\ldots, P\}$. Similarly, we define $\hat{\mathcal H}:= \{\hat H_i,\hat K_i,i=1,2,\ldots, P\}$ and $\hat{\mathcal F}:=\{\hat F_i,\hat G_i,i=1,2,\ldots, P\}$. Using the triangle inequality we have:
+ 	 	where $\mathcal{\hat R}_i$ is a polyhedral region determined by a set of linear inequalities 
+$\mathcal{\hat R}_i= \{ \hat x\in\mathcal X\mid \hat H_i\hat x\leq \hat K_i\}$. 
+Let us define the sets $\mathcal H := \{H_i,K_i\mid i=1,2,\ldots, P\}$ and $\mathcal F:=\{F_i,G_i \mid i=1,2,\ldots, P\}$. 
+Similarly, we define $\hat{\mathcal H}:= \{\hat H_i,\hat K_i\mid i=1,2,\ldots, P\}$ and $\hat{\mathcal F}:=\{\hat F_i,\hat G_i\mid i=1,2,\ldots, P\}$. 
+Using the triangle inequality we have:
  	 	\begin{align*}
  	 	\|\kappa(x)-\hat \kappa(\hat x)
- 	 	\|\le&\|\kappa(\mathcal H,\mathcal F,x)-\kappa(\hat{\mathcal H},\mathcal F,\hat x)\|\\
- 	 	+&\|\kappa(\hat{\mathcal H},\mathcal F,\hat x)-\kappa(\hat{\mathcal H},\hat{\mathcal F},\hat x)\|.
+ 	 	\|\le&\|\kappa(\mathcal H,\mathcal F,x)-\kappa(\hat{\mathcal H},\mathcal F,\hat x)\| +\|\kappa(\hat{\mathcal H},\mathcal F,\hat x)-\kappa(\hat{\mathcal H},\hat{\mathcal F},\hat x)\|.
  	 	\end{align*}
- 	 	where $\kappa(\mathcal H^*,\mathcal F^*,x^*)$ denotes the controller defined over the sets $\mathcal F^*$, $\mathcal H^*$ and the state $x^*$. The second term corresponds to the control approximation error and will be discussed in \autoref{subsec:app_cont_err}.
+ 	 	where $\kappa(\mathcal H^*,\mathcal F^*,x^*)$ denotes the controller defined over the sets $\mathcal F^*$, $\mathcal H^*$ and the state $x^*$. 
+	The second term on the right corresponds to the control approximation error and will be discussed in \autoref{subsec:app_cont_err}.
  	 	The first term can be further decomposed as
  	 	\begin{align*}
  	 	\|\kappa(\mathcal H,&\mathcal F,x)-\kappa(\hat{\mathcal H},\mathcal F,\hat x)\|\\
