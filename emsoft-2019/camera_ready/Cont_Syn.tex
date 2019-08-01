@@ -7,7 +7,7 @@
  $\Delta$ = input()
  $\varepsilon_{Q}$ = input()
  assert ($\Delta$ >= 0 and $\varepsilon_{Q}$ > 0)
- <@\textcolor{blue}{$\varepsilon$ = $\max_i \{||F_i||_2\}\varepsilon_{A/D}+\varepsilon_{Q}$}@>$\quad$//width of the tube
+$\varepsilon$ = $\max_i \{||F_i||_2\}\varepsilon_{A/D}+\varepsilon_{Q}$$\quad$//width of the tube
 
  while true:
    $F$, $G$, $H$, $K$ = design_robust_MPC(model, $\Delta$)
@@ -43,7 +43,6 @@ values.
 %\subsection{Algorithm}
 \autoref{lst:alg} shows a high-level view of our optimization algorithm for
 implementing robust MPC controllers with guaranteed error bounds.
-
 Given a state-space model of a plant (line 1), our algorithm returns four matrices
 $\hat{F}$, $\hat{G}$, $\hat{H}$, and $\hat{K}$,
 which soundly implement a robust explicit MPC controller in mixed-precision
@@ -178,7 +177,7 @@ Lipschitz constant of the optimal input $\nu = \kappa(x)$ in Equation~\eqref{eq:
 The computed bound will only depend on the dynamics of the system depicted in \autoref{eq:DSS} and hence can be used 
 to evaluate the maximum error over incorrect region selection. 
 This bound can be quite large, leading to a very conservative bound on the maximum number of iterations before convergence. 
-From an experimental point of view, our observations show that for our range of parameters $\varepsilon_{\mathit{SAFE}}$, convergence was
+From an experimental point of view, our observations show that for reasonable range of parameters, convergence was
 always reached after only a few iterations.
 
 \begin{comment}
