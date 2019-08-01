@@ -7,7 +7,7 @@
  $\Delta$ = input()
  $\varepsilon_{Q}$ = input()
  assert ($\Delta$ >= 0 and $\varepsilon_{Q}$ > 0)
- $\varepsilon$ = $\varepsilon_{A/D}$ + $\varepsilon_{Q}$<@$\quad$//\,\,width of the tube@>
+ <@\textcolor{blue}{$\varepsilon$ = $\max_i \{||F_i||_2\}\varepsilon_{A/D}+\varepsilon_{Q}$}@>$\quad$//width of the tube
 
  while true:
    $F$, $G$, $H$, $K$ = design_robust_MPC(model, $\Delta$)
